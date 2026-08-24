@@ -1,26 +1,78 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #0B0710;
+  --surface: #17101F;
+  --sunken: #0F0A17;
+  --border: #2E2340;
+  --text: #F5EFFC;
+  --text2: #A896C4;
+  --accent: #B44FF5;
+  --accent-btn: #7C3AED;
+  --accent-soft: #241432;
+  --accent2: #E3A6FF;
+  --success: #34D399;
+  --warn: #E0A930;
+  --danger: #E05252;
+  --radius-card: 20px;
+  --radius-btn: 14px;
+  --radius-chip: 10px;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --glow: 0 0 24px rgba(180, 79, 245, 0.35);
+  --glow-soft: 0 0 40px rgba(180, 79, 245, 0.15);
+  --glow-icon: rgba(180, 79, 245, 0.15);
+  --feature-gradient: linear-gradient(180deg, #1B1128, #0F0817);
+  --feature-border: rgba(180, 79, 245, 0.35);
+}
+
+.feature-card {
+  background: var(--feature-gradient);
+  border: 1px solid var(--feature-border);
+  box-shadow: var(--glow-soft);
+}
+.icon-chip-accent {
+  background: var(--glow-icon);
+  color: var(--accent2);
+}
+
+/* dispositivo ownable — forma-firma (FICHA-ARTE.md): outline rotado -2° con glow */
+.firma-icon {
+  position: relative;
+  isolation: isolate;
+}
+.firma-icon::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  z-index: -1;
+  transform: rotate(-2deg);
+  border: 1.5px solid var(--accent);
+  border-radius: inherit;
+  opacity: 0.55;
+  box-shadow: var(--glow);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-sunken: var(--sunken);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-text2: var(--text2);
+  --color-accent: var(--accent);
+  --color-accent-btn: var(--accent-btn);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent2: var(--accent2);
+  --color-success: var(--success);
+  --color-warn: var(--warn);
+  --color-danger: var(--danger);
+  --font-display: var(--font-bricolage);
+  --font-sans: var(--font-onest);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-onest), sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
