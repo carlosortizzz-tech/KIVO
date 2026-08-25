@@ -73,6 +73,14 @@ async function handlePost(req: NextRequest) {
 
   const newStatus = statusForEvent(event);
   if (!newStatus) {
+    // Se registra igual (con el event_id crudo del payload, sin pasar por la RPC) para que
+    // el backoffice VEA que Hotmart mandó algo, aunque sea un tipo de evento que no manejamos
+    // (por ejemplo la prueba de configuración del panel) — si no, la prueba "desaparece" sin rastro.
+    await admin.from('webhook_log').insert({
+      event_id: payload.id ?? payload.event_id ?? null,
+      type: event || '(sin tipo)',
+      result: 'ignored',
+    });
     return NextResponse.json({ received: true, ignored: event });
   }
   if (!email) {
