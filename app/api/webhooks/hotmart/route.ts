@@ -22,6 +22,13 @@ export async function POST(req: NextRequest) {
     return await handlePost(req);
   } catch (err) {
     console.error('webhook hotmart: error inesperado', err);
+    // El detalle queda en webhook_log (además de los logs de la plataforma) para poder
+    // diagnosticar sin depender de acceso a los logs del hosting.
+    try {
+      await getAdmin()
+        .from('webhook_log')
+        .insert({ result: 'error', detail: err instanceof Error ? `${err.message}\n${err.stack}` : String(err) });
+    } catch {}
     return NextResponse.json({ error: 'processing failed' }, { status: 500 }); // 5xx → Hotmart reintenta
   }
 }
@@ -103,7 +110,7 @@ async function handlePost(req: NextRequest) {
 
   if (error) {
     console.error('webhook hotmart error', { event, code: error.code }); // sin PII
-    await admin.from('webhook_log').insert({ event_id: eventId, type: event, result: 'error' });
+    await admin.from('webhook_log').insert({ event_id: eventId, type: event, result: 'error', detail: `${error.code}: ${error.message}` });
     return NextResponse.json({ error: 'processing failed' }, { status: 500 }); // 5xx → Hotmart reintenta
   }
 
@@ -119,7 +126,7 @@ async function handlePost(req: NextRequest) {
     });
     if (createErr || !authUser?.user) {
       console.error('webhook hotmart: no se pudo crear la cuenta de auth', { code: createErr?.code });
-      await admin.from('webhook_log').insert({ event_id: `${eventId}:retry`, type: event, result: 'error' });
+      await admin.from('webhook_log').insert({ event_id: `${eventId}:retry`, type: event, result: 'error', detail: createErr?.message ?? 'createUser sin usuario' });
       return NextResponse.json({ error: 'processing failed' }, { status: 500 });
     }
     const { data: retryData, error: retryErr } = await admin.rpc('apply_hotmart_event', {
@@ -133,7 +140,7 @@ async function handlePost(req: NextRequest) {
     });
     if (retryErr) {
       console.error('webhook hotmart error (retry)', { event, code: retryErr.code });
-      await admin.from('webhook_log').insert({ event_id: eventId, type: event, result: 'error' });
+      await admin.from('webhook_log').insert({ event_id: eventId, type: event, result: 'error', detail: `${retryErr.code}: ${retryErr.message}` });
       return NextResponse.json({ error: 'processing failed' }, { status: 500 });
     }
     await admin.from('webhook_log').insert({ event_id: eventId, type: event, result: 'applied' });
