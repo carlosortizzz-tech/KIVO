@@ -64,9 +64,18 @@ async function handlePost(req: NextRequest) {
     return NextResponse.json({ error: 'bad request' }, { status: 400 });
   }
 
-  // 4. Frescura (anti-replay)
-  const ts = payload.creation_date ?? payload.data?.purchase?.approved_date;
-  if (ts && Date.now() - Number(ts) > REPLAY_WINDOW_MS) {
+  // 4. Frescura (anti-replay) — Hotmart puede mandar el timestamp en segundos o en milisegundos
+  // según el campo/cuenta; si el número es demasiado chico para ser milisegundos (fecha antes de
+  // 2001), se asume que son segundos y se convierte.
+  const rawTs = payload.creation_date ?? payload.data?.purchase?.approved_date;
+  const ts = rawTs && Number(rawTs) < 1e12 ? Number(rawTs) * 1000 : rawTs ? Number(rawTs) : undefined;
+  if (ts && Date.now() - ts > REPLAY_WINDOW_MS) {
+    await admin.from('webhook_log').insert({
+      event_id: payload.id ?? payload.event_id ?? null,
+      type: payload.event ?? '(sin tipo)',
+      result: 'error',
+      detail: `stale: raw_ts=${rawTs} normalized_ts=${ts} now=${Date.now()} diff_ms=${Date.now() - ts}`,
+    });
     return NextResponse.json({ error: 'stale' }, { status: 400 });
   }
 
