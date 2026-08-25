@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 
 export default function LoginPage() {
+  const t = useTranslations('login');
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -25,20 +27,20 @@ export default function LoginPage() {
       <div className="text-center font-display font-extrabold text-xl text-accent2" style={{ textShadow: '0 0 18px rgba(180,79,245,0.7)' }}>KIVO</div>
       {!sent ? (
         <>
-          <h1 className="font-display text-xl font-extrabold text-center">Entra a tu cuenta</h1>
+          <h1 className="font-display text-xl font-extrabold text-center">{t('title')}</h1>
           <form onSubmit={handleSubmit} className="flex flex-col gap-2.5">
             <input
               type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
-              placeholder="tu@correo.com"
+              placeholder={t('placeholder')}
               className="bg-surface border border-border rounded-2xl px-4 py-4 text-[15px] outline-none focus:border-accent"
             />
             <button type="submit" disabled={loading} className="bg-accent-btn text-white font-bold text-[15px] rounded-2xl py-4 disabled:opacity-50 transition-transform duration-150 active:scale-[0.97]" style={{ boxShadow: 'var(--glow)' }}>
-              {loading ? 'Enviando…' : 'Enviar enlace mágico →'}
+              {loading ? t('sending') : t('sendMagicLink')}
             </button>
           </form>
         </>
       ) : (
-        <p className="text-sm text-text2 text-center">Te mandamos un enlace a <b className="text-text">{email}</b>. Ábrelo desde este celular.</p>
+        <p className="text-sm text-text2 text-center">{t('sentBody', { email })}</p>
       )}
     </div>
   );

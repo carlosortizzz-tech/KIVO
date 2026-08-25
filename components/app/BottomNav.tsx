@@ -1,18 +1,20 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Rss, BookOpen, MessagesSquare, ShieldCheck } from 'lucide-react';
-
-const items = [
-  { href: '/app', label: 'Radar', Icon: Rss },
-  { href: '/app/guide', label: 'Guide', Icon: BookOpen },
-  { href: '/app/community', label: 'Community', Icon: MessagesSquare },
-  { href: '/app/safe', label: 'Safe', Icon: ShieldCheck },
-];
+import { Link, usePathname } from '@/i18n/navigation';
 
 export function BottomNav() {
+  const t = useTranslations('app');
   const pathname = usePathname();
+
+  const items = [
+    { href: '/app', label: t('navRadar'), Icon: Rss },
+    { href: '/app/guide', label: t('navGuide'), Icon: BookOpen },
+    { href: '/app/community', label: t('navCommunity'), Icon: MessagesSquare },
+    { href: '/app/safe', label: t('navSafe'), Icon: ShieldCheck },
+  ];
+
   return (
     <nav className="sticky bottom-0 flex items-stretch justify-around border-t border-border bg-surface z-10">
       {items.map(({ href, label, Icon }) => {

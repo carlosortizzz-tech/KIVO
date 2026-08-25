@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Check, Rss } from 'lucide-react';
+import { useRouter } from '@/i18n/navigation';
 
 type Answers = {
   antiguedad?: string;
@@ -12,30 +13,6 @@ type Answers = {
 };
 
 const STORAGE_KEY = 'kivo_onboarding_state';
-
-const chipsAntiguedad = [
-  { v: 'nuevo', label: 'Menos de 1 año' },
-  { v: 'medio', label: '1 a 3 años' },
-  { v: 'og', label: 'Desde el debut (2013)' },
-  { v: 'perdida', label: 'Ya perdí la cuenta 💜' },
-];
-const chipsDolor = [
-  { v: 'tickets', label: 'Preventas de tickets' },
-  { v: 'comebacks', label: 'Comebacks y lives' },
-  { v: 'membresia', label: 'Renovar mi membresía' },
-  { v: 'todo', label: 'Honestamente... todo 😅' },
-];
-const chipsPlataforma = [
-  { v: 'weverse', label: 'Weverse' },
-  { v: 'bubble', label: 'Bubble' },
-  { v: 'twitter', label: 'Twitter (X)' },
-  { v: 'todas', label: 'Un poco de todas' },
-];
-const chipsAviso = [
-  { v: 'instante', label: 'Al instante, no me quiero perder nada' },
-  { v: 'resumen', label: 'Un resumen diario' },
-  { v: 'urgente', label: 'Solo lo urgente' },
-];
 
 function Chip({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) {
   return (
@@ -59,6 +36,7 @@ function Chip({ label, selected, onClick }: { label: string; selected: boolean; 
 }
 
 export default function OnboardingPage() {
+  const t = useTranslations('onboarding');
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
@@ -93,12 +71,36 @@ export default function OnboardingPage() {
 
   const resultText = (() => {
     switch (answers.dolor) {
-      case 'tickets': return 'Como te preocupan las preventas, priorizamos alertas de tickets primero.';
-      case 'comebacks': return 'Como te importan los comebacks y lives, esos van primero en tu radar.';
-      case 'membresia': return 'Como te preocupa tu membresía, la vigilamos de cerca por ti.';
-      default: return 'Como no te quieres perder nada, vigilamos todo el fandom por ti.';
+      case 'tickets': return t('resultTickets');
+      case 'comebacks': return t('resultComebacks');
+      case 'membresia': return t('resultMembership');
+      default: return t('resultDefault');
     }
   })();
+
+  const chipsAntiguedad = [
+    { v: 'nuevo', label: t('q1a') },
+    { v: 'medio', label: t('q1b') },
+    { v: 'og', label: t('q1c') },
+    { v: 'perdida', label: t('q1d') },
+  ];
+  const chipsDolor = [
+    { v: 'tickets', label: t('q2a') },
+    { v: 'comebacks', label: t('q2b') },
+    { v: 'membresia', label: t('q2c') },
+    { v: 'todo', label: t('q2d') },
+  ];
+  const chipsPlataforma = [
+    { v: 'weverse', label: t('q3a') },
+    { v: 'bubble', label: t('q3b') },
+    { v: 'twitter', label: t('q3c') },
+    { v: 'todas', label: t('q3d') },
+  ];
+  const chipsAviso = [
+    { v: 'instante', label: t('q4a') },
+    { v: 'resumen', label: t('q4b') },
+    { v: 'urgente', label: t('q4c') },
+  ];
 
   return (
     <div className="max-w-[480px] mx-auto w-full min-h-dvh flex flex-col px-5">
@@ -106,7 +108,7 @@ export default function OnboardingPage() {
         <button
           onClick={() => step > 0 && setStep(step - 1)}
           className={`text-text2 text-xl px-1 ${step === 0 ? 'invisible' : ''}`}
-          aria-label="Volver"
+          aria-label="Back"
         >
           ←
         </button>
@@ -124,24 +126,24 @@ export default function OnboardingPage() {
             <div className="firma-icon w-[88px] h-[88px] rounded-full flex items-center justify-center mb-2 relative" style={{ background: 'radial-gradient(circle, var(--glow-icon), transparent 70%)' }}>
               <Rss size={40} strokeWidth={1.8} color="var(--accent2)" />
             </div>
-            <div className="text-xs font-bold uppercase tracking-wide text-accent2">KIVO · 2 minutos</div>
-            <h1 className="font-display text-2xl font-extrabold">Descubre qué tipo de ARMY eres</h1>
-            <p className="text-sm text-text2">Responde unas preguntas rápidas y armamos tu calendario personalizado — sin genéricos, con lo que de verdad te importa a ti.</p>
+            <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('kickerMinutes')}</div>
+            <h1 className="font-display text-2xl font-extrabold">{t('introTitle')}</h1>
+            <p className="text-sm text-text2">{t('introBody')}</p>
             <div className="flex flex-col gap-2 text-[13px] text-text2">
-              <div>✓ Toma 2 minutos</div>
-              <div>✓ Tu calendario, listo al final</div>
-              <div>✓ Nada de esto se cobra todavía</div>
+              <div>{t('introBullet1')}</div>
+              <div>{t('introBullet2')}</div>
+              <div>{t('introBullet3')}</div>
             </div>
             <button onClick={() => setStep(1)} className="mt-1 bg-accent-btn text-white font-bold text-[15px] rounded-2xl py-4 w-full transition-transform duration-150 active:scale-[0.97]" style={{ boxShadow: 'var(--glow)' }}>
-              Empezar →
+              {t('start')}
             </button>
           </div>
         )}
 
         {step === 1 && (
           <div className="flex flex-col gap-4.5">
-            <div className="text-xs font-bold uppercase tracking-wide text-accent2">1 de 6</div>
-            <h2 className="font-display text-2xl font-extrabold">¿Hace cuánto eres ARMY?</h2>
+            <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('step1of6')}</div>
+            <h2 className="font-display text-2xl font-extrabold">{t('q1Title')}</h2>
             <div className="flex flex-col gap-2.5">
               {chipsAntiguedad.map((c) => (
                 <Chip key={c.v} label={c.label} selected={answers.antiguedad === c.v} onClick={() => saveAnswer('antiguedad', c.v)} />
@@ -152,9 +154,9 @@ export default function OnboardingPage() {
 
         {step === 2 && (
           <div className="flex flex-col gap-4.5">
-            <div className="text-xs font-bold uppercase tracking-wide text-accent2">2 de 6</div>
-            <h2 className="font-display text-2xl font-extrabold">¿Qué es lo que MÁS te preocupa perderte?</h2>
-            <p className="text-sm text-text2 -mt-2">Sé honesto — esto define tu calendario.</p>
+            <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('step2of6')}</div>
+            <h2 className="font-display text-2xl font-extrabold">{t('q2Title')}</h2>
+            <p className="text-sm text-text2 -mt-2">{t('q2Sub')}</p>
             <div className="flex flex-col gap-2.5">
               {chipsDolor.map((c) => (
                 <Chip key={c.v} label={c.label} selected={answers.dolor === c.v} onClick={() => saveAnswer('dolor', c.v)} />
@@ -165,21 +167,21 @@ export default function OnboardingPage() {
 
         {step === 3 && (
           <div className="flex flex-col gap-4.5">
-            <div className="text-xs font-bold uppercase tracking-wide text-accent2">No eres el único</div>
+            <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('recoEyebrow')}</div>
             <div className="feature-card rounded-2xl p-6">
-              <div className="font-display text-4xl font-extrabold text-accent mb-2">68%</div>
-              <p className="text-[15px] leading-relaxed">de los ARMY dicen que se han perdido algo importante por enterarse tarde — no es que te importe menos, es que nadie te avisa a tiempo. KIVO existe para eso.</p>
+              <div className="font-display text-4xl font-extrabold text-accent mb-2">{t('recoStat')}</div>
+              <p className="text-[15px] leading-relaxed">{t('recoText')}</p>
             </div>
             <button onClick={() => setStep(4)} className="bg-accent-btn text-white font-bold text-[15px] rounded-2xl py-4 w-full transition-transform duration-150 active:scale-[0.97]" style={{ boxShadow: 'var(--glow)' }}>
-              Entiendo, sigamos →
+              {t('recoCta')}
             </button>
           </div>
         )}
 
         {step === 4 && (
           <div className="flex flex-col gap-4.5">
-            <div className="text-xs font-bold uppercase tracking-wide text-accent2">3 de 6</div>
-            <h2 className="font-display text-2xl font-extrabold">¿Cuál usas más para seguir a BTS?</h2>
+            <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('step3of6')}</div>
+            <h2 className="font-display text-2xl font-extrabold">{t('q3Title')}</h2>
             <div className="flex flex-col gap-2.5">
               {chipsPlataforma.map((c) => (
                 <Chip key={c.v} label={c.label} selected={answers.plataforma === c.v} onClick={() => saveAnswer('plataforma', c.v)} />
@@ -190,8 +192,8 @@ export default function OnboardingPage() {
 
         {step === 5 && (
           <div className="flex flex-col gap-4.5">
-            <div className="text-xs font-bold uppercase tracking-wide text-accent2">4 de 6</div>
-            <h2 className="font-display text-2xl font-extrabold">¿Cómo prefieres que te avisemos?</h2>
+            <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('step4of6')}</div>
+            <h2 className="font-display text-2xl font-extrabold">{t('q4Title')}</h2>
             <div className="flex flex-col gap-2.5">
               {chipsAviso.map((c) => (
                 <Chip key={c.v} label={c.label} selected={answers.aviso === c.v} onClick={() => saveAnswer('aviso', c.v)} />
@@ -202,22 +204,22 @@ export default function OnboardingPage() {
 
         {step === 6 && (
           <div className="flex flex-col gap-4.5">
-            <div className="text-xs font-bold uppercase tracking-wide text-accent2">5 de 6 · Tu meta</div>
-            <h2 className="font-display text-2xl font-extrabold">Elige tu meta con KIVO</h2>
+            <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('step5of6')}</div>
+            <h2 className="font-display text-2xl font-extrabold">{t('commitTitle')}</h2>
             <div className="rounded-[20px] p-6 text-center border border-accent bg-surface" style={{ boxShadow: 'var(--glow)' }}>
-              <div className="text-xs font-bold uppercase tracking-wide text-accent2">Tu compromiso</div>
-              <div className="font-display text-[19px] font-extrabold my-2.5">&ldquo;Nunca más perderme una preventa de BTS&rdquo;</div>
-              <p className="text-sm text-text2">La vamos a proteger con alertas a tiempo — tú solo tienes que abrir KIVO cuando te avisemos.</p>
+              <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('commitEyebrow')}</div>
+              <div className="font-display text-[19px] font-extrabold my-2.5">{t('commitGoal')}</div>
+              <p className="text-sm text-text2">{t('commitBody')}</p>
             </div>
             <button onClick={startLoading} className="bg-accent-btn text-white font-bold text-[15px] rounded-2xl py-4 w-full transition-transform duration-150 active:scale-[0.97]" style={{ boxShadow: 'var(--glow)' }}>
-              Confirmar mi meta →
+              {t('commitCta')}
             </button>
           </div>
         )}
 
         {step === 7 && (
           <div className="flex flex-col items-center gap-6 text-center pt-10">
-            <div className="text-xs font-bold uppercase tracking-wide text-accent2 self-start">6 de 6</div>
+            <div className="text-xs font-bold uppercase tracking-wide text-accent2 self-start">{t('step6of6')}</div>
             <svg width="96" height="96" viewBox="0 0 96 96" className="-rotate-90">
               <circle cx="48" cy="48" r="40" fill="none" stroke="var(--sunken)" strokeWidth="8" />
               <circle
@@ -226,14 +228,14 @@ export default function OnboardingPage() {
                 style={{ transition: 'stroke-dashoffset 400ms var(--ease-out)', filter: 'drop-shadow(0 0 6px rgba(180,79,245,.7))' }}
               />
             </svg>
-            <h2 className="font-display text-lg font-extrabold">Construyendo tu calendario…</h2>
+            <h2 className="font-display text-lg font-extrabold">{t('loadingTitle')}</h2>
             <div className="flex flex-col gap-2.5 text-left w-full">
-              {['Revisando Weverse', 'Revisando Bubble', 'Cruzando fechas de gira', 'Armando tu Radar personalizado'].map((t, i) => (
-                <div key={t} className={`flex items-center gap-2.5 text-sm transition-opacity ${loadingDone > i ? 'opacity-100 text-text' : 'opacity-40 text-text2'}`}>
+              {[t('loading1'), t('loading2'), t('loading3'), t('loading4')].map((txt, i) => (
+                <div key={txt} className={`flex items-center gap-2.5 text-sm transition-opacity ${loadingDone > i ? 'opacity-100 text-text' : 'opacity-40 text-text2'}`}>
                   <span className={`w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center flex-shrink-0 ${loadingDone > i ? 'border-success bg-success' : 'border-border'}`}>
                     {loadingDone > i && <Check size={10} strokeWidth={3} color="white" />}
                   </span>
-                  {t}
+                  {txt}
                 </div>
               ))}
             </div>
@@ -242,18 +244,18 @@ export default function OnboardingPage() {
 
         {step === 8 && (
           <div className="flex flex-col gap-4.5">
-            <div className="text-xs font-bold uppercase tracking-wide text-accent2">¡Listo!</div>
-            <h1 className="font-display text-2xl font-extrabold">Tu Radar KIVO está armado</h1>
+            <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('doneEyebrow')}</div>
+            <h1 className="font-display text-2xl font-extrabold">{t('doneTitle')}</h1>
             <p className="text-sm text-text2 -mt-2">{resultText}</p>
-            <div className="feature-card rounded-2xl p-5">
-              <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-2">Próximo en tu radar</div>
-              <div className="text-[17px] font-bold mb-3.5">BTS World Tour 2026 — Preventa Membresía</div>
+            <div className="feature-card rounded-2xl p-5.5">
+              <div className="text-[11px] font-bold uppercase tracking-wide text-accent2 mb-2">{t('radarNext')}</div>
+              <div className="text-[17px] font-bold mb-3.5">{t('defaultEventTitle')}</div>
               <div className="flex items-center gap-2.5 bg-white/5 rounded-xl px-3 py-2.5 text-[13px]">
-                🔥 Racha iniciada: día 1 de tu compromiso con KIVO
+                {t('streakStarted')}
               </div>
             </div>
             <button onClick={() => router.push('/crear-cuenta')} className="bg-accent-btn text-white font-bold text-[15px] rounded-2xl py-4 w-full transition-transform duration-150 active:scale-[0.97]" style={{ boxShadow: 'var(--glow)' }}>
-              Guardar mi Radar — crear cuenta →
+              {t('saveCta')}
             </button>
           </div>
         )}

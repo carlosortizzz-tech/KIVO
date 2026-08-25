@@ -1,4 +1,5 @@
 import { Search, Rss, ShieldQuestion, Ticket, BookOpenText } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { Reveal } from '@/components/app/Reveal';
 
@@ -10,6 +11,7 @@ const iconMap: Record<string, typeof Rss> = {
 };
 
 export default async function GuidePage() {
+  const t = await getTranslations('app.guide');
   const supabase = await createClient();
   const { data: guides, error } = await supabase
     .from('guides')
@@ -23,12 +25,12 @@ export default async function GuidePage() {
   return (
     <div>
       <Reveal>
-        <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-1">Guías</div>
-        <h1 className="font-display text-lg font-extrabold mb-4">Paso a paso por plataforma</h1>
+        <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-1">{t('eyebrow')}</div>
+        <h1 className="font-display text-lg font-extrabold mb-4">{t('title')}</h1>
 
         <div className="flex items-center gap-2 bg-surface border border-border rounded-2xl px-3.5 py-3 mb-4 text-sm text-text2">
           <Search size={16} strokeWidth={2} />
-          Buscar guía (Weverse, Bubble, tickets...)
+          {t('search')}
         </div>
       </Reveal>
 
@@ -45,14 +47,14 @@ export default async function GuidePage() {
                   <div className="text-sm font-bold">{g.title}</div>
                   <div className="text-xs text-text2 mt-0.5">{g.category}</div>
                 </div>
-                <div className="text-[11px] text-text2 whitespace-nowrap">{g.read_minutes} min</div>
+                <div className="text-[11px] text-text2 whitespace-nowrap">{t('minutes', { count: g.read_minutes })}</div>
               </button>
             </Reveal>
           );
         })}
         {(!guides || guides.length === 0) && (
           <div className="flex flex-col items-center text-center gap-2 py-10">
-            <div className="text-sm text-text2">Aún no hay guías publicadas.</div>
+            <div className="text-sm text-text2">{t('empty')}</div>
           </div>
         )}
       </div>
