@@ -4,6 +4,12 @@ import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Rss, BookOpen, MessagesSquare, Check, ArrowLeft } from 'lucide-react';
 import { useRouter } from '@/i18n/navigation';
+import { createClient } from '@/lib/supabase/client';
+
+const HOTMART_CHECKOUT_URLS: Record<'mensual' | 'anual', string | undefined> = {
+  mensual: process.env.NEXT_PUBLIC_HOTMART_CHECKOUT_URL_MENSUAL,
+  anual: process.env.NEXT_PUBLIC_HOTMART_CHECKOUT_URL_ANUAL,
+};
 
 const STORAGE_KEY = 'kivo_onboarding_state';
 
@@ -27,6 +33,13 @@ export default function PaywallPage() {
   const [chargeDate, setChargeDate] = useState('');
   const [answers, setAnswers] = useState<OnboardingAnswers>({});
   const [migrateFailed, setMigrateFailed] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    createClient()
+      .auth.getUser()
+      .then(({ data }) => setUserEmail(data.user?.email ?? null));
+  }, []);
 
   useEffect(() => {
     const d = new Date();
@@ -54,8 +67,16 @@ export default function PaywallPage() {
   }, [locale]);
 
   function handleStart() {
-    // TODO (pendiente de cuenta de Hotmart del usuario): conectar el checkout real.
-    router.push('/app');
+    const checkoutUrl = HOTMART_CHECKOUT_URLS[plan];
+    if (!checkoutUrl) {
+      // El producto de Hotmart todavía no está creado/publicado — sin link de checkout, no hay
+      // adónde mandar al usuario a pagar. Se le avisa en vez de dejarlo pasar gratis en silencio.
+      alert(t('checkoutNotReady'));
+      return;
+    }
+    const url = new URL(checkoutUrl);
+    if (userEmail) url.searchParams.set('email', userEmail);
+    window.location.href = url.toString();
   }
 
   const guideSub = answers.plataforma
