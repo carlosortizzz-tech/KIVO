@@ -1,6 +1,7 @@
 import { getTranslations, getLocale } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { Countdown } from '@/components/app/Countdown';
+import { AddToCalendar } from '@/components/app/AddToCalendar';
 
 async function formatRelative(iso: string, locale: string, t: Awaited<ReturnType<typeof getTranslations<'app'>>>) {
   const diff = new Date(iso).getTime() - Date.now();
@@ -25,7 +26,7 @@ export default async function RadarPage() {
   const supabase = await createClient();
   const { data: events } = await supabase
     .from('events')
-    .select('id, title, type, platform, starts_at')
+    .select('id, title, type, platform, starts_at, ends_at, description, url')
     .order('starts_at', { ascending: true })
     .limit(10);
 
@@ -49,8 +50,18 @@ export default async function RadarPage() {
 
       {nextEvent && (
         <div className="feature-card rounded-2xl p-4 mb-4">
-          <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-2">
-            {t('radar.upcoming', { type: t(`radar.${typeKeys[nextEvent.type] ?? 'typePreventa'}` as never) })}
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <div className="text-xs font-bold uppercase tracking-wide text-accent2">
+              {t('radar.upcoming', { type: t(`radar.${typeKeys[nextEvent.type] ?? 'typePreventa'}` as never) })}
+            </div>
+            <AddToCalendar event={{
+              id: nextEvent.id,
+              title: nextEvent.title,
+              startsAt: nextEvent.starts_at,
+              endsAt: nextEvent.ends_at,
+              description: nextEvent.description,
+              url: nextEvent.url,
+            }} />
           </div>
           <div className="text-lg font-bold mb-3">{nextEvent.title}</div>
           <Countdown target={nextEvent.starts_at} />
