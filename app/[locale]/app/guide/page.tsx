@@ -5,6 +5,7 @@ import { Reveal } from '@/components/app/Reveal';
 import { ProGate } from '@/components/app/ProGate';
 import { getUserPlan } from '@/lib/plan';
 import { YoutubeVideos } from '@/components/app/YoutubeVideos';
+import { SpotifyTracks } from '@/components/app/SpotifyTracks';
 
 const iconMap: Record<string, typeof Rss> = {
   Weverse: BookOpenText,
@@ -64,6 +65,7 @@ export default async function GuidePage() {
         )}
       </div>
       <YoutubeVideos />
+      <SpotifyTracks />
     </div>
   );
 }

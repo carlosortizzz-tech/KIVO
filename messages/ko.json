@@ -224,7 +224,10 @@
       "search": "가이드 검색 (위버스, 버블, 티켓...)",
       "empty": "아직 등록된 가이드가 없어요.",
       "minutes": "{count}분",
-      "videosTitle": "최신 공식 영상"
+      "videosTitle": "최신 공식 영상",
+      "spotifyTitle": "지금 인기 있는 곡",
+      "spotifyNote": "Spotify 인기도 점수예요 — 정확한 스트리밍 횟수가 아니에요 (외부 앱은 그 실제 숫자를 표시할 수 없어요).",
+      "popularity": "인기도: {score}/100"
     },
     "community": {
       "eyebrow": "커뮤니티",

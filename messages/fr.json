@@ -224,7 +224,10 @@
       "search": "Chercher un guide (Weverse, Bubble, billets...)",
       "empty": "Aucun guide publié pour l'instant.",
       "minutes": "{count} min",
-      "videosTitle": "Dernières vidéos officielles"
+      "videosTitle": "Dernières vidéos officielles",
+      "spotifyTitle": "Tendance en ce moment",
+      "spotifyNote": "Score de popularité Spotify — pas le nombre exact d'écoutes (aucune app externe ne peut afficher ce chiffre réel).",
+      "popularity": "Popularité : {score}/100"
     },
     "community": {
       "eyebrow": "Communauté",

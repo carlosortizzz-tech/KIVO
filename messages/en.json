@@ -224,7 +224,10 @@
       "search": "Search a guide (Weverse, Bubble, tickets...)",
       "empty": "No guides published yet.",
       "minutes": "{count} min",
-      "videosTitle": "Latest official videos"
+      "videosTitle": "Latest official videos",
+      "spotifyTitle": "Trending right now",
+      "spotifyNote": "Spotify's popularity score — not the exact stream count (no external app can show that real number).",
+      "popularity": "Popularity: {score}/100"
     },
     "community": {
       "eyebrow": "Community",
