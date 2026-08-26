@@ -211,12 +211,14 @@
       "addToCalendar": "Add to calendar",
       "addGoogleCalendar": "Add to Google Calendar",
       "addAppleCalendar": "Add to Apple Calendar / Outlook",
+      "nextConcert": "Next concert",
       "typePreventa": "presale",
       "typeComeback": "comeback",
       "typeMembresia": "membership",
       "typeLive": "live",
       "typeCumpleanos": "birthday",
       "typeVotacion": "vote",
+      "typeConcierto": "concert",
       "relativeToday": "today",
       "relativeTomorrow": "tomorrow",
       "relativeDays": "in {days} days"
@@ -238,7 +240,26 @@
       "moderated": "Actually moderated — no spam",
       "compose": "What's going on, ARMY?",
       "emptyTitle": "No posts yet",
-      "emptyBody": "Be the first ARMY to share what's happening today."
+      "emptyBody": "Be the first ARMY to share what's happening today.",
+      "tabFeed": "Feed",
+      "tabExperiences": "Experiences",
+      "experiences": {
+        "addPhoto": "Add your concert photo",
+        "photoTooBig": "That photo is over 5MB — try a lighter one.",
+        "captionPlaceholder": "Tell us how it went...",
+        "share": "Share experience",
+        "sharing": "Sharing…",
+        "shareError": "Couldn't share — try again.",
+        "repostedBy": "{name} reposted",
+        "repost": "Repost",
+        "reposted": "Reposted",
+        "replies": "{count, plural, =0 {Reply} other {# replies}}",
+        "replyPlaceholder": "Write a reply...",
+        "send": "Send",
+        "someone": "Someone",
+        "emptyTitle": "No experiences yet",
+        "emptyBody": "Be the first ARMY to share what a concert was like."
+      }
     },
     "safe": {
       "eyebrow": "Trust",

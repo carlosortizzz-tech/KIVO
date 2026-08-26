@@ -211,12 +211,14 @@
       "addToCalendar": "캘린더에 추가",
       "addGoogleCalendar": "Google 캘린더에 추가",
       "addAppleCalendar": "Apple 캘린더 / Outlook에 추가",
+      "nextConcert": "다음 콘서트",
       "typePreventa": "선예매",
       "typeComeback": "컴백",
       "typeMembresia": "멤버십",
       "typeLive": "라이브",
       "typeCumpleanos": "생일",
       "typeVotacion": "투표",
+      "typeConcierto": "콘서트",
       "relativeToday": "오늘",
       "relativeTomorrow": "내일",
       "relativeDays": "{days}일 후"
@@ -238,7 +240,26 @@
       "moderated": "제대로 관리되는 공간 — 스팸 없음",
       "compose": "무슨 일이 있나요, 아미?",
       "emptyTitle": "아직 게시글이 없어요",
-      "emptyBody": "오늘의 소식을 가장 먼저 나눠보세요."
+      "emptyBody": "오늘의 소식을 가장 먼저 나눠보세요.",
+      "tabFeed": "피드",
+      "tabExperiences": "경험 공유",
+      "experiences": {
+        "addPhoto": "콘서트 사진 추가하기",
+        "photoTooBig": "사진 용량이 5MB를 넘어요 — 더 가벼운 파일을 사용해 주세요.",
+        "captionPlaceholder": "어땠는지 들려주세요...",
+        "share": "경험 공유하기",
+        "sharing": "공유 중…",
+        "shareError": "공유하지 못했어요 — 다시 시도해 주세요.",
+        "repostedBy": "{name}님이 리포스트함",
+        "repost": "리포스트",
+        "reposted": "리포스트됨",
+        "replies": "{count, plural, =0 {답글 달기} other {답글 #개}}",
+        "replyPlaceholder": "답글을 입력하세요...",
+        "send": "보내기",
+        "someone": "누군가",
+        "emptyTitle": "아직 공유된 경험이 없어요",
+        "emptyBody": "콘서트가 어땠는지 가장 먼저 공유해 보세요."
+      }
     },
     "safe": {
       "eyebrow": "신뢰",

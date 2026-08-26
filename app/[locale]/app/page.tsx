@@ -1,3 +1,4 @@
+import { MapPin } from 'lucide-react';
 import { getTranslations, getLocale } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { Countdown } from '@/components/app/Countdown';
@@ -18,6 +19,7 @@ const typeKeys: Record<string, string> = {
   live: 'typeLive',
   cumpleanos: 'typeCumpleanos',
   votacion: 'typeVotacion',
+  concierto: 'typeConcierto',
 };
 
 export default async function RadarPage() {
@@ -26,9 +28,18 @@ export default async function RadarPage() {
   const supabase = await createClient();
   const { data: events } = await supabase
     .from('events')
-    .select('id, title, type, platform, starts_at, ends_at, description, url')
+    .select('id, title, type, platform, starts_at, ends_at, description, url, venue')
     .order('starts_at', { ascending: true })
     .limit(10);
+
+  const { data: nextConcert } = await supabase
+    .from('events')
+    .select('id, title, starts_at, ends_at, description, url, venue')
+    .eq('type', 'concierto')
+    .gte('starts_at', new Date().toISOString())
+    .order('starts_at', { ascending: true })
+    .limit(1)
+    .maybeSingle();
 
   const nextEvent = events?.[0];
   const restEvents = events?.slice(1) ?? [];
@@ -47,6 +58,30 @@ export default async function RadarPage() {
     <div>
       <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-1">{t('radar.greeting')}</div>
       <h1 className="font-display text-lg font-extrabold mb-4">{t('radar.title')}</h1>
+
+      {nextConcert && (
+        <div className="feature-card rounded-2xl p-4 mb-4" style={{ boxShadow: 'var(--glow)' }}>
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('radar.nextConcert')}</div>
+            <AddToCalendar event={{
+              id: nextConcert.id,
+              title: nextConcert.title,
+              startsAt: nextConcert.starts_at,
+              endsAt: nextConcert.ends_at,
+              description: nextConcert.description,
+              url: nextConcert.url,
+            }} />
+          </div>
+          <div className="text-lg font-bold mb-1">{nextConcert.title}</div>
+          {nextConcert.venue && (
+            <div className="flex items-center gap-1.5 text-xs text-text2 mb-3">
+              <MapPin size={14} strokeWidth={2} />
+              {nextConcert.venue}
+            </div>
+          )}
+          <Countdown target={nextConcert.starts_at} />
+        </div>
+      )}
 
       {nextEvent && (
         <div className="feature-card rounded-2xl p-4 mb-4">

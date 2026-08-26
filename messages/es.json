@@ -211,12 +211,14 @@
       "addToCalendar": "Agregar al calendario",
       "addGoogleCalendar": "Agregar a Google Calendar",
       "addAppleCalendar": "Agregar a Apple Calendar / Outlook",
+      "nextConcert": "Próximo concierto",
       "typePreventa": "preventa",
       "typeComeback": "comeback",
       "typeMembresia": "membresía",
       "typeLive": "live",
       "typeCumpleanos": "cumpleaños",
       "typeVotacion": "votación",
+      "typeConcierto": "concierto",
       "relativeToday": "hoy",
       "relativeTomorrow": "mañana",
       "relativeDays": "en {days} días"
@@ -238,7 +240,26 @@
       "moderated": "Moderado de verdad — sin spam",
       "compose": "¿Qué está pasando, ARMY?",
       "emptyTitle": "Todavía no hay publicaciones",
-      "emptyBody": "Sé el primer ARMY en contar qué está pasando hoy."
+      "emptyBody": "Sé el primer ARMY en contar qué está pasando hoy.",
+      "tabFeed": "Feed",
+      "tabExperiences": "Experiencias",
+      "experiences": {
+        "addPhoto": "Agregar tu foto del concierto",
+        "photoTooBig": "La foto pesa más de 5MB — usa una más liviana.",
+        "captionPlaceholder": "Cuenta cómo fue tu experiencia...",
+        "share": "Compartir experiencia",
+        "sharing": "Compartiendo…",
+        "shareError": "No se pudo compartir — intenta de nuevo.",
+        "repostedBy": "{name} repostió",
+        "repost": "Repostear",
+        "reposted": "Reposteado",
+        "replies": "{count, plural, =0 {Responder} other {# respuestas}}",
+        "replyPlaceholder": "Escribe una respuesta...",
+        "send": "Enviar",
+        "someone": "Alguien",
+        "emptyTitle": "Todavía no hay experiencias",
+        "emptyBody": "Sé el primer ARMY en compartir cómo viviste un concierto."
+      }
     },
     "safe": {
       "eyebrow": "Confianza",
