@@ -1,3 +1,5 @@
+import { createClient } from '@supabase/supabase-js';
+
 // Canal oficial "HYBE LABELS" en YouTube — publica los MVs y contenido oficial de BTS.
 const HYBE_LABELS_CHANNEL_ID = 'UC9SO4DC6RiE3F2To400_2Sw';
 
@@ -15,9 +17,21 @@ function uploadsPlaylistId(channelId: string): string {
   return 'UU' + channelId.slice(2);
 }
 
+async function logYoutubeFailure(detail: string) {
+  console.error('youtube fetch falló', { detail });
+  try {
+    const admin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { persistSession: false } }
+    );
+    await admin.from('webhook_log').insert({ type: 'youtube:fetch', result: 'error', detail });
+  } catch {}
+}
+
 export async function getLatestOfficialVideos(maxResults = 6): Promise<YoutubeVideo[]> {
   const apiKey = process.env.YOUTUBE_API_KEY;
-  if (!apiKey) return [];
+  if (!apiKey) { await logYoutubeFailure('YOUTUBE_API_KEY no configurada'); return []; }
 
   const playlistId = uploadsPlaylistId(HYBE_LABELS_CHANNEL_ID);
   const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=${maxResults}&key=${apiKey}`;
@@ -25,7 +39,11 @@ export async function getLatestOfficialVideos(maxResults = 6): Promise<YoutubeVi
   try {
     // Cache de 1 hora: suficiente frescura para "últimos videos" sin gastar cuota en cada visita.
     const res = await fetch(url, { next: { revalidate: 3600 } });
-    if (!res.ok) return [];
+    if (!res.ok) {
+      const body = await res.text();
+      await logYoutubeFailure(`HTTP ${res.status}: ${body.slice(0, 500)}`);
+      return [];
+    }
     const data = await res.json();
     return (data.items ?? []).map((item: {
       snippet: {
@@ -41,7 +59,8 @@ export async function getLatestOfficialVideos(maxResults = 6): Promise<YoutubeVi
       publishedAt: item.snippet.publishedAt,
       url: `https://www.youtube.com/watch?v=${item.snippet.resourceId.videoId}`,
     }));
-  } catch {
+  } catch (err) {
+    await logYoutubeFailure(err instanceof Error ? err.message : String(err));
     return [];
   }
 }
