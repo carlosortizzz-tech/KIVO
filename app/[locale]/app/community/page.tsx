@@ -1,6 +1,8 @@
 import { ShieldCheck, MessageCircle } from 'lucide-react';
 import { getTranslations, getLocale } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
+import { ProGate } from '@/components/app/ProGate';
+import { getUserPlan } from '@/lib/plan';
 
 function timeAgo(iso: string, locale: string) {
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -14,6 +16,8 @@ function timeAgo(iso: string, locale: string) {
 
 export default async function CommunityPage() {
   const t = await getTranslations('app.community');
+  const plan = await getUserPlan();
+  if (plan !== 'pro') return <ProGate feature={t('eyebrow')} />;
   const locale = await getLocale();
   const supabase = await createClient();
   const { data: posts } = await supabase

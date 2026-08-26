@@ -2,6 +2,8 @@ import { Search, Rss, ShieldQuestion, Ticket, BookOpenText } from 'lucide-react'
 import { getTranslations } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { Reveal } from '@/components/app/Reveal';
+import { ProGate } from '@/components/app/ProGate';
+import { getUserPlan } from '@/lib/plan';
 
 const iconMap: Record<string, typeof Rss> = {
   Weverse: BookOpenText,
@@ -12,6 +14,8 @@ const iconMap: Record<string, typeof Rss> = {
 
 export default async function GuidePage() {
   const t = await getTranslations('app.guide');
+  const plan = await getUserPlan();
+  if (plan !== 'pro') return <ProGate feature={t('eyebrow')} />;
   const supabase = await createClient();
   const { data: guides, error } = await supabase
     .from('guides')

@@ -192,6 +192,11 @@
       "body": "It might be a connection issue. Try again in a moment.",
       "retry": "Retry"
     },
+    "proGate": {
+      "title": "{feature} is part of KIVO Pro",
+      "body": "Unlock it along with the rest of KIVO — 7 days free, cancel anytime.",
+      "cta": "See plans →"
+    },
     "radar": {
       "greeting": "Welcome back",
       "title": "Your Radar today",

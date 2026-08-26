@@ -192,6 +192,11 @@
       "body": "Puede ser un problema de conexión. Intenta de nuevo en un momento.",
       "retry": "Reintentar"
     },
+    "proGate": {
+      "title": "{feature} es parte de KIVO Pro",
+      "body": "Desbloquéalo junto con el resto de KIVO — 7 días gratis, cancela cuando quieras.",
+      "cta": "Ver planes →"
+    },
     "radar": {
       "greeting": "Hola de nuevo",
       "title": "Tu Radar de hoy",

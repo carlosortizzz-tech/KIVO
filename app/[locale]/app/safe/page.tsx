@@ -1,9 +1,13 @@
 import { AlertTriangle, ShieldCheck, Flag } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
+import { ProGate } from '@/components/app/ProGate';
+import { getUserPlan } from '@/lib/plan';
 
 export default async function SafePage() {
   const t = await getTranslations('app.safe');
+  const plan = await getUserPlan();
+  if (plan !== 'pro') return <ProGate feature={t('eyebrow')} />;
   const supabase = await createClient();
   const { data: alerts, error } = await supabase
     .from('scam_alerts')
