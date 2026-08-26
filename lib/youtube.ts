@@ -1,8 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Canal oficial "HYBE LABELS" en YouTube — se resuelve por handle en vez de un ID fijo,
-// para no depender de memorizar (y arriesgar equivocar) el ID interno del canal.
-const HYBE_LABELS_HANDLE = 'HYBELABELS';
+// Canal oficial de BTS en YouTube (BANGTANTV) — NO el de "HYBE LABELS" (ese es el canal
+// general del sello con TODOS sus artistas, mezclaría contenido de otros grupos). Se resuelve
+// por handle en vez de un ID fijo, para no depender de memorizar mal el ID interno del canal.
+const BTS_HANDLE = 'BANGTANTV';
 
 export type YoutubeVideo = {
   id: string;
@@ -44,8 +45,8 @@ export async function getLatestOfficialVideos(maxResults = 6): Promise<YoutubeVi
   if (!apiKey) { await logYoutubeFailure('YOUTUBE_API_KEY no configurada'); return []; }
 
   try {
-    const channelId = await resolveChannelId(HYBE_LABELS_HANDLE, apiKey);
-    if (!channelId) { await logYoutubeFailure(`No se encontró el canal @${HYBE_LABELS_HANDLE}`); return []; }
+    const channelId = await resolveChannelId(BTS_HANDLE, apiKey);
+    if (!channelId) { await logYoutubeFailure(`No se encontró el canal @${BTS_HANDLE}`); return []; }
 
     const playlistId = uploadsPlaylistId(channelId);
     const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=${maxResults}&key=${apiKey}`;
