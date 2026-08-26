@@ -103,6 +103,24 @@ export async function sendEventReminderEmail(
   if (error) await logEmailFailure('reminder', email, `${error.name}: ${error.message}`);
 }
 
+export async function sendLiveNowEmail(email: string, name: string, title: string, url?: string) {
+  const resend = getResend();
+  if (!resend) { await logEmailFailure('live_now', email, 'RESEND_API_KEY no configurada'); return; }
+  const accessLink = await generateAccessLink(email);
+  const { error } = await resend.emails.send({
+    from: FROM,
+    to: email,
+    subject: `🔴 EN VIVO AHORA: ${title}`,
+    html: emailShell(`
+      <h1>¡${name}, es ahora! 🔴</h1>
+      <p><b>${title}</b> está en vivo en este momento.</p>
+      ${url ? `<p><a href="${url}" style="background:#7C3AED;color:#fff;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:600;display:inline-block">Ver el live →</a></p>` : ''}
+      <p><a href="${accessLink}">O entra a KIVO</a> para más contexto.</p>
+    `),
+  });
+  if (error) await logEmailFailure('live_now', email, `${error.name}: ${error.message}`);
+}
+
 function emailShell(bodyHtml: string): string {
   return `<!doctype html><html lang="es"><head><meta charset="utf-8"></head><body style="font-family:sans-serif;color:#111">${bodyHtml}</body></html>`;
 }
