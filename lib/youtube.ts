@@ -1,9 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Canal oficial de BTS en YouTube (BANGTANTV) — NO el de "HYBE LABELS" (ese es el canal
-// general del sello con TODOS sus artistas, mezclaría contenido de otros grupos). Se resuelve
-// por handle en vez de un ID fijo, para no depender de memorizar mal el ID interno del canal.
-const BTS_HANDLE = 'BANGTANTV';
+// Canal oficial de BTS en YouTube — el NOMBRE del canal es "BANGTANTV", pero el HANDLE real
+// es @BTS (youtube.com/@BTS). NO usar el canal de "HYBE LABELS" (ese es el canal general del
+// sello con TODOS sus artistas, mezclaría contenido de otros grupos). Se resuelve por handle
+// en vez de un ID fijo, para no depender de memorizar mal el ID interno del canal.
+const BTS_HANDLE = 'BTS';
 
 export type YoutubeVideo = {
   id: string;
