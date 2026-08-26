@@ -1,7 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Canal oficial "HYBE LABELS" en YouTube — publica los MVs y contenido oficial de BTS.
-const HYBE_LABELS_CHANNEL_ID = 'UC9SO4DC6RiE3F2To400_2Sw';
+// Canal oficial "HYBE LABELS" en YouTube — se resuelve por handle en vez de un ID fijo,
+// para no depender de memorizar (y arriesgar equivocar) el ID interno del canal.
+const HYBE_LABELS_HANDLE = 'HYBELABELS';
 
 export type YoutubeVideo = {
   id: string;
@@ -11,8 +12,6 @@ export type YoutubeVideo = {
   url: string;
 };
 
-// playlistItems.list cuesta 1 unidad de cuota (vs. 100 de search.list) — la lista de "subidos"
-// de un canal es siempre uploads_<channelId sin el prefijo UC>, no hace falta una llamada aparte.
 function uploadsPlaylistId(channelId: string): string {
   return 'UU' + channelId.slice(2);
 }
@@ -29,14 +28,28 @@ async function logYoutubeFailure(detail: string) {
   } catch {}
 }
 
+async function resolveChannelId(handle: string, apiKey: string): Promise<string | null> {
+  const url = `https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=${handle}&key=${apiKey}`;
+  const res = await fetch(url, { next: { revalidate: 86400 } }); // el canal casi nunca cambia — cache de 24h
+  if (!res.ok) {
+    await logYoutubeFailure(`resolveChannelId HTTP ${res.status}: ${(await res.text()).slice(0, 300)}`);
+    return null;
+  }
+  const data = await res.json();
+  return data.items?.[0]?.id ?? null;
+}
+
 export async function getLatestOfficialVideos(maxResults = 6): Promise<YoutubeVideo[]> {
   const apiKey = process.env.YOUTUBE_API_KEY;
   if (!apiKey) { await logYoutubeFailure('YOUTUBE_API_KEY no configurada'); return []; }
 
-  const playlistId = uploadsPlaylistId(HYBE_LABELS_CHANNEL_ID);
-  const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=${maxResults}&key=${apiKey}`;
-
   try {
+    const channelId = await resolveChannelId(HYBE_LABELS_HANDLE, apiKey);
+    if (!channelId) { await logYoutubeFailure(`No se encontró el canal @${HYBE_LABELS_HANDLE}`); return []; }
+
+    const playlistId = uploadsPlaylistId(channelId);
+    const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=${maxResults}&key=${apiKey}`;
+
     // Cache de 1 hora: suficiente frescura para "últimos videos" sin gastar cuota en cada visita.
     const res = await fetch(url, { next: { revalidate: 3600 } });
     if (!res.ok) {
