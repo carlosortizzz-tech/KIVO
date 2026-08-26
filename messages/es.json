@@ -223,7 +223,8 @@
       "title": "Paso a paso por plataforma",
       "search": "Buscar guía (Weverse, Bubble, tickets...)",
       "empty": "Aún no hay guías publicadas.",
-      "minutes": "{count} min"
+      "minutes": "{count} min",
+      "videosTitle": "Últimos videos oficiales"
     },
     "community": {
       "eyebrow": "Comunidad",

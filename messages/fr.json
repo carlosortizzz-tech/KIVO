@@ -223,7 +223,8 @@
       "title": "Étape par étape par plateforme",
       "search": "Chercher un guide (Weverse, Bubble, billets...)",
       "empty": "Aucun guide publié pour l'instant.",
-      "minutes": "{count} min"
+      "minutes": "{count} min",
+      "videosTitle": "Dernières vidéos officielles"
     },
     "community": {
       "eyebrow": "Communauté",

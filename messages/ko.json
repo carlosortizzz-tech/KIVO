@@ -223,7 +223,8 @@
       "title": "플랫폼별 단계별 안내",
       "search": "가이드 검색 (위버스, 버블, 티켓...)",
       "empty": "아직 등록된 가이드가 없어요.",
-      "minutes": "{count}분"
+      "minutes": "{count}분",
+      "videosTitle": "최신 공식 영상"
     },
     "community": {
       "eyebrow": "커뮤니티",

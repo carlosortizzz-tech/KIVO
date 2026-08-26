@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { Reveal } from '@/components/app/Reveal';
 import { ProGate } from '@/components/app/ProGate';
 import { getUserPlan } from '@/lib/plan';
+import { YoutubeVideos } from '@/components/app/YoutubeVideos';
 
 const iconMap: Record<string, typeof Rss> = {
   Weverse: BookOpenText,
@@ -62,6 +63,7 @@ export default async function GuidePage() {
           </div>
         )}
       </div>
+      <YoutubeVideos />
     </div>
   );
 }
