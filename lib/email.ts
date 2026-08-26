@@ -76,6 +76,33 @@ export async function sendPaymentFailedEmail(email: string, name: string) {
   if (error) await logEmailFailure('payment_failed', email, `${error.name}: ${error.message}`);
 }
 
+export async function sendEventReminderEmail(
+  email: string,
+  name: string,
+  eventTitle: string,
+  notifWindow: '48h' | '1h'
+) {
+  const resend = getResend();
+  if (!resend) { await logEmailFailure('reminder', email, 'RESEND_API_KEY no configurada'); return; }
+  const accessLink = await generateAccessLink(email);
+  const whenLabel = notifWindow === '48h' ? 'en 2 días' : 'en 1 hora';
+  const subject = notifWindow === '48h'
+    ? `⏰ ${eventTitle} empieza en 2 días`
+    : `🚨 ${eventTitle} empieza en 1 hora`;
+  const { error } = await resend.emails.send({
+    from: FROM,
+    to: email,
+    subject,
+    html: emailShell(`
+      <h1>¡Hola ${name}! 👋</h1>
+      <p><b>${eventTitle}</b> empieza ${whenLabel} — este es tu aviso de KIVO Radar para que no te agarre desprevenido.</p>
+      <p><a href="${accessLink}" style="background:#7C3AED;color:#fff;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:600;display:inline-block">Ver la guía en KIVO →</a></p>
+      <p>Este enlace te deja entrar sin contraseña.</p>
+    `),
+  });
+  if (error) await logEmailFailure('reminder', email, `${error.name}: ${error.message}`);
+}
+
 function emailShell(bodyHtml: string): string {
   return `<!doctype html><html lang="es"><head><meta charset="utf-8"></head><body style="font-family:sans-serif;color:#111">${bodyHtml}</body></html>`;
 }
