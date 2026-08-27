@@ -2,13 +2,14 @@
 
 import { useState } from 'react';
 import { Check } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 import { Reveal } from '@/components/app/Reveal';
 import { Link } from '@/i18n/navigation';
 
 export default function CrearCuentaPage() {
   const t = useTranslations('crearCuenta');
+  const locale = useLocale();
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -23,6 +24,9 @@ export default function CrearCuentaPage() {
       email,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
+        // El idioma con el que alguien se registra queda atado a su cuenta (handle_new_user lo
+        // lee de acá) — así vuelve a KIVO en el mismo idioma sin importar desde qué dispositivo.
+        data: { locale },
       },
     });
     setLoading(false);

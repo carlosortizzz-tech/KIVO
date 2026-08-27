@@ -5,6 +5,7 @@ import { Globe } from 'lucide-react';
 import { useLocale } from 'next-intl';
 import { usePathname, useRouter } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
+import { createClient } from '@/lib/supabase/client';
 
 const LABELS: Record<string, string> = { es: 'ES', en: 'EN', fr: 'FR', ko: '한국어' };
 
@@ -17,6 +18,15 @@ export function LocaleSwitcher() {
 
   function switchTo(next: string) {
     setOpen(false);
+    // Si hay sesión, el cambio manual también se guarda en la cuenta — así un cambio consciente
+    // de idioma persiste entre dispositivos, igual que el idioma elegido al registrarse.
+    createClient()
+      .auth.getUser()
+      .then(({ data }) => {
+        if (data.user) {
+          createClient().from('profiles').update({ locale: next }).eq('id', data.user.id);
+        }
+      });
     startTransition(() => {
       router.replace(pathname, { locale: next });
     });
