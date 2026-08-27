@@ -14,9 +14,16 @@ export default function CrearCuentaPage() {
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Ley 1581 de Colombia (y equivalentes LATAM, ver docs/sistema/47): autorización previa EXPRESA
+  // vía checkbox NO premarcado — no basta con "al continuar aceptas" implícito en el botón.
+  const [consent, setConsent] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!consent) {
+      setError(t('consentRequired'));
+      return;
+    }
     setLoading(true);
     setError(null);
     const supabase = createClient();
@@ -38,6 +45,10 @@ export default function CrearCuentaPage() {
   }
 
   async function handleGoogle() {
+    if (!consent) {
+      setError(t('consentRequired'));
+      return;
+    }
     const supabase = createClient();
     await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -60,10 +71,27 @@ export default function CrearCuentaPage() {
             <h1 className="font-display text-2xl font-extrabold text-center">{t('title')}</h1>
             <p className="text-sm text-text2 text-center leading-relaxed">{t('body')}</p>
 
+            <label className="flex items-start gap-2.5 py-1 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={consent}
+                onChange={(e) => setConsent(e.target.checked)}
+                className="mt-0.5 w-4.5 h-4.5 flex-shrink-0 accent-[var(--accent)]"
+              />
+              <span className="text-[11px] text-text2 leading-relaxed">
+                {t.rich('consent', {
+                  terms: (chunks) => <Link href="/terminos" className="text-accent2">{chunks}</Link>,
+                  privacy: (chunks) => <Link href="/privacidad" className="text-accent2">{chunks}</Link>,
+                })}
+              </span>
+            </label>
+            {error && <p className="text-xs text-danger text-center -mt-2">{error}</p>}
+
             <button
               onClick={handleGoogle}
               type="button"
-              className="flex items-center justify-center gap-2.5 bg-surface border border-border rounded-2xl py-4 px-5 font-bold text-[15px] transition-transform duration-150 active:scale-[0.98]"
+              disabled={!consent}
+              className="flex items-center justify-center gap-2.5 bg-surface border border-border rounded-2xl py-4 px-5 font-bold text-[15px] transition-transform duration-150 active:scale-[0.98] disabled:opacity-50"
             >
               {t('google')}
             </button>
@@ -83,21 +111,15 @@ export default function CrearCuentaPage() {
               />
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || !consent}
                 className="bg-accent-btn text-white font-bold text-[15px] rounded-2xl py-4 disabled:opacity-50 transition-transform duration-150 active:scale-[0.97]"
                 style={{ boxShadow: 'var(--glow)' }}
               >
                 {loading ? t('sending') : t('sendMagicLink')}
               </button>
-              {error && <p className="text-xs text-danger text-center">{error}</p>}
             </form>
 
-            <p className="text-[11px] text-text2 text-center leading-relaxed">
-              {t.rich('legal', {
-                terms: (chunks) => <Link href="/terminos" className="text-accent2">{chunks}</Link>,
-                privacy: (chunks) => <Link href="/privacidad" className="text-accent2">{chunks}</Link>,
-              })}
-            </p>
+            <p className="text-[11px] text-text2 text-center leading-relaxed">{t('legal')}</p>
           </div>
         </Reveal>
       ) : (

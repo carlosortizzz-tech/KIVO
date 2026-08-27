@@ -37,9 +37,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               </Link>
             </>
           )}
-          <div className="firma-icon w-9 h-9 rounded-full bg-accent-btn flex items-center justify-center font-bold text-sm" style={{ boxShadow: 'var(--glow)' }}>
+          <Link href="/app/cuenta" aria-label="Tu cuenta" className="firma-icon w-9 h-9 rounded-full bg-accent-btn flex items-center justify-center font-bold text-sm" style={{ boxShadow: 'var(--glow)' }}>
             {initial}
-          </div>
+          </Link>
         </div>
       </header>
       <main className="flex-1 px-5 pb-6">{children}</main>
