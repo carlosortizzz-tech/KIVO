@@ -32,11 +32,16 @@ export default async function RadarPage() {
     .order('starts_at', { ascending: true })
     .limit(10);
 
+  // La tarjeta de "próximo concierto" solo aparece dentro de la ventana de 20 días antes —
+  // conciertos lejanos (meses) no se destacan aquí para no volver irrelevante el countdown.
+  const CONCERT_WINDOW_DAYS = 20;
+  const concertWindowEnd = new Date(Date.now() + CONCERT_WINDOW_DAYS * 86400000).toISOString();
   const { data: nextConcert } = await supabase
     .from('events')
     .select('id, title, starts_at, ends_at, description, url, venue')
     .eq('type', 'concierto')
     .gte('starts_at', new Date().toISOString())
+    .lte('starts_at', concertWindowEnd)
     .order('starts_at', { ascending: true })
     .limit(1)
     .maybeSingle();
