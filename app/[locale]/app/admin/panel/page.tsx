@@ -32,16 +32,16 @@ export default async function AdminPanelPage() {
     .select('id, email, display_name, plan, status, created_at, trial_ends_at, last_active_date')
     .order('created_at', { ascending: false });
 
-  // webhook_log también recibe entradas de otras integraciones (ej. "spotify:fetch", que falla
-  // A PROPÓSITO — Spotify bloqueó nuestro acceso, ver ESTADO.md) y de acciones de admin
-  // ("admin:*") y fallos de email ("email:*"). Esta sección es específicamente la salud de
-  // Hotmart — se excluyen esos prefijos para no confundir un error de Spotify con uno de pago.
+  // webhook_log también recibe entradas de otras integraciones (youtube:fetch, spotify:fetch,
+  // admin:*, email:*) que siguen la convención "espacio:acción" — los eventos REALES de Hotmart
+  // son nombres planos (PURCHASE_APPROVED...) o vienen sin type (fallos de firma/hottok). Esta
+  // sección es específicamente la salud de Hotmart, así que se excluye cualquier type con ":" en
+  // vez de mantener una lista de prefijos que hay que recordar actualizar con cada integración
+  // nueva (así se evitó dos veces seguidas: primero con Spotify, ahora con YouTube).
   const { data: recentLogs } = await admin
     .from('webhook_log')
     .select('type, result, received_at, detail')
-    .not('type', 'ilike', 'spotify:%')
-    .not('type', 'ilike', 'admin:%')
-    .not('type', 'ilike', 'email:%')
+    .not('type', 'ilike', '%:%')
     .order('received_at', { ascending: false })
     .limit(15);
 
