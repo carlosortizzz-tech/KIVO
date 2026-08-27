@@ -32,9 +32,16 @@ export default async function AdminPanelPage() {
     .select('id, email, display_name, plan, status, created_at, trial_ends_at, last_active_date')
     .order('created_at', { ascending: false });
 
+  // webhook_log también recibe entradas de otras integraciones (ej. "spotify:fetch", que falla
+  // A PROPÓSITO — Spotify bloqueó nuestro acceso, ver ESTADO.md) y de acciones de admin
+  // ("admin:*") y fallos de email ("email:*"). Esta sección es específicamente la salud de
+  // Hotmart — se excluyen esos prefijos para no confundir un error de Spotify con uno de pago.
   const { data: recentLogs } = await admin
     .from('webhook_log')
     .select('type, result, received_at, detail')
+    .not('type', 'ilike', 'spotify:%')
+    .not('type', 'ilike', 'admin:%')
+    .not('type', 'ilike', 'email:%')
     .order('received_at', { ascending: false })
     .limit(15);
 

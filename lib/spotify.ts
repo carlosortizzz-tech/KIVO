@@ -1,5 +1,3 @@
-import { createClient } from '@supabase/supabase-js';
-
 // BTS en Spotify: ID fijo y estable (a diferencia de YouTube, el ID de artista de Spotify
 // es público y documentado — no hace falta resolverlo por búsqueda cada vez).
 const BTS_ARTIST_ID = '3Nrfpe0tUJi4K4DXYWgMUX';
@@ -12,16 +10,13 @@ export type SpotifyTrack = {
   url: string;
 };
 
-async function logSpotifyFailure(detail: string) {
-  console.error('spotify fetch falló', { detail });
-  try {
-    const admin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { persistSession: false } }
-    );
-    await admin.from('webhook_log').insert({ type: 'spotify:fetch', result: 'error', detail });
-  } catch {}
+// Spotify bloquea esta llamada A PROPÓSITO desde 2026 (exige 250k+ usuarios activos/mes para
+// Extended Quota Mode — ver ESTADO.md) — el 403 es esperado y permanente, no un incidente.
+// Solo console.error para debug local; NO se escribe a webhook_log (eso es para incidentes
+// reales de Hotmart) para no llenar el panel del dueño de "errores" que ya sabemos que van a
+// pasar siempre, en cada carga de KIVO Guide.
+function logSpotifyFailure(detail: string) {
+  console.error('spotify fetch falló (esperado, ver ESTADO.md)', { detail });
 }
 
 async function getAccessToken(): Promise<string | null> {
