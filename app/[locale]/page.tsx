@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { Countdown } from '@/components/app/Countdown';
 import { Reveal } from '@/components/app/Reveal';
+import { CopyEmailLink } from '@/components/app/CopyEmailLink';
 import { Link } from '@/i18n/navigation';
 
 export const revalidate = 60;
@@ -214,7 +215,7 @@ export default async function LandingPage({
           <Link href="/privacidad" className="text-text2">{t('privacyLink')}</Link>
           <Link href="/terminos" className="text-text2">{t('termsLink')}</Link>
           <Link href="/reembolso" className="text-text2">{t('refundLink')}</Link>
-          <a href="mailto:soporte@kivoapp.app" className="text-text2">{t('contactLink')}</a>
+          <CopyEmailLink label={t('contactLink')} copiedLabel={t('contactCopiedShort')} className="text-text2" />
         </div>
         <div className="text-xs text-text2">{t('copyright')}</div>
       </footer>

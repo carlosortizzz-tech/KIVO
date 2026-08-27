@@ -9,15 +9,14 @@ export function ContactSupportButton({ label, copiedLabel }: { label: string; co
   const [copied, setCopied] = useState(false);
 
   async function handleClick() {
-    // El mailto abre la app de correo si hay una configurada; si el dispositivo/navegador
-    // no tiene ninguna (muy común en celular), no pasa NADA visible — por eso copiamos el
-    // correo también, así el usuario SIEMPRE tiene una acción con feedback real (regla UX 4/11).
+    // SOLO copiar — nunca navegar con window.location a un mailto: cuando no hay cliente de
+    // correo configurado, el navegador puede caer en una página ajena (ej. la del proveedor de
+    // correo del dominio) y sacar al usuario de la app por completo. Copiar es 100% confiable.
     try {
       await navigator.clipboard.writeText(SUPPORT_EMAIL);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
+      setTimeout(() => setCopied(false), 3500);
     } catch {}
-    window.location.href = `mailto:${SUPPORT_EMAIL}`;
   }
 
   return (
