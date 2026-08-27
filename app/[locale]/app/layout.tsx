@@ -3,7 +3,7 @@ import { BottomNav } from '@/components/app/BottomNav';
 import { getUserPlan } from '@/lib/plan';
 import { isAdminEmail } from '@/lib/admin';
 import { Link } from '@/i18n/navigation';
-import { Radio } from 'lucide-react';
+import { Radio, LayoutDashboard } from 'lucide-react';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -18,9 +18,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <div className="font-display font-extrabold text-lg text-accent2" style={{ textShadow: '0 0 14px rgba(180,79,245,0.6)' }}>KIVO</div>
         <div className="flex items-center gap-2.5">
           {isAdmin && (
-            <Link href="/app/admin/live" aria-label="Live ahora" className="w-9 h-9 rounded-full bg-surface border border-border flex items-center justify-center text-text2">
-              <Radio size={16} strokeWidth={2} />
-            </Link>
+            <>
+              <Link href="/app/admin/panel" aria-label="Panel del negocio" className="w-9 h-9 rounded-full bg-surface border border-border flex items-center justify-center text-text2">
+                <LayoutDashboard size={16} strokeWidth={2} />
+              </Link>
+              <Link href="/app/admin/live" aria-label="Live ahora" className="w-9 h-9 rounded-full bg-surface border border-border flex items-center justify-center text-text2">
+                <Radio size={16} strokeWidth={2} />
+              </Link>
+            </>
           )}
           <div className="firma-icon w-9 h-9 rounded-full bg-accent-btn flex items-center justify-center font-bold text-sm" style={{ boxShadow: 'var(--glow)' }}>
             {initial}
