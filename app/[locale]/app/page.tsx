@@ -70,8 +70,8 @@ export default async function RadarPage() {
   // semanas hacia adelante o atrás en la tira de días. Se manda el ISO completo — el día
   // calendario se calcula en el navegador (hora LOCAL del usuario), no en el servidor, para
   // que coincida con los números que ya se muestran en la tira (también en hora local).
-  const { data: allConcertRows } = await supabase.from('events').select('starts_at').eq('type', 'concierto');
-  const concertDates = (allConcertRows ?? []).map((r) => r.starts_at);
+  const { data: allConcertRows } = await supabase.from('events').select('starts_at, venue').eq('type', 'concierto');
+  const concertDates = (allConcertRows ?? []).map((r) => ({ startsAt: r.starts_at, venue: r.venue }));
 
   const relatives = await Promise.all(restEvents.map((ev) => formatRelative(ev.starts_at, locale, t)));
 
