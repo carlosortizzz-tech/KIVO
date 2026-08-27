@@ -212,6 +212,7 @@
       "addGoogleCalendar": "Google 캘린더에 추가",
       "addAppleCalendar": "Apple 캘린더 / Outlook에 추가",
       "nextConcert": "다음 콘서트",
+      "additionalDates": "추가 날짜: {dates}",
       "typePreventa": "선예매",
       "typeComeback": "컴백",
       "typeMembresia": "멤버십",

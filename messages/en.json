@@ -212,6 +212,7 @@
       "addGoogleCalendar": "Add to Google Calendar",
       "addAppleCalendar": "Add to Apple Calendar / Outlook",
       "nextConcert": "Next concert",
+      "additionalDates": "Also: {dates}",
       "typePreventa": "presale",
       "typeComeback": "comeback",
       "typeMembresia": "membership",

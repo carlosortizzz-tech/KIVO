@@ -46,8 +46,23 @@ export default async function RadarPage() {
     .limit(1)
     .maybeSingle();
 
-  const nextEvent = events?.[0];
-  const restEvents = events?.slice(1) ?? [];
+  // Cuando la misma ciudad tiene varias fechas seguidas, se consolidan en UNA tarjeta (la más
+  // próxima) — las demás se muestran como "fechas adicionales" acá y siguen apareciendo tal
+  // cual en la lista de abajo, por si el usuario quiere agregar cada una a su calendario.
+  const { data: sameVenueDates } = nextConcert?.venue
+    ? await supabase
+        .from('events')
+        .select('id, starts_at')
+        .eq('type', 'concierto')
+        .eq('venue', nextConcert.venue)
+        .neq('id', nextConcert.id)
+        .gte('starts_at', new Date().toISOString())
+        .order('starts_at', { ascending: true })
+    : { data: [] };
+
+  // El "próximo evento" genérico ignora conciertos — esos ya tienen su propia tarjeta arriba.
+  const nextEvent = events?.find((ev) => ev.type !== 'concierto');
+  const restEvents = events?.filter((ev) => ev.id !== nextEvent?.id) ?? [];
 
   const today = new Date();
   const isoDayOfWeek = today.getDay() === 0 ? 7 : today.getDay();
@@ -79,9 +94,18 @@ export default async function RadarPage() {
           </div>
           <div className="text-lg font-bold mb-1">{nextConcert.title}</div>
           {nextConcert.venue && (
-            <div className="flex items-center gap-1.5 text-xs text-text2 mb-3">
+            <div className="flex items-center gap-1.5 text-xs text-text2 mb-1">
               <MapPin size={14} strokeWidth={2} />
               {nextConcert.venue}
+            </div>
+          )}
+          {sameVenueDates && sameVenueDates.length > 0 && (
+            <div className="text-[11px] text-text2 mb-3">
+              {t('radar.additionalDates', {
+                dates: sameVenueDates
+                  .map((d) => new Date(d.starts_at).toLocaleDateString(locale, { day: 'numeric', month: 'short' }))
+                  .join(' · '),
+              })}
             </div>
           )}
           <Countdown target={nextConcert.starts_at} />
