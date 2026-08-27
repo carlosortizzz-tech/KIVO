@@ -191,6 +191,8 @@
   "cuenta": {
     "title": "Tu cuenta",
     "memberSince": "Miembro desde {date}",
+    "trialCharge": "Tu primer cobro es el {date}",
+    "trialChargeAmount": "Se te cobrará {amount} el {date}",
     "planFree": "Plan gratis",
     "planPro": "Plan Pro",
     "sectionLegal": "Legal",
@@ -230,6 +232,7 @@
     },
     "radar": {
       "greeting": "Hola de nuevo",
+      "trialDay": "Día {day} de 7 de tu prueba gratis",
       "title": "Tu Radar de hoy",
       "upcoming": "Próxima {type}",
       "viewGuide": "Ver guía paso a paso →",

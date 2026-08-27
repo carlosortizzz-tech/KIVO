@@ -191,6 +191,8 @@
   "cuenta": {
     "title": "Your account",
     "memberSince": "Member since {date}",
+    "trialCharge": "Your first charge is on {date}",
+    "trialChargeAmount": "You'll be charged {amount} on {date}",
     "planFree": "Free plan",
     "planPro": "Pro plan",
     "sectionLegal": "Legal",
@@ -230,6 +232,7 @@
     },
     "radar": {
       "greeting": "Welcome back",
+      "trialDay": "Day {day} of 7 of your free trial",
       "title": "Your Radar today",
       "upcoming": "Next {type}",
       "viewGuide": "View step-by-step guide →",

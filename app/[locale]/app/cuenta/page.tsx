@@ -13,10 +13,18 @@ export default async function CuentaPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const { data: profile } = await supabase.from('profiles').select('plan, created_at').eq('id', user.id).maybeSingle();
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('plan, created_at, status, trial_ends_at, plan_amount, plan_currency')
+    .eq('id', user.id)
+    .maybeSingle();
   const isPro = profile?.plan === 'pro';
+  const isTrialing = profile?.status === 'trialing';
   const memberSince = profile?.created_at
     ? new Date(profile.created_at).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })
+    : '';
+  const chargeDate = profile?.trial_ends_at
+    ? new Date(profile.trial_ends_at).toLocaleDateString(locale, { day: 'numeric', month: 'long' })
     : '';
 
   const links = [
@@ -38,6 +46,15 @@ export default async function CuentaPage() {
           </span>
           {memberSince && <span className="text-xs text-text2">{t('memberSince', { date: memberSince })}</span>}
         </div>
+        {isTrialing && chargeDate && (
+          <div className="mt-3 pt-3 border-t border-border text-xs text-text2">
+            {profile?.plan_amount
+              ? t('trialChargeAmount', { date: chargeDate, amount: `${profile.plan_currency ?? '$'}${profile.plan_amount}` })
+              : t('trialCharge', { date: chargeDate })}
+            {' · '}
+            <Link href="/app/cuenta/cancelar" className="text-accent2 font-semibold">{t('cancelLink')}</Link>
+          </div>
+        )}
       </div>
 
       <div className="text-xs font-bold uppercase tracking-wide text-text2 mb-2">{t('sectionLegal')}</div>

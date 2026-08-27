@@ -191,6 +191,8 @@
   "cuenta": {
     "title": "내 계정",
     "memberSince": "{date}부터 회원",
+    "trialCharge": "첫 결제일은 {date}이에요",
+    "trialChargeAmount": "{date}에 {amount}이 청구돼요",
     "planFree": "무료 플랜",
     "planPro": "Pro 플랜",
     "sectionLegal": "법적 정보",
@@ -230,6 +232,7 @@
     },
     "radar": {
       "greeting": "다시 오셨네요",
+      "trialDay": "무료 체험 7일 중 {day}일째",
       "title": "오늘의 레이더",
       "upcoming": "다음 {type}",
       "viewGuide": "단계별 가이드 보기 →",

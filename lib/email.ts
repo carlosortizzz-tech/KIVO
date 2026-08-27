@@ -76,6 +76,37 @@ export async function sendPaymentFailedEmail(email: string, name: string) {
   if (error) await logEmailFailure('payment_failed', email, `${error.name}: ${error.message}`);
 }
 
+export async function sendTrialEndingEmail(
+  email: string,
+  name: string,
+  chargeDateLabel: string,
+  amount: number | null,
+  currency: string | null
+) {
+  const resend = getResend();
+  if (!resend) { await logEmailFailure('trial_ending', email, 'RESEND_API_KEY no configurada'); return; }
+  const accessLink = await generateAccessLink(email);
+  // Monto exacto SOLO si lo tenemos real (ver 02C: "aviso pre-cobro honesto, monto exacto") — si
+  // Hotmart no nos lo mandó, no se inventa un número; se dice la fecha igual, que sí es exacta.
+  const amountLine = amount
+    ? `Se te cobrará <b>${currency ?? '$'}${amount}</b> el <b>${chargeDateLabel}</b>.`
+    : `Tu primer cobro es el <b>${chargeDateLabel}</b>.`;
+  const { error } = await resend.emails.send({
+    from: FROM,
+    to: email,
+    subject: 'Tu prueba gratis de KIVO termina mañana',
+    html: emailShell(`
+      <h1>Hola ${name}, tu prueba termina mañana 👋</h1>
+      <p>${amountLine}</p>
+      <p>Si quieres seguir con KIVO Pro, no tienes que hacer nada — tu acceso continúa automático, sin cortes.</p>
+      <p>Si prefieres no continuar, puedes cancelar en un toque antes de esa fecha, sin vueltas:</p>
+      <p><a href="${APP_URL}/app/cuenta/cancelar" style="background:#7C3AED;color:#fff;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:600;display:inline-block">Cancelar mi prueba →</a></p>
+      <p>O <a href="${accessLink}">entra a KIVO</a> para ver todo lo que ya desbloqueaste.</p>
+    `),
+  });
+  if (error) await logEmailFailure('trial_ending', email, `${error.name}: ${error.message}`);
+}
+
 export async function sendEventReminderEmail(
   email: string,
   name: string,

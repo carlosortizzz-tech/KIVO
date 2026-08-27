@@ -191,6 +191,8 @@
   "cuenta": {
     "title": "Ton compte",
     "memberSince": "Membre depuis {date}",
+    "trialCharge": "Ton premier prélèvement est le {date}",
+    "trialChargeAmount": "Tu seras débité de {amount} le {date}",
     "planFree": "Plan gratuit",
     "planPro": "Plan Pro",
     "sectionLegal": "Légal",
@@ -230,6 +232,7 @@
     },
     "radar": {
       "greeting": "Bon retour",
+      "trialDay": "Jour {day} sur 7 de ton essai gratuit",
       "title": "Ton Radar aujourd'hui",
       "upcoming": "Prochain {type}",
       "viewGuide": "Voir le guide étape par étape →",

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { sendEventReminderEmail } from '@/lib/email';
+import { sendEventReminderEmail, sendTrialEndingEmail } from '@/lib/email';
 
 export const runtime = 'nodejs';
 
@@ -9,6 +9,10 @@ const WINDOWS: { key: '48h' | '1h'; fromMs: number; toMs: number }[] = [
   { key: '48h', fromMs: 47.75 * 3600_000, toMs: 48.25 * 3600_000 },
   { key: '1h', fromMs: 0.75 * 3600_000, toMs: 1.25 * 3600_000 },
 ];
+
+// D6 del puente del trial (02C): aviso pre-cobro ~24h antes de que termine la prueba gratis.
+const TRIAL_WARNING_FROM_MS = 23.75 * 3600_000;
+const TRIAL_WARNING_TO_MS = 24.25 * 3600_000;
 
 function getAdmin() {
   return createClient(
@@ -64,6 +68,34 @@ export async function GET(req: NextRequest) {
         sent++;
       }
     }
+  }
+
+  // Aviso pre-cobro del trial (D6) — una sola vez por usuario, controlado con trial_warning_sent_at.
+  const trialFrom = new Date(now + TRIAL_WARNING_FROM_MS).toISOString();
+  const trialTo = new Date(now + TRIAL_WARNING_TO_MS).toISOString();
+  const { data: trialUsers } = await admin
+    .from('profiles')
+    .select('id, email, display_name, trial_ends_at, plan_amount, plan_currency')
+    .eq('status', 'trialing')
+    .is('trial_warning_sent_at', null)
+    .gte('trial_ends_at', trialFrom)
+    .lte('trial_ends_at', trialTo)
+    .not('email', 'is', null);
+
+  for (const user of trialUsers ?? []) {
+    if (!user.email || !user.trial_ends_at) continue;
+    // Marcar ANTES de mandar (no después): si el envío falla a mitad de camino, preferimos
+    // saltarnos un aviso a mandarlo duplicado — coherente con el resto del cron (idempotencia primero).
+    const { error: markErr } = await admin
+      .from('profiles')
+      .update({ trial_warning_sent_at: new Date().toISOString() })
+      .eq('id', user.id)
+      .is('trial_warning_sent_at', null);
+    if (markErr) { skipped++; continue; }
+
+    const chargeDateLabel = new Date(user.trial_ends_at).toLocaleDateString('es', { day: 'numeric', month: 'long' });
+    await sendTrialEndingEmail(user.email, user.display_name ?? 'ARMY', chargeDateLabel, user.plan_amount, user.plan_currency);
+    sent++;
   }
 
   return NextResponse.json({ ok: true, sent, skipped });

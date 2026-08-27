@@ -67,7 +67,7 @@ async function handlePost(req: NextRequest) {
     creation_date?: number;
     data?: {
       buyer?: { email?: string; name?: string };
-      purchase?: { transaction?: string; approved_date?: number };
+      purchase?: { transaction?: string; approved_date?: number; price?: { value?: number; currency_value?: string } };
       subscription?: { subscriber?: { code?: string } };
     };
   };
@@ -97,6 +97,11 @@ async function handlePost(req: NextRequest) {
   const email = payload.data?.buyer?.email;
   const name = payload.data?.buyer?.name ?? '';
   const subscriberCode = payload.data?.subscription?.subscriber?.code;
+  // Best-effort: si Hotmart manda el precio real en el payload, lo guardamos para poder mostrar
+  // el monto EXACTO en el aviso pre-cobro del trial (02C) y afinar el MRR del backoffice (21) más
+  // adelante — si no viene, queda null y no se inventa un número.
+  const priceValue = payload.data?.purchase?.price?.value;
+  const priceCurrency = payload.data?.purchase?.price?.currency_value;
   const eventId =
     payload.id ?? payload.event_id ?? payload.data?.purchase?.transaction ?? `${event}:${email}:${ts ?? ''}`;
 
@@ -168,6 +173,7 @@ async function handlePost(req: NextRequest) {
     await admin.from('webhook_log').insert({ event_id: eventId, type: event, result: 'applied' });
     await sendWelcomeEmail(email, name);
     if (newStatus === 'active') await trackPlanActualizado(authUser.user.id, 'desconocido');
+    if (priceValue) await admin.from('profiles').update({ plan_amount: priceValue, plan_currency: priceCurrency ?? null }).eq('id', authUser.user.id);
     return NextResponse.json({ received: true, result: retryData?.status ?? 'applied' });
   }
 
@@ -182,11 +188,14 @@ async function handlePost(req: NextRequest) {
     } else if (newStatus === 'past_due') {
       await sendPaymentFailedEmail(email, name);
     }
-    if (newStatus === 'active') {
+    if (newStatus === 'active' || newStatus === 'trialing') {
       // 'ciclo' (mensual/anual) queda "desconocido": Hotmart no manda el nombre del producto/oferta
       // en este payload — no se inventa el dato, se etiqueta honestamente.
       const { data: profile } = await admin.from('profiles').select('id').eq('email', email).maybeSingle();
-      if (profile?.id) await trackPlanActualizado(profile.id, 'desconocido');
+      if (profile?.id) {
+        if (newStatus === 'active') await trackPlanActualizado(profile.id, 'desconocido');
+        if (priceValue) await admin.from('profiles').update({ plan_amount: priceValue, plan_currency: priceCurrency ?? null }).eq('id', profile.id);
+      }
     }
   }
 

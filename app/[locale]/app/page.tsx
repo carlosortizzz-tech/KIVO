@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { Countdown } from '@/components/app/Countdown';
 import { AddToCalendar } from '@/components/app/AddToCalendar';
 import { WeekStrip } from '@/components/app/WeekStrip';
+import { Link } from '@/i18n/navigation';
 
 async function formatRelative(iso: string, locale: string, t: Awaited<ReturnType<typeof getTranslations<'app'>>>) {
   const diff = new Date(iso).getTime() - Date.now();
@@ -80,10 +81,29 @@ export default async function RadarPage() {
 
   const relatives = await Promise.all(restEvents.map((ev) => formatRelative(ev.starts_at, locale, t)));
 
+  // Indicador de trial (02C): "Día X de 7", discreto y SIN color de alarma — nunca un countdown
+  // rojo de presión. Solo se muestra mientras status='trialing'.
+  const { data: { user } } = await supabase.auth.getUser();
+  let trialDay: number | null = null;
+  if (user) {
+    const { data: profile } = await supabase.from('profiles').select('status, trial_ends_at').eq('id', user.id).maybeSingle();
+    if (profile?.status === 'trialing' && profile.trial_ends_at) {
+      const daysLeft = Math.ceil((new Date(profile.trial_ends_at).getTime() - Date.now()) / 86400000);
+      trialDay = Math.min(7, Math.max(1, 7 - Math.max(0, daysLeft - 1)));
+    }
+  }
+
   return (
     <div>
       <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-1">{t('radar.greeting')}</div>
       <h1 className="font-display text-lg font-extrabold mb-4">{t('radar.title')}</h1>
+
+      {trialDay !== null && (
+        <Link href="/app/cuenta" className="flex items-center gap-2 bg-sunken rounded-full px-3.5 py-2 mb-4 w-fit">
+          <span className="w-1.5 h-1.5 rounded-full bg-accent2" />
+          <span className="text-xs font-semibold text-text2">{t('radar.trialDay', { day: trialDay })}</span>
+        </Link>
+      )}
 
       {nextConcert && (
         <div className="feature-card rounded-2xl p-4 mb-4" style={{ boxShadow: 'var(--glow)' }}>
