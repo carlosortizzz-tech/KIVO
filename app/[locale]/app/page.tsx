@@ -3,6 +3,7 @@ import { getTranslations, getLocale } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { Countdown } from '@/components/app/Countdown';
 import { AddToCalendar } from '@/components/app/AddToCalendar';
+import { WeekStrip } from '@/components/app/WeekStrip';
 
 async function formatRelative(iso: string, locale: string, t: Awaited<ReturnType<typeof getTranslations<'app'>>>) {
   const diff = new Date(iso).getTime() - Date.now();
@@ -62,15 +63,15 @@ export default async function RadarPage() {
 
   // El "próximo evento" genérico ignora conciertos — esos ya tienen su propia tarjeta arriba.
   const nextEvent = events?.find((ev) => ev.type !== 'concierto');
-  const restEvents = events?.filter((ev) => ev.id !== nextEvent?.id) ?? [];
+  // Solo las 3 próximas en la lista de abajo — el resto se navega desde la tira de semana.
+  const restEvents = (events?.filter((ev) => ev.id !== nextEvent?.id) ?? []).slice(0, 3);
 
-  const today = new Date();
-  const isoDayOfWeek = today.getDay() === 0 ? 7 : today.getDay();
-  const weekDays = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(today);
-    d.setDate(today.getDate() - isoDayOfWeek + 1 + i);
-    return d;
-  });
+  // Todas las fechas de concierto (sin límite de ventana) para marcar la estrella al navegar
+  // semanas hacia adelante o atrás en la tira de días. Se manda el ISO completo — el día
+  // calendario se calcula en el navegador (hora LOCAL del usuario), no en el servidor, para
+  // que coincida con los números que ya se muestran en la tira (también en hora local).
+  const { data: allConcertRows } = await supabase.from('events').select('starts_at').eq('type', 'concierto');
+  const concertDates = (allConcertRows ?? []).map((r) => r.starts_at);
 
   const relatives = await Promise.all(restEvents.map((ev) => formatRelative(ev.starts_at, locale, t)));
 
@@ -135,25 +136,7 @@ export default async function RadarPage() {
         </div>
       )}
 
-      <div className="flex items-center justify-between mb-3">
-        <div className="text-[13px] font-semibold">
-          {weekDays[0].toLocaleDateString(locale, { day: 'numeric', month: 'short' })}
-          {' – '}
-          {weekDays[6].toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' })}
-        </div>
-      </div>
-      <div className="flex gap-1.5 mb-4">
-        {weekDays.map((d, i) => {
-          const isToday = d.toDateString() === today.toDateString();
-          const dayName = d.toLocaleDateString(locale, { weekday: 'short' }).slice(0, 2);
-          return (
-            <div key={i} className={`flex-1 text-center rounded-[10px] py-2 border ${isToday ? 'bg-accent-btn border-accent-btn' : 'bg-surface border-border'}`} style={isToday ? { boxShadow: 'var(--glow)' } : undefined}>
-              <div className={`text-[9px] ${isToday ? 'text-white/80' : 'text-text2'}`}>{dayName}</div>
-              <div className="font-display text-[13px] font-bold mt-0.5">{d.getDate()}</div>
-            </div>
-          );
-        })}
-      </div>
+      <WeekStrip locale={locale} concertDates={concertDates} />
 
       <div className="flex flex-col gap-2.5">
         {restEvents.length === 0 && !nextEvent && (
