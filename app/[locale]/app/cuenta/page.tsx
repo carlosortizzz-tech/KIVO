@@ -2,8 +2,9 @@ import { redirect } from 'next/navigation';
 import { getTranslations, getLocale } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { Link } from '@/i18n/navigation';
-import { ChevronRight, ShieldCheck, FileText, RotateCcw, Mail } from 'lucide-react';
+import { ChevronRight, ShieldCheck, FileText, RotateCcw } from 'lucide-react';
 import { LogoutButton } from '@/components/app/LogoutButton';
+import { ContactSupportButton } from '@/components/app/ContactSupportButton';
 
 export default async function CuentaPage() {
   const locale = await getLocale();
@@ -48,11 +49,7 @@ export default async function CuentaPage() {
             <ChevronRight size={16} strokeWidth={2} className="text-text2" />
           </Link>
         ))}
-        <a href="mailto:soporte@kivoapp.app" className="flex items-center gap-3 bg-surface border border-border rounded-2xl px-4 py-3.5">
-          <Mail size={16} strokeWidth={2} className="text-text2 flex-shrink-0" />
-          <span className="flex-1 text-sm">{t('contactLink')}</span>
-          <ChevronRight size={16} strokeWidth={2} className="text-text2" />
-        </a>
+        <ContactSupportButton label={t('contactLink')} copiedLabel={t('contactCopied')} />
       </div>
 
       <LogoutButton label={t('logout')} />

@@ -214,7 +214,7 @@ export default async function LandingPage({
           <Link href="/privacidad" className="text-text2">{t('privacyLink')}</Link>
           <Link href="/terminos" className="text-text2">{t('termsLink')}</Link>
           <Link href="/reembolso" className="text-text2">{t('refundLink')}</Link>
-          <a href="mailto:hola@kivo.app" className="text-text2">{t('contactLink')}</a>
+          <a href="mailto:soporte@kivoapp.app" className="text-text2">{t('contactLink')}</a>
         </div>
         <div className="text-xs text-text2">{t('copyright')}</div>
       </footer>
