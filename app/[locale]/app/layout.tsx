@@ -4,6 +4,7 @@ import { getUserPlan } from '@/lib/plan';
 import { isAdminEmail } from '@/lib/admin';
 import { Link } from '@/i18n/navigation';
 import { Radio, LayoutDashboard } from 'lucide-react';
+import { AnalyticsSession } from '@/components/app/AnalyticsSession';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -12,8 +13,17 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const plan = await getUserPlan();
   const isAdmin = isAdminEmail(user?.email);
 
+  let diasDesdeAlta = 0;
+  if (user) {
+    const { data: profile } = await supabase.from('profiles').select('created_at').eq('id', user.id).maybeSingle();
+    if (profile?.created_at) {
+      diasDesdeAlta = Math.max(0, Math.floor((Date.now() - new Date(profile.created_at).getTime()) / 86400000));
+    }
+  }
+
   return (
     <div className="max-w-[480px] mx-auto w-full min-h-dvh flex flex-col">
+      {user && <AnalyticsSession userId={user.id} plan={plan} diasDesdeAlta={diasDesdeAlta} />}
       <header className="flex items-center justify-between px-5 py-5">
         <div className="font-display font-extrabold text-lg text-accent2" style={{ textShadow: '0 0 14px rgba(180,79,245,0.6)' }}>KIVO</div>
         <div className="flex items-center gap-2.5">

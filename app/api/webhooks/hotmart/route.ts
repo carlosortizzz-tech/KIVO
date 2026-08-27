@@ -1,11 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import crypto from 'node:crypto';
+import { PostHog } from 'posthog-node';
 import { verifyHotmart } from '@/lib/hotmart-verify';
 import { statusForEvent } from '@/lib/membership-fsm';
 import { sendWelcomeEmail, sendCancellationEmail, sendPaymentFailedEmail } from '@/lib/email';
 
 export const runtime = 'nodejs'; // necesita node:crypto y el raw body — no Edge
+
+// flushAt:1 + flushInterval:0 → cada capture se envía de inmediato (ver 36-ANALITICA-Y-EVENTOS).
+// El pago NO puede depender del navegador (adblockers) — se captura acá, server-side.
+const ph = process.env.POSTHOG_KEY
+  ? new PostHog(process.env.POSTHOG_KEY, { host: process.env.POSTHOG_HOST, flushAt: 1, flushInterval: 0 })
+  : null;
+
+async function trackPlanActualizado(userId: string, ciclo: string) {
+  if (!ph) return;
+  ph.capture({ distinctId: userId, event: 'plan_actualizado', properties: { plan: 'pro', ciclo, capturado: 'server' } });
+  await ph.flush();
+}
 
 function getAdmin() {
   return createClient(
@@ -154,6 +167,7 @@ async function handlePost(req: NextRequest) {
     }
     await admin.from('webhook_log').insert({ event_id: eventId, type: event, result: 'applied' });
     await sendWelcomeEmail(email, name);
+    if (newStatus === 'active') await trackPlanActualizado(authUser.user.id, 'desconocido');
     return NextResponse.json({ received: true, result: retryData?.status ?? 'applied' });
   }
 
@@ -167,6 +181,12 @@ async function handlePost(req: NextRequest) {
       await sendCancellationEmail(email, name);
     } else if (newStatus === 'past_due') {
       await sendPaymentFailedEmail(email, name);
+    }
+    if (newStatus === 'active') {
+      // 'ciclo' (mensual/anual) queda "desconocido": Hotmart no manda el nombre del producto/oferta
+      // en este payload — no se inventa el dato, se etiqueta honestamente.
+      const { data: profile } = await admin.from('profiles').select('id').eq('email', email).maybeSingle();
+      if (profile?.id) await trackPlanActualizado(profile.id, 'desconocido');
     }
   }
 

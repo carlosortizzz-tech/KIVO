@@ -5,6 +5,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { LocaleSwitcher } from "@/components/app/LocaleSwitcher";
+import { AnalyticsInit } from "@/components/app/AnalyticsInit";
 import "../globals.css";
 
 const bricolage = Bricolage_Grotesque({
@@ -53,6 +54,7 @@ export default async function LocaleLayout({
     <html lang={locale} className={`${bricolage.variable} ${onest.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-bg text-text antialiased">
         <NextIntlClientProvider>
+          <AnalyticsInit />
           {children}
           <LocaleSwitcher />
         </NextIntlClientProvider>

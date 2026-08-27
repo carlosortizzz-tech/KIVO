@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Check, Rss } from 'lucide-react';
 import { useRouter } from '@/i18n/navigation';
+import { track } from '@/lib/analytics';
 
 type Answers = {
   antiguedad?: string;
@@ -52,21 +53,26 @@ export default function OnboardingPage() {
     }
   }, []);
 
+  const progressMap: Record<number, number> = { 0: 0, 1: 1, 2: 2, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6, 8: 6 };
+
   function saveAnswer(key: keyof Answers, value: string) {
     const next = { ...answers, [key]: value };
     setAnswers(next);
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ v: 1, respuestas: next }));
+    track('onboarding_paso_completado', { paso: progressMap[step], total_pasos: 6 });
     setTimeout(() => setStep((s) => s + 1), 300);
   }
 
   function startLoading() {
+    track('onboarding_paso_completado', { paso: progressMap[6], total_pasos: 6 });
     setStep(7);
     const timings = [600, 1300, 2000, 2700];
     timings.forEach((t, i) => setTimeout(() => setLoadingDone(i + 1), t));
-    setTimeout(() => setStep(8), 3400);
+    setTimeout(() => {
+      setStep(8);
+      track('onboarding_completado', {});
+    }, 3400);
   }
-
-  const progressMap: Record<number, number> = { 0: 0, 1: 1, 2: 2, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6, 8: 6 };
   const progress = Math.round((progressMap[step] / 6) * 100);
 
   const resultText = (() => {
@@ -134,7 +140,7 @@ export default function OnboardingPage() {
               <div>{t('introBullet2')}</div>
               <div>{t('introBullet3')}</div>
             </div>
-            <button onClick={() => setStep(1)} className="mt-1 bg-accent-btn text-white font-bold text-[15px] rounded-2xl py-4 w-full transition-transform duration-150 active:scale-[0.97]" style={{ boxShadow: 'var(--glow)' }}>
+            <button onClick={() => { track('onboarding_iniciado', {}); setStep(1); }} className="mt-1 bg-accent-btn text-white font-bold text-[15px] rounded-2xl py-4 w-full transition-transform duration-150 active:scale-[0.97]" style={{ boxShadow: 'var(--glow)' }}>
               {t('start')}
             </button>
           </div>
@@ -172,7 +178,7 @@ export default function OnboardingPage() {
               <div className="font-display text-4xl font-extrabold text-accent mb-2">{t('recoStat')}</div>
               <p className="text-[15px] leading-relaxed">{t('recoText')}</p>
             </div>
-            <button onClick={() => setStep(4)} className="bg-accent-btn text-white font-bold text-[15px] rounded-2xl py-4 w-full transition-transform duration-150 active:scale-[0.97]" style={{ boxShadow: 'var(--glow)' }}>
+            <button onClick={() => { track('onboarding_paso_completado', { paso: progressMap[3], total_pasos: 6 }); setStep(4); }} className="bg-accent-btn text-white font-bold text-[15px] rounded-2xl py-4 w-full transition-transform duration-150 active:scale-[0.97]" style={{ boxShadow: 'var(--glow)' }}>
               {t('recoCta')}
             </button>
           </div>

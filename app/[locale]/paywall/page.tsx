@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Rss, BookOpen, MessagesSquare, Check, ArrowLeft } from 'lucide-react';
 import { useRouter } from '@/i18n/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { track } from '@/lib/analytics';
 
 const HOTMART_CHECKOUT_URLS: Record<'mensual' | 'anual', string | undefined> = {
   mensual: process.env.NEXT_PUBLIC_HOTMART_CHECKOUT_URL_MENSUAL,
@@ -42,6 +43,10 @@ export default function PaywallPage() {
   }, []);
 
   useEffect(() => {
+    track('paywall_visto', { plan: 'free' });
+  }, []);
+
+  useEffect(() => {
     const d = new Date();
     d.setDate(d.getDate() + 7);
     setChargeDate(d.toLocaleDateString(locale, { day: 'numeric', month: 'long' }));
@@ -67,6 +72,7 @@ export default function PaywallPage() {
   }, [locale]);
 
   function handleStart() {
+    track('paywall_click', { plan_elegido: plan });
     const checkoutUrl = HOTMART_CHECKOUT_URLS[plan];
     if (!checkoutUrl) {
       // El producto de Hotmart todavía no está creado/publicado — sin link de checkout, no hay
