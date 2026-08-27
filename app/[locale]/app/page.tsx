@@ -61,6 +61,11 @@ export default async function RadarPage() {
         .order('starts_at', { ascending: true })
     : { data: [] };
 
+  // Racha real de días consecutivos usando la app — se cuenta al abrir Radar (home de la app).
+  // La función vive en la base de datos (bump_streak) para que el conteo sea atómico y no se
+  // pueda manipular desde el cliente.
+  const { data: streak } = await supabase.rpc('bump_streak');
+
   // El "próximo evento" genérico ignora conciertos — esos ya tienen su propia tarjeta arriba.
   const nextEvent = events?.find((ev) => ev.type !== 'concierto');
   // Solo las 3 próximas en la lista de abajo — el resto se navega desde la tira de semana.
@@ -160,7 +165,7 @@ export default async function RadarPage() {
       </div>
 
       <div className="flex items-center gap-3 bg-surface border border-border rounded-2xl p-3.5 mt-4">
-        <div className="font-display text-xl font-extrabold text-accent2">12</div>
+        <div className="font-display text-xl font-extrabold text-accent2">{streak ?? 1}</div>
         <div className="text-xs text-text2"><b className="text-text block">{t('radar.streakLabel')}</b>{t('radar.streakSub')}</div>
       </div>
     </div>
