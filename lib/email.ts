@@ -17,7 +17,16 @@ function getAdmin() {
 }
 
 async function generateAccessLink(email: string): Promise<string> {
-  const { data } = await getAdmin().auth.admin.generateLink({ type: 'magiclink', email });
+  // Sin options.redirectTo, Supabase manda al usuario al Site URL configurado (kivoapp.app raíz)
+  // con un ?code= que NADIE consume ahí — la sesión nunca se crea porque exchangeCodeForSession
+  // solo se llama en /auth/callback. Bug real encontrado en producción (2026-08-28): el usuario
+  // reportó que el link del correo lo devolvía al login. Con redirectTo explícito al callback,
+  // el intercambio de sesión sí ocurre.
+  const { data } = await getAdmin().auth.admin.generateLink({
+    type: 'magiclink',
+    email,
+    options: { redirectTo: `${APP_URL}/auth/callback` },
+  });
   return data?.properties?.action_link || `${APP_URL}/login`;
 }
 
