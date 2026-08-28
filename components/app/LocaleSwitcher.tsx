@@ -5,7 +5,6 @@ import { Globe } from 'lucide-react';
 import { useLocale } from 'next-intl';
 import { usePathname, useRouter } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
-import { createClient } from '@/lib/supabase/client';
 
 const LABELS: Record<string, string> = { es: 'ES', en: 'EN', fr: 'FR', ko: '한국어' };
 
@@ -20,13 +19,17 @@ export function LocaleSwitcher() {
     setOpen(false);
     // Si hay sesión, el cambio manual también se guarda en la cuenta — así un cambio consciente
     // de idioma persiste entre dispositivos, igual que el idioma elegido al registrarse.
-    createClient()
-      .auth.getUser()
-      .then(({ data }) => {
+    // Import diferido: este componente vive en el layout raíz (TODAS las páginas, incluida la
+    // landing pública) — cargar el cliente de Supabase de entrada mete esa librería en el camino
+    // crítico de gente anónima que probablemente nunca toque el selector (38-PERFORMANCE-BUDGET).
+    import('@/lib/supabase/client').then(({ createClient }) => {
+      const supabase = createClient();
+      supabase.auth.getUser().then(({ data }) => {
         if (data.user) {
-          createClient().from('profiles').update({ locale: next }).eq('id', data.user.id);
+          supabase.from('profiles').update({ locale: next }).eq('id', data.user.id);
         }
       });
+    });
     startTransition(() => {
       router.replace(pathname, { locale: next });
     });

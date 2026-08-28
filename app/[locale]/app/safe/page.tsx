@@ -1,23 +1,24 @@
-import { AlertTriangle, ShieldCheck, Flag } from 'lucide-react';
+import { AlertTriangle, ShieldCheck } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { ProGate } from '@/components/app/ProGate';
 import { getUserPlan } from '@/lib/plan';
+import { SafeReportForm } from '@/components/app/SafeReportForm';
 
 export default async function SafePage() {
   const t = await getTranslations('app.safe');
   const plan = await getUserPlan();
   if (plan !== 'pro') return <ProGate feature={t('eyebrow')} />;
   const supabase = await createClient();
-  const { data: alerts, error } = await supabase
-    .from('scam_alerts')
-    .select('id, title, description, severity, created_at')
+  // Las "alertas" son reportes de la comunidad ya CONFIRMADOS como estafa (status='verified_scam')
+  // — antes esto apuntaba a una tabla "scam_alerts" que nunca existió en la base de datos, así que
+  // esta pantalla tiraba error para todo el mundo. safe_reports ya tenía todo lo necesario.
+  const { data: alerts } = await supabase
+    .from('safe_reports')
+    .select('id, url_or_seller, reason, created_at')
+    .eq('status', 'verified_scam')
     .order('created_at', { ascending: false })
     .limit(10);
-
-  if (error) {
-    throw new Error('No se pudo cargar KIVO Safe');
-  }
 
   return (
     <div>
@@ -47,19 +48,12 @@ export default async function SafePage() {
         <div className="flex flex-col gap-2.5 mb-4">
           {alerts.map((a) => (
             <div key={a.id} className="flex gap-3 items-start bg-surface border border-border rounded-2xl p-3.5">
-              <div
-                className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                style={{ background: a.severity === 'high' ? 'rgba(239,68,68,.12)' : 'var(--accent-soft)' }}
-              >
-                {a.severity === 'high' ? (
-                  <AlertTriangle size={18} color="#EF4444" strokeWidth={2} />
-                ) : (
-                  <ShieldCheck size={18} color="var(--accent2)" strokeWidth={2} />
-                )}
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(239,68,68,.12)' }}>
+                <AlertTriangle size={18} color="#EF4444" strokeWidth={2} />
               </div>
               <div className="flex-1">
-                <div className="text-[13px] font-bold mb-0.5">{a.title}</div>
-                <div className="text-xs text-text2">{a.description}</div>
+                <div className="text-[13px] font-bold mb-0.5">{a.url_or_seller}</div>
+                <div className="text-xs text-text2">{a.reason}</div>
               </div>
             </div>
           ))}
@@ -72,10 +66,7 @@ export default async function SafePage() {
         </div>
       )}
 
-      <button className="flex items-center justify-center gap-2 w-full border-2 border-accent text-accent2 font-bold text-[13px] rounded-2xl py-3 mb-4">
-        <Flag size={16} strokeWidth={2} />
-        {t('report')}
-      </button>
+      <SafeReportForm />
 
       <div className="bg-surface border border-border rounded-2xl p-4">
         <div className="text-sm font-bold mb-2.5">{t('rulesTitle')}</div>
