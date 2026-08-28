@@ -105,7 +105,17 @@ async function handlePost(req: NextRequest) {
   const eventId =
     payload.id ?? payload.event_id ?? payload.data?.purchase?.transaction ?? `${event}:${email}:${ts ?? ''}`;
 
-  const newStatus = statusForEvent(event);
+  let newStatus = statusForEvent(event);
+  // Hallazgo real (confirmado con una compra de prueba en producción, 2026-08-27): Hotmart NO
+  // manda un evento de trial separado (el placeholder SUBSCRIPTION_TRIAL_START de membership-fsm
+  // nunca llegó) — en vez de eso, manda PURCHASE_APPROVED con price.value = 0 (el "cobro
+  // simbólico" de validación de tarjeta que Hotmart le muestra al comprador). Sin este ajuste,
+  // CADA trial resolvía directo a 'active' con trial_ends_at vacío, y el puente del trial (correo
+  // D6 + indicador "Día X de 7") nunca se disparaba para nadie. $0 en un PURCHASE_APPROVED/
+  // COMPLETE = inicio de trial, no cobro real.
+  if ((event === 'PURCHASE_APPROVED' || event === 'PURCHASE_COMPLETE') && priceValue === 0) {
+    newStatus = 'trialing';
+  }
   if (!newStatus) {
     // Se registra igual (con el event_id crudo del payload, sin pasar por la RPC) para que
     // el backoffice VEA que Hotmart mandó algo, aunque sea un tipo de evento que no manejamos
