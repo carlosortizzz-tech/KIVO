@@ -20,6 +20,17 @@ export default async function SafePage() {
     .order('created_at', { ascending: false })
     .limit(10);
 
+  // Puntaje de confianza REAL (antes era un "85/100" fijo, decorativo — no se inventa un número).
+  // Fórmula honesta y simple: 100 menos 15 puntos por cada estafa CONFIRMADA en los últimos 7
+  // días, piso en 0. Cero estafas confirmadas esta semana = 100 ("todo tranquilo").
+  const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+  const { count: scamsThisWeek } = await supabase
+    .from('safe_reports')
+    .select('id', { count: 'exact', head: true })
+    .eq('status', 'verified_scam')
+    .gte('created_at', weekAgo);
+  const trustScore = Math.max(0, 100 - (scamsThisWeek ?? 0) * 15);
+
   return (
     <div>
       <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-1">{t('eyebrow')}</div>
@@ -30,17 +41,17 @@ export default async function SafePage() {
           <svg viewBox="0 0 64 64" className="w-16 h-16 -rotate-90">
             <circle cx="32" cy="32" r="28" fill="none" stroke="var(--border)" strokeWidth="6" />
             <circle
-              cx="32" cy="32" r="28" fill="none" stroke="var(--success)" strokeWidth="6"
+              cx="32" cy="32" r="28" fill="none" stroke={trustScore >= 70 ? 'var(--success)' : trustScore >= 40 ? 'var(--warn)' : 'var(--danger)'} strokeWidth="6"
               strokeDasharray={2 * Math.PI * 28}
-              strokeDashoffset={2 * Math.PI * 28 * (1 - 0.85)}
+              strokeDashoffset={2 * Math.PI * 28 * (1 - trustScore / 100)}
               strokeLinecap="round"
             />
           </svg>
-          <div className="absolute inset-0 flex items-center justify-center font-display text-sm font-extrabold">85</div>
+          <div className="absolute inset-0 flex items-center justify-center font-display text-sm font-extrabold">{trustScore}</div>
         </div>
         <div>
           <div className="text-sm font-bold">{t('scoreLabel')}</div>
-          <div className="text-xs text-text2 mt-0.5">85/100</div>
+          <div className="text-xs text-text2 mt-0.5">{trustScore}/100</div>
         </div>
       </div>
 
@@ -48,8 +59,8 @@ export default async function SafePage() {
         <div className="flex flex-col gap-2.5 mb-4">
           {alerts.map((a) => (
             <div key={a.id} className="flex gap-3 items-start bg-surface border border-border rounded-2xl p-3.5">
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(239,68,68,.12)' }}>
-                <AlertTriangle size={18} color="#EF4444" strokeWidth={2} />
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(224,82,82,.12)' }}>
+                <AlertTriangle size={18} color="var(--danger)" strokeWidth={2} />
               </div>
               <div className="flex-1">
                 <div className="text-[13px] font-bold mb-0.5">{a.url_or_seller}</div>
