@@ -40,13 +40,18 @@ export async function sendWelcomeEmail(email: string, name: string) {
   const { error } = await resend.emails.send({
     from: FROM,
     to: email,
-    subject: '¡Bienvenido/a a KIVO! 🎉 Tu acceso está listo',
+    subject: '💜 Bienvenido a KIVO: la comunidad de BTS comienza aquí',
     html: emailShell(`
-      <h1>¡Hola ${name}! 👋</h1>
-      <p>Tu compra fue confirmada y tu acceso a KIVO ya está activo.</p>
-      <p><a href="${accessLink}" style="background:#7C3AED;color:#fff;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:600;display:inline-block">Entrar a KIVO →</a></p>
-      <p>Este enlace te deja entrar sin contraseña. Si caduca, entra en kivoapp.app/login con este mismo correo.</p>
-      <p>¿Dudas? Responde a este email y te ayudamos.</p>
+      <h1>💜 Bienvenido a KIVO: la comunidad de BTS comienza aquí</h1>
+      <p>Desde hoy tienes un nuevo espacio para vivir tu pasión por BTS de una forma más fácil, organizada y sin perderte nada.</p>
+      <p>En KIVO vas a encontrar tu calendario de preventas y comebacks, guías paso a paso para formar parte de una comunidad de ARMY sin spam.</p>
+      <p>Tu Radar ya está listo.</p>
+      <p><a href="${accessLink}" style="background:#7C3AED;color:#fff;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:600;display:inline-block">Ingresa a KIVO →</a></p>
+      <p>Entra, revisa tu próximo evento y explora todo lo que ya armamos para ti.</p>
+      <p><b>Menos tiempo buscando. Más tiempo disfrutando.</b></p>
+      <p>Nos alegra tenerte con nosotros. 💜</p>
+      <p><b>Equipo KIVO</b><br><i>Nunca más te pierdas una preventa de BTS.</i></p>
+      <p style="font-size:12px;color:#666">Este enlace te deja entrar sin contraseña. Si caduca, entra en kivoapp.app/login con este mismo correo. ¿Dudas? Responde a este email y te ayudamos.</p>
     `),
   });
   if (error) await logEmailFailure('welcome', email, `${error.name}: ${error.message}`);
