@@ -25,7 +25,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <div className="max-w-[480px] mx-auto w-full min-h-dvh flex flex-col">
       {user && <AnalyticsSession userId={user.id} plan={plan} diasDesdeAlta={diasDesdeAlta} />}
       <header className="flex items-center justify-between px-5 py-5">
-        <div className="font-display font-extrabold text-lg text-accent2" style={{ textShadow: '0 0 14px rgba(180,79,245,0.6)' }}>KIVO</div>
+        <div className="relative inline-block font-display font-extrabold text-lg">
+          <span className="relative z-10">KIVO</span>
+          <span
+            className="absolute -inset-y-1 -inset-x-2.5 -rotate-2 rounded-[9999px_9999px_9999px_12px] border-2 border-accent"
+            style={{ boxShadow: 'var(--glow)' }}
+          />
+        </div>
         <div className="flex items-center gap-2.5">
           {isAdmin && (
             <>
