@@ -40,3 +40,29 @@ export async function setUserPlanManually(userId: string, plan: 'free' | 'pro') 
     detail: `user_id=${userId} new_plan=${plan} by=${user.email}`,
   });
 }
+
+async function requireAdmin() {
+  const supabase = await createServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || !isAdminEmail(user.email)) throw new Error('unauthorized');
+  return user;
+}
+
+// Moderación (47-LEGAL-FISCAL-Y-PRIVACIDAD): el dueño revisa lo reportado por la comunidad y
+// decide — descartar el reporte, o eliminar la publicación reportada.
+export async function dismissReport(reportId: string) {
+  await requireAdmin();
+  const admin = getAdmin();
+  const { error } = await admin.from('forum_reports').update({ status: 'dismissed' }).eq('id', reportId);
+  if (error) throw new Error(error.message);
+}
+
+export async function removeReportedContent(reportId: string, targetId: string) {
+  await requireAdmin();
+  const admin = getAdmin();
+  // Solo concert_experiences por ahora (único tipo de UGC con reporte conectado en la UI).
+  const { error: deleteErr } = await admin.from('concert_experiences').delete().eq('id', targetId);
+  if (deleteErr) throw new Error(deleteErr.message);
+  const { error } = await admin.from('forum_reports').update({ status: 'reviewed' }).eq('id', reportId);
+  if (error) throw new Error(error.message);
+}

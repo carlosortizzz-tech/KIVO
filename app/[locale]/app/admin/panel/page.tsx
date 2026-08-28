@@ -3,6 +3,7 @@ import { createClient as createServerClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 import { isAdminEmail } from '@/lib/admin';
 import { AdminUsersTable, type AdminUserRow } from '@/components/app/AdminUsersTable';
+import { AdminReportsQueue, type ReportRow } from '@/components/app/AdminReportsQueue';
 import { TriangleAlert } from 'lucide-react';
 
 function getAdmin() {
@@ -45,6 +46,26 @@ export default async function AdminPanelPage() {
     .order('received_at', { ascending: false })
     .limit(15);
 
+  const { data: pendingReports } = await admin
+    .from('forum_reports')
+    .select('id, target_id, reason, created_at, reported_by')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: false });
+
+  const reporterIds = [...new Set((pendingReports ?? []).map((r) => r.reported_by))];
+  const { data: reporterProfiles } = reporterIds.length
+    ? await admin.from('profiles').select('id, email').in('id', reporterIds)
+    : { data: [] as { id: string; email: string | null }[] };
+  const reporterEmailById = new Map((reporterProfiles ?? []).map((p) => [p.id, p.email]));
+
+  const reports: ReportRow[] = (pendingReports ?? []).map((r) => ({
+    id: r.id,
+    targetId: r.target_id,
+    reason: r.reason,
+    reporterEmail: reporterEmailById.get(r.reported_by) ?? null,
+    createdAt: r.created_at,
+  }));
+
   const rows = profiles ?? [];
   const startOfMonth = new Date();
   startOfMonth.setDate(1);
@@ -75,6 +96,8 @@ export default async function AdminPanelPage() {
     <div>
       <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-1">Admin</div>
       <h1 className="font-display text-lg font-extrabold mb-4">Panel del negocio</h1>
+
+      <AdminReportsQueue reports={reports} />
 
       {fallosRecientes > 0 && (
         <div className="flex items-start gap-2.5 bg-danger/10 border border-danger/30 rounded-2xl p-3.5 mb-4">

@@ -64,14 +64,23 @@ async function buildExperiencesFeed(): Promise<ExperienceCardData[]> {
     user ? rows.filter((r) => r.user_id === user.id && r.original_id).map((r) => r.original_id as string) : []
   );
 
+  // Moderación (47-LEGAL-FISCAL-Y-PRIVACIDAD): un usuario que bloqueó a otro no debe ver más su
+  // contenido — se filtra acá, en el servidor, antes de armar el feed.
+  const { data: blocks } = user
+    ? await supabase.from('user_blocks').select('blocked_id').eq('blocker_id', user.id)
+    : { data: [] as { blocked_id: string }[] };
+  const blockedIds = new Set((blocks ?? []).map((b) => b.blocked_id));
+
   return rows
     .map((row): ExperienceCardData | null => {
       const isRepost = !!row.original_id;
       const root = isRepost ? originalsById.get(row.original_id as string) : row;
       if (!root || !root.photo_url) return null; // dato inconsistente, se omite en vez de romper la pantalla
+      if (blockedIds.has(root.user_id) || blockedIds.has(row.user_id)) return null;
       return {
         key: row.id,
         repostTargetId: root.id,
+        authorUserId: root.user_id,
         photoUrl: root.photo_url,
         caption: root.caption,
         authorName: nameById.get(root.user_id) ?? 'ARMY',
