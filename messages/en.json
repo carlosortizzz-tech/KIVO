@@ -195,6 +195,8 @@
     "trialChargeAmount": "You'll be charged {amount} on {date}",
     "planFree": "Free plan",
     "planPro": "Pro plan",
+    "sectionBadges": "Achievements",
+    "badgeProgress": "{count} days to go",
     "sectionLegal": "Legal",
     "cancelLink": "How to cancel your subscription",
     "privacyLink": "Privacy Policy",
@@ -233,6 +235,8 @@
     "radar": {
       "greeting": "Welcome back",
       "trialDay": "Day {day} of 7 of your free trial",
+      "badgeUnlocked": "New achievement",
+      "badgeClose": "Awesome!",
       "title": "Your Radar today",
       "upcoming": "Next {type}",
       "viewGuide": "View step-by-step guide →",

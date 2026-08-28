@@ -195,6 +195,8 @@
     "trialChargeAmount": "{date}에 {amount}이 청구돼요",
     "planFree": "무료 플랜",
     "planPro": "Pro 플랜",
+    "sectionBadges": "업적",
+    "badgeProgress": "{count}일 남음",
     "sectionLegal": "법적 정보",
     "cancelLink": "구독 취소 방법",
     "privacyLink": "개인정보 처리방침",
@@ -233,6 +235,8 @@
     "radar": {
       "greeting": "다시 오셨네요",
       "trialDay": "무료 체험 7일 중 {day}일째",
+      "badgeUnlocked": "새로운 업적",
+      "badgeClose": "좋아요!",
       "title": "오늘의 레이더",
       "upcoming": "다음 {type}",
       "viewGuide": "단계별 가이드 보기 →",

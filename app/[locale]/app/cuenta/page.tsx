@@ -15,9 +15,23 @@ export default async function CuentaPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('plan, created_at, status, trial_ends_at, plan_amount, plan_currency')
+    .select('plan, created_at, status, trial_ends_at, plan_amount, plan_currency, streak_count')
     .eq('id', user.id)
     .maybeSingle();
+
+  // Gamificación (24): colección de badges — bloqueados y desbloqueados, con la barra de "te
+  // faltan N" para los de racha (goal-gradient: cuanto más cerca se ve la meta, más empuja).
+  const { data: allBadges } = await supabase.from('badges').select('id, code, name, description, icon').order('code');
+  const { data: earned } = await supabase.from('user_badges').select('badge_id').eq('user_id', user.id);
+  const earnedIds = new Set((earned ?? []).map((e) => e.badge_id));
+  const streakCount = profile?.streak_count ?? 0;
+  const badges = (allBadges ?? []).map((b) => {
+    const unlocked = earnedIds.has(b.id);
+    let progress: string | null = null;
+    if (!unlocked && b.code === 'racha_7') progress = t('badgeProgress', { count: Math.max(0, 7 - streakCount) });
+    if (!unlocked && b.code === 'racha_30') progress = t('badgeProgress', { count: Math.max(0, 30 - streakCount) });
+    return { ...b, unlocked, progress };
+  });
   const isPro = profile?.plan === 'pro';
   const isTrialing = profile?.status === 'trialing';
   const memberSince = profile?.created_at
@@ -55,6 +69,17 @@ export default async function CuentaPage() {
             <Link href="/app/cuenta/cancelar" className="text-accent2 font-semibold">{t('cancelLink')}</Link>
           </div>
         )}
+      </div>
+
+      <div className="text-xs font-bold uppercase tracking-wide text-text2 mb-2">{t('sectionBadges')}</div>
+      <div className="grid grid-cols-2 gap-2.5 mb-6">
+        {badges.map((b) => (
+          <div key={b.id} className={`rounded-2xl p-3.5 border ${b.unlocked ? 'bg-accent/10 border-accent/30' : 'bg-surface border-border opacity-50'}`}>
+            <div className="text-2xl mb-1.5">{b.icon ?? '🏆'}</div>
+            <div className="text-xs font-bold mb-0.5">{b.name}</div>
+            <div className="text-[11px] text-text2">{b.unlocked ? b.description : (b.progress ?? b.description)}</div>
+          </div>
+        ))}
       </div>
 
       <div className="text-xs font-bold uppercase tracking-wide text-text2 mb-2">{t('sectionLegal')}</div>

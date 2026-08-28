@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { Countdown } from '@/components/app/Countdown';
 import { AddToCalendar } from '@/components/app/AddToCalendar';
 import { WeekStrip } from '@/components/app/WeekStrip';
+import { BadgeUnlockedModal } from '@/components/app/BadgeUnlockedModal';
 import { Link } from '@/i18n/navigation';
 
 async function formatRelative(iso: string, locale: string, t: Awaited<ReturnType<typeof getTranslations<'app'>>>) {
@@ -64,8 +65,15 @@ export default async function RadarPage() {
 
   // Racha real de días consecutivos usando la app — se cuenta al abrir Radar (home de la app).
   // La función vive en la base de datos (bump_streak) para que el conteo sea atómico y no se
-  // pueda manipular desde el cliente.
-  const { data: streak } = await supabase.rpc('bump_streak');
+  // pueda manipular desde el cliente. También otorga los badges de racha (7/30 días) de forma
+  // atómica y devuelve cuál se acaba de desbloquear, para celebrarlo EN esta misma visita
+  // (24-GAMIFICACION: un hito celebrado al día siguiente no celebra nada).
+  const { data: streakResult } = await supabase.rpc('bump_streak');
+  const streak: number = streakResult?.streak ?? 1;
+  const newBadgeCode: string | null = streakResult?.newBadge ?? null;
+  const { data: newBadge } = newBadgeCode
+    ? await supabase.from('badges').select('name, description, icon').eq('code', newBadgeCode).maybeSingle()
+    : { data: null };
 
   // El "próximo evento" genérico ignora conciertos — esos ya tienen su propia tarjeta arriba.
   const nextEvent = events?.find((ev) => ev.type !== 'concierto');
@@ -185,9 +193,11 @@ export default async function RadarPage() {
       </div>
 
       <div className="flex items-center gap-3 bg-surface border border-border rounded-2xl p-3.5 mt-4">
-        <div className="font-display text-xl font-extrabold text-accent2">{streak ?? 1}</div>
+        <div className="font-display text-xl font-extrabold text-accent2">{streak}</div>
         <div className="text-xs text-text2"><b className="text-text block">{t('radar.streakLabel')}</b>{t('radar.streakSub')}</div>
       </div>
+
+      {newBadge && <BadgeUnlockedModal name={newBadge.name} description={newBadge.description} icon={newBadge.icon} />}
     </div>
   );
 }

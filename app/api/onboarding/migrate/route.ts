@@ -44,5 +44,17 @@ export async function POST(request: Request) {
       );
   }
 
+  // Gamificación (24): primer logro real, desbloqueado en el onboarding — refuerza la respuesta
+  // que ya dio el usuario, no un badge de relleno. on_conflict evita duplicarlo en un re-envío.
+  if (parsed.data.respuestas.antiguedad === 'og') {
+    const { data: badge } = await supabase.from('badges').select('id').eq('code', 'og_army').maybeSingle();
+    if (badge) {
+      await supabase.from('user_badges').upsert(
+        { user_id: user.id, badge_id: badge.id },
+        { onConflict: 'user_id,badge_id', ignoreDuplicates: true }
+      );
+    }
+  }
+
   return NextResponse.json({ success: true });
 }

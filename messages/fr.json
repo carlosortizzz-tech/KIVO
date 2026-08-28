@@ -195,6 +195,8 @@
     "trialChargeAmount": "Tu seras débité de {amount} le {date}",
     "planFree": "Plan gratuit",
     "planPro": "Plan Pro",
+    "sectionBadges": "Succès",
+    "badgeProgress": "Encore {count} jours",
     "sectionLegal": "Légal",
     "cancelLink": "Comment annuler ton abonnement",
     "privacyLink": "Politique de confidentialité",
@@ -233,6 +235,8 @@
     "radar": {
       "greeting": "Bon retour",
       "trialDay": "Jour {day} sur 7 de ton essai gratuit",
+      "badgeUnlocked": "Nouveau succès",
+      "badgeClose": "Génial !",
       "title": "Ton Radar aujourd'hui",
       "upcoming": "Prochain {type}",
       "viewGuide": "Voir le guide étape par étape →",
