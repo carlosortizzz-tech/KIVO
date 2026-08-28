@@ -12,6 +12,9 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|api|auth|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    // "icon" (app/icon.tsx, generado con next/og) no tiene extensión en su URL — sin excluirlo
+    // acá, el middleware de next-intl lo trata como una página y lo redirige, rompiendo el
+    // favicon en producción (encontrado al verificar el ícono nuevo el 2026-08-28).
+    '/((?!_next/static|_next/image|favicon.ico|icon|apple-icon|api|auth|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };
