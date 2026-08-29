@@ -175,6 +175,15 @@ function validUrl(url: string): boolean {
   }
 }
 
+// El modelo a veces escribe un placeholder tipo "<UNKNOWN>" o "N/A" en vez de omitir el campo
+// cuando no encontró la fecha exacta — eso no es una fecha ISO válida y rompe el insert de TODO
+// el lote en Postgres (timestamptz no lo puede castear). Se descarta el valor, no el item entero.
+function isoDateOrNull(value: string | undefined): string | null {
+  if (!value) return null;
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? null : d.toISOString();
+}
+
 // El cron corre todos los días y puede volver a encontrar la MISMA noticia/anuncio que ayer
 // (sigue dentro de la ventana de búsqueda) — sin este filtro, se iría duplicando para siempre.
 // La URL de la fuente es la clave natural de "es lo mismo": el mismo artículo no se resume dos veces.
@@ -201,25 +210,28 @@ export async function generateDailyNews(): Promise<{ inserted: number }> {
   }
   const client = new Anthropic({ apiKey });
   const admin = getAdmin();
-  let totalInserted = 0;
 
-  // --- NOTICIAS (lo que ya pasó) ---
-  const newsSearchText = await search(
-    client,
-    'Busca las noticias más importantes y VERIFICABLES de BTS (el grupo de K-pop) de las ' +
-      'últimas 48-72 horas: lanzamientos oficiales, actividades de los miembros, anuncios ' +
-      'oficiales de HYBE/BIGHIT MUSIC, presentaciones, colaboraciones confirmadas. ' +
-      'EXCLUYE rumores, especulación, chismes de vida personal, o cualquier cosa sin fuente ' +
-      'clara de un medio reconocido (Billboard, Soompi, Allkpop, Rolling Stone, cuentas ' +
-      'oficiales verificadas, etc.). Para cada noticia real que encuentres, incluye la URL ' +
-      'EXACTA de la fuente donde la leíste. Responde en español. Si no encuentras nada ' +
-      'verificable y reciente, dilo explícitamente — no inventes nada.',
-    'noticias'
-  );
-  if (newsSearchText) {
-    const items = await extract(client, newsSearchText, newsExtractTool, NewsListSchema, 'noticias');
-    const valid = await withoutAlreadyPublished(admin, items.filter((it) => validUrl(it.source_url)));
-    if (valid.length > 0) {
+  // Las dos búsquedas son independientes — correrlas en paralelo (no una tras otra) es lo que
+  // mantiene el total dentro del límite de tiempo de la función (antes, secuencial, se topaba
+  // con FUNCTION_INVOCATION_TIMEOUT antes de llegar siquiera a insertar el calendario).
+  const [newsInserted, scheduleInserted] = await Promise.all([
+    (async () => {
+      const searchText = await search(
+        client,
+        'Busca las noticias más importantes y VERIFICABLES de BTS (el grupo de K-pop) de las ' +
+          'últimas 48-72 horas: lanzamientos oficiales, actividades de los miembros, anuncios ' +
+          'oficiales de HYBE/BIGHIT MUSIC, presentaciones, colaboraciones confirmadas. ' +
+          'EXCLUYE rumores, especulación, chismes de vida personal, o cualquier cosa sin fuente ' +
+          'clara de un medio reconocido (Billboard, Soompi, Allkpop, Rolling Stone, cuentas ' +
+          'oficiales verificadas, etc.). Para cada noticia real que encuentres, incluye la URL ' +
+          'EXACTA de la fuente donde la leíste. Responde en español. Si no encuentras nada ' +
+          'verificable y reciente, dilo explícitamente — no inventes nada.',
+        'noticias'
+      );
+      if (!searchText) return 0;
+      const items = await extract(client, searchText, newsExtractTool, NewsListSchema, 'noticias');
+      const valid = await withoutAlreadyPublished(admin, items.filter((it) => validUrl(it.source_url)));
+      if (valid.length === 0) return 0;
       const { error } = await admin.from('news_items').insert(
         valid.map((it) => ({
           kind: 'news',
@@ -227,31 +239,32 @@ export async function generateDailyNews(): Promise<{ inserted: number }> {
           summary: it.summary,
           source_url: it.source_url,
           source_name: it.source_name,
-          published_at: it.published_at ?? null,
+          published_at: isoDateOrNull(it.published_at),
         }))
       );
-      if (error) await logNewsFailure(`noticias insert: ${error.message}`);
-      else totalInserted += valid.length;
-    }
-  }
-
-  // --- CALENDARIO (próximos 14 días, SOLO confirmado oficialmente) ---
-  const scheduleSearchText = await search(
-    client,
-    'Busca eventos OFICIALES y CONFIRMADOS de BTS (el grupo de K-pop) programados para los ' +
-      'próximos 14 días a partir de hoy: lanzamientos de música/videos con fecha anunciada, ' +
-      'conciertos, transmisiones en vivo, ceremonias o premiaciones donde vayan a estar. ' +
-      'SOLO incluye lo que un anuncio OFICIAL (HYBE/BIGHIT MUSIC, Weverse, o un medio confiable ' +
-      'citando la fuente oficial) haya confirmado con fecha — NUNCA rumores, especulación, ni ' +
-      '"se espera que". Si encuentras la hora exacta del evento, inclúyela con su zona horaria. ' +
-      'Responde en español. Si no hay nada confirmado para los próximos 14 días, dilo ' +
-      'explícitamente — no inventes fechas.',
-    'calendario'
-  );
-  if (scheduleSearchText) {
-    const items = await extract(client, scheduleSearchText, scheduleExtractTool, ScheduleListSchema, 'calendario');
-    const valid = await withoutAlreadyPublished(admin, items.filter((it) => validUrl(it.source_url)));
-    if (valid.length > 0) {
+      if (error) {
+        await logNewsFailure(`noticias insert: ${error.message}`);
+        return 0;
+      }
+      return valid.length;
+    })(),
+    (async () => {
+      const searchText = await search(
+        client,
+        'Busca eventos OFICIALES y CONFIRMADOS de BTS (el grupo de K-pop) programados para los ' +
+          'próximos 14 días a partir de hoy: lanzamientos de música/videos con fecha anunciada, ' +
+          'conciertos, transmisiones en vivo, ceremonias o premiaciones donde vayan a estar. ' +
+          'SOLO incluye lo que un anuncio OFICIAL (HYBE/BIGHIT MUSIC, Weverse, o un medio confiable ' +
+          'citando la fuente oficial) haya confirmado con fecha — NUNCA rumores, especulación, ni ' +
+          '"se espera que". Si encuentras la hora exacta del evento, inclúyela con su zona horaria. ' +
+          'Responde en español. Si no hay nada confirmado para los próximos 14 días, dilo ' +
+          'explícitamente — no inventes fechas.',
+        'calendario'
+      );
+      if (!searchText) return 0;
+      const items = await extract(client, searchText, scheduleExtractTool, ScheduleListSchema, 'calendario');
+      const valid = await withoutAlreadyPublished(admin, items.filter((it) => validUrl(it.source_url)));
+      if (valid.length === 0) return 0;
       const { error } = await admin.from('news_items').insert(
         valid.map((it) => ({
           kind: 'schedule',
@@ -259,14 +272,18 @@ export async function generateDailyNews(): Promise<{ inserted: number }> {
           summary: it.summary,
           source_url: it.source_url,
           source_name: it.source_name,
-          event_at: it.event_at ?? null,
+          event_at: isoDateOrNull(it.event_at),
         }))
       );
-      if (error) await logNewsFailure(`calendario insert: ${error.message}`);
-      else totalInserted += valid.length;
-    }
-  }
+      if (error) {
+        await logNewsFailure(`calendario insert: ${error.message}`);
+        return 0;
+      }
+      return valid.length;
+    })(),
+  ]);
 
+  const totalInserted = newsInserted + scheduleInserted;
   await admin.from('webhook_log').insert({ type: 'news:generate', result: 'applied', detail: `${totalInserted} items publicados` });
   return { inserted: totalInserted };
 }
