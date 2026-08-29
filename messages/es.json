@@ -146,7 +146,9 @@
     "placeholder": "tu@correo.com",
     "sendMagicLink": "Enviar enlace mágico →",
     "sending": "Enviando…",
-    "sentBody": "Te mandamos un enlace a {email}. Ábrelo desde este celular."
+    "sentBody": "Te mandamos un enlace a {email}. Ábrelo desde este celular.",
+    "google": "Continuar con Google",
+    "or": "o con tu correo"
   },
   "paywall": {
     "eyebrow": "Tu plan personalizado",

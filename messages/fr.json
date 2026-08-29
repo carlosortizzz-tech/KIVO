@@ -146,7 +146,9 @@
     "placeholder": "toi@email.com",
     "sendMagicLink": "Envoyer le lien magique →",
     "sending": "Envoi…",
-    "sentBody": "On a envoyé un lien à {email}. Ouvre-le depuis ce téléphone."
+    "sentBody": "On a envoyé un lien à {email}. Ouvre-le depuis ce téléphone.",
+    "google": "Continuer avec Google",
+    "or": "ou avec ton e-mail"
   },
   "paywall": {
     "eyebrow": "Ton plan personnalisé",

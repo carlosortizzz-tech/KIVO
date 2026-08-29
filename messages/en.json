@@ -146,7 +146,9 @@
     "placeholder": "you@email.com",
     "sendMagicLink": "Send magic link →",
     "sending": "Sending…",
-    "sentBody": "We sent a link to {email}. Open it from this phone."
+    "sentBody": "We sent a link to {email}. Open it from this phone.",
+    "google": "Continue with Google",
+    "or": "or with your email"
   },
   "paywall": {
     "eyebrow": "Your personalized plan",

@@ -44,6 +44,19 @@ export default function CrearCuentaPage() {
     setSent(true);
   }
 
+  async function handleGoogle() {
+    if (!consent) {
+      setError(t('consentRequired'));
+      return;
+    }
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
+    });
+    if (error) setError(t('error'));
+  }
+
   return (
     <div className="max-w-[420px] mx-auto w-full min-h-dvh flex flex-col px-5">
       <div className="flex items-center justify-center py-6">
@@ -74,6 +87,19 @@ export default function CrearCuentaPage() {
               </span>
             </label>
             {error && <p className="text-xs text-danger text-center -mt-2">{error}</p>}
+
+            <button
+              onClick={handleGoogle}
+              type="button"
+              disabled={!consent}
+              className="flex items-center justify-center gap-2.5 bg-surface border border-border rounded-2xl py-4 px-5 font-bold text-[15px] transition-transform duration-150 active:scale-[0.98] disabled:opacity-50"
+            >
+              {t('google')}
+            </button>
+
+            <div className="flex items-center gap-3 text-text2 text-xs">
+              <span className="flex-1 h-px bg-border" /> {t('or')} <span className="flex-1 h-px bg-border" />
+            </div>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-2.5">
               <input
