@@ -69,7 +69,7 @@ export function WeekStrip({
           const hasConcert = venue !== undefined;
           const hasBirthday = member !== undefined;
           const hasTooltip = hasConcert || hasBirthday;
-          const tooltipText = venue ?? member;
+          const tooltipLines = [venue, member].filter((line): line is string => Boolean(line));
           const dayName = d.toLocaleDateString(locale, { weekday: 'short' }).slice(0, 2);
           const isActive = activeKey === dateKey;
           return (
@@ -90,9 +90,11 @@ export function WeekStrip({
               )}
               <div className={`text-[9px] ${isToday ? 'text-white/80' : 'text-text2'}`}>{dayName}</div>
               <div className="font-display text-[13px] font-bold mt-0.5">{d.getDate()}</div>
-              {isActive && tooltipText && (
+              {isActive && tooltipLines.length > 0 && (
                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 rounded-lg bg-text text-bg text-[11px] font-semibold whitespace-nowrap z-10 pointer-events-none">
-                  {tooltipText}
+                  {tooltipLines.map((line) => (
+                    <div key={line}>{line}</div>
+                  ))}
                 </div>
               )}
             </div>
