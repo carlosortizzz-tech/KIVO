@@ -270,6 +270,7 @@
       "empty": "Aún no hay guías publicadas.",
       "minutes": "{count} min",
       "newsTitle": "Noticias de hoy",
+      "scheduleTitle": "Próximos 14 días",
       "newsSource": "Fuente: {name}",
       "videosTitle": "Últimos videos oficiales",
       "spotifyTitle": "Lo más escuchado ahora",
