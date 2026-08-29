@@ -199,6 +199,7 @@
     "idTitle": "Ton KIVO ID",
     "idCode": "Code de membre",
     "idFooter": "Ton identifiant de fan sur KIVO — montre-le avec fierté. Ce code est unique et à toi.",
+    "levelLabel": "Niveau {level}",
     "sectionBadges": "Succès",
     "badgeProgress": "Encore {count} jours",
     "sectionLegal": "Légal",

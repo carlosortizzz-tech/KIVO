@@ -199,6 +199,7 @@
     "idTitle": "Tu KIVO ID",
     "idCode": "Código de socio",
     "idFooter": "Tu credencial de fan en KIVO — muéstrala con orgullo. Este código es único y tuyo.",
+    "levelLabel": "Nivel {level}",
     "sectionBadges": "Logros",
     "badgeProgress": "Te faltan {count} días",
     "sectionLegal": "Legal",

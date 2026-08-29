@@ -5,6 +5,7 @@ import { Link } from '@/i18n/navigation';
 import { ChevronRight, ShieldCheck, FileText, RotateCcw, IdCard } from 'lucide-react';
 import { LogoutButton } from '@/components/app/LogoutButton';
 import { ContactSupportButton } from '@/components/app/ContactSupportButton';
+import { progresoDeNivel } from '@/lib/gamification';
 
 export default async function CuentaPage() {
   const locale = await getLocale();
@@ -15,7 +16,7 @@ export default async function CuentaPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('plan, created_at, status, trial_ends_at, plan_amount, plan_currency, streak_count')
+    .select('plan, created_at, status, trial_ends_at, plan_amount, plan_currency, streak_count, xp_total')
     .eq('id', user.id)
     .maybeSingle();
 
@@ -32,6 +33,8 @@ export default async function CuentaPage() {
     if (!unlocked && b.code === 'racha_30') progress = t('badgeProgress', { count: Math.max(0, 30 - streakCount) });
     return { ...b, unlocked, progress };
   });
+  const { nivel, xpEnNivel, xpParaSiguiente } = progresoDeNivel(profile?.xp_total ?? 0);
+  const nivelPct = Math.min(100, Math.round((xpEnNivel / xpParaSiguiente) * 100));
   const isPro = profile?.plan === 'pro';
   const isTrialing = profile?.status === 'trialing';
   const memberSince = profile?.created_at
@@ -76,6 +79,16 @@ export default async function CuentaPage() {
         <span className="flex-1 text-sm">{t('idLink')}</span>
         <ChevronRight size={16} strokeWidth={2} className="text-text2" />
       </Link>
+
+      <div className="bg-surface border border-border rounded-2xl p-4 mb-6">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm font-bold">{t('levelLabel', { level: nivel })}</span>
+          <span className="text-xs text-text2">{xpEnNivel}/{xpParaSiguiente} XP</span>
+        </div>
+        <div className="h-2 rounded-full bg-border overflow-hidden">
+          <div className="h-full rounded-full bg-accent-btn transition-[width] duration-500" style={{ width: `${nivelPct}%`, boxShadow: 'var(--glow)' }} />
+        </div>
+      </div>
 
       <div className="text-xs font-bold uppercase tracking-wide text-text2 mb-2">{t('sectionBadges')}</div>
       <div className="grid grid-cols-2 gap-2.5 mb-6">
