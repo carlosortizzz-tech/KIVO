@@ -6,6 +6,7 @@ import { ProGate } from '@/components/app/ProGate';
 import { getUserPlan } from '@/lib/plan';
 import { YoutubeVideos } from '@/components/app/YoutubeVideos';
 import { SpotifyTracks } from '@/components/app/SpotifyTracks';
+import { KivoNews } from '@/components/app/KivoNews';
 
 const iconMap: Record<string, typeof Rss> = {
   Weverse: BookOpenText,
@@ -39,6 +40,8 @@ export default async function GuidePage() {
           {t('search')}
         </div>
       </Reveal>
+
+      <KivoNews />
 
       <div className="flex flex-col gap-2.5">
         {(guides ?? []).map((g, i) => {
