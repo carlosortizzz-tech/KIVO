@@ -44,7 +44,7 @@ export async function sendWelcomeEmail(email: string, name: string) {
     html: emailShell(`
       <h1>💜 Bienvenido a KIVO: la comunidad de BTS comienza aquí</h1>
       <p>Desde hoy tienes un nuevo espacio para vivir tu pasión por BTS de una forma más fácil, organizada y sin perderte nada.</p>
-      <p>En KIVO vas a encontrar tu calendario de preventas y comebacks, guías paso a paso para formar parte de una comunidad de ARMY sin spam.</p>
+      <p>En KIVO vas a encontrar tu calendario de preventas y comebacks, guías paso a paso para formar parte de una comunidad de fans de BTS sin spam.</p>
       <p>Tu Radar ya está listo.</p>
       <p><a href="${accessLink}" style="background:#7C3AED;color:#fff;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:600;display:inline-block">Ingresa a KIVO →</a></p>
       <p>Entra, revisa tu próximo evento y explora todo lo que ya armamos para ti.</p>

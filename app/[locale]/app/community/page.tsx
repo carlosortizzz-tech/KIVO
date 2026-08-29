@@ -41,7 +41,7 @@ async function buildExperiencesFeed(): Promise<ExperienceCardData[]> {
   const { data: profiles } = allUserIds.length
     ? await supabase.from('profiles').select('id, display_name').in('id', allUserIds)
     : { data: [] as { id: string; display_name: string | null }[] };
-  const nameById = new Map((profiles ?? []).map((p) => [p.id, p.display_name ?? 'ARMY']));
+  const nameById = new Map((profiles ?? []).map((p) => [p.id, p.display_name ?? t('anonymousFan')]));
 
   // Ids de contenido "raíz" que se van a mostrar (el original detrás de cada fila, sea repost o no)
   const rootIds = [...new Set(rows.map((r) => r.original_id ?? r.id))];
@@ -55,7 +55,7 @@ async function buildExperiencesFeed(): Promise<ExperienceCardData[]> {
   const repliesByRoot = new Map<string, ExperienceCardData['replies']>();
   for (const r of replies ?? []) {
     const list = repliesByRoot.get(r.experience_id) ?? [];
-    list.push({ id: r.id, body: r.body, authorName: nameById.get(r.user_id) ?? 'ARMY', createdAt: r.created_at });
+    list.push({ id: r.id, body: r.body, authorName: nameById.get(r.user_id) ?? t('anonymousFan'), createdAt: r.created_at });
     repliesByRoot.set(r.experience_id, list);
   }
 
@@ -83,7 +83,7 @@ async function buildExperiencesFeed(): Promise<ExperienceCardData[]> {
         authorUserId: root.user_id,
         photoUrl: root.photo_url,
         caption: root.caption,
-        authorName: nameById.get(root.user_id) ?? 'ARMY',
+        authorName: nameById.get(root.user_id) ?? t('anonymousFan'),
         createdAt: root.created_at,
         repostedByName: isRepost ? nameById.get(row.user_id) ?? t('experiences.someone') : null,
         replies: repliesByRoot.get(root.id) ?? [],
@@ -106,6 +106,12 @@ export default async function CommunityPage() {
     .order('created_at', { ascending: false })
     .limit(20);
 
+  const postAuthorIds = [...new Set((posts ?? []).map((p) => p.user_id))];
+  const { data: postAuthors } = postAuthorIds.length
+    ? await supabase.from('profiles').select('id, display_name').in('id', postAuthorIds)
+    : { data: [] as { id: string; display_name: string | null }[] };
+  const postAuthorNameById = new Map((postAuthors ?? []).map((a) => [a.id, a.display_name ?? t('anonymousFan')]));
+
   const experiences = await buildExperiencesFeed();
 
   const feed = (
@@ -125,9 +131,11 @@ export default async function CommunityPage() {
           {posts.map((p) => (
             <div key={p.id} className="bg-surface border border-border rounded-2xl p-3.5">
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-7 h-7 rounded-full bg-accent-soft text-accent2 flex items-center justify-center text-[11px] font-bold flex-shrink-0">A</div>
+                <div className="w-7 h-7 rounded-full bg-accent-soft text-accent2 flex items-center justify-center text-[11px] font-bold flex-shrink-0">
+                  {(postAuthorNameById.get(p.user_id) ?? '?')[0]?.toUpperCase()}
+                </div>
                 <div>
-                  <div className="text-xs font-bold">ARMY</div>
+                  <div className="text-xs font-bold">{postAuthorNameById.get(p.user_id) ?? t('anonymousFan')}</div>
                   <div className="text-[11px] text-text2">{timeAgo(p.created_at, locale)}</div>
                 </div>
                 <div className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-accent-soft text-accent2">{p.category}</div>

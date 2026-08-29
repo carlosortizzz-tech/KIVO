@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import Image from 'next/image';
 import { getTranslations, getLocale } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { Link } from '@/i18n/navigation';
@@ -13,11 +14,11 @@ export default async function KivoIdPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('display_name, plan, created_at')
+    .select('display_name, plan, created_at, avatar_url')
     .eq('id', user.id)
     .maybeSingle();
 
-  const name = profile?.display_name || user.email?.split('@')[0] || 'ARMY';
+  const name = profile?.display_name || user.email?.split('@')[0] || 'Fan';
   const isPro = profile?.plan === 'pro';
   const memberSince = profile?.created_at
     ? new Date(profile.created_at).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' })
@@ -38,8 +39,12 @@ export default async function KivoIdPage() {
           />
         </div>
 
-        <div className="w-20 h-20 rounded-full bg-accent-btn mx-auto mb-4 flex items-center justify-center font-display text-2xl font-extrabold" style={{ boxShadow: 'var(--glow)' }}>
-          {name[0]?.toUpperCase()}
+        <div className="w-20 h-20 rounded-full bg-accent-btn mx-auto mb-4 flex items-center justify-center font-display text-2xl font-extrabold overflow-hidden" style={{ boxShadow: 'var(--glow)' }}>
+          {profile?.avatar_url ? (
+            <Image src={profile.avatar_url} alt={name} width={80} height={80} className="w-full h-full object-cover" />
+          ) : (
+            name[0]?.toUpperCase()
+          )}
         </div>
 
         <div className="font-display text-xl font-extrabold mb-1">{name}</div>

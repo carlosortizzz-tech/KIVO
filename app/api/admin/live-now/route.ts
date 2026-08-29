@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
   let sent = 0;
   for (const u of proUsers ?? []) {
     if (!u.email) continue;
-    await sendLiveNowEmail(u.email, u.display_name ?? 'ARMY', title, url || undefined);
+    await sendLiveNowEmail(u.email, u.display_name ?? 'Fan', title, url || undefined);
     sent++;
   }
 

@@ -19,19 +19,19 @@ async function handle(to: string | null, type: string | null) {
 
   switch (type) {
     case 'welcome':
-      await sendWelcomeEmail(to, 'ARMY');
+      await sendWelcomeEmail(to, 'Fan');
       break;
     case 'trial_ending':
-      await sendTrialEndingEmail(to, 'ARMY', '4 de septiembre', 2.99, '$');
+      await sendTrialEndingEmail(to, 'Fan', '4 de septiembre', 2.99, '$');
       break;
     case 'cancellation':
-      await sendCancellationEmail(to, 'ARMY');
+      await sendCancellationEmail(to, 'Fan');
       break;
     case 'payment_failed':
-      await sendPaymentFailedEmail(to, 'ARMY');
+      await sendPaymentFailedEmail(to, 'Fan');
       break;
     default:
-      await sendWelcomeEmail(to, 'ARMY');
+      await sendWelcomeEmail(to, 'Fan');
   }
 
   return NextResponse.json({ ok: true, sent: type || 'welcome', to });

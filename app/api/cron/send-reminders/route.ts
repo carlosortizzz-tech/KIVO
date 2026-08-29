@@ -64,7 +64,7 @@ export async function GET(req: NextRequest) {
           .insert({ event_id: event.id, user_id: user.id, notif_window: w.key });
         if (dupErr) { skipped++; continue; }
 
-        await sendEventReminderEmail(user.email, user.display_name ?? 'ARMY', event.title, w.key);
+        await sendEventReminderEmail(user.email, user.display_name ?? 'Fan', event.title, w.key);
         sent++;
       }
     }
@@ -94,7 +94,7 @@ export async function GET(req: NextRequest) {
     if (markErr) { skipped++; continue; }
 
     const chargeDateLabel = new Date(user.trial_ends_at).toLocaleDateString('es', { day: 'numeric', month: 'long' });
-    await sendTrialEndingEmail(user.email, user.display_name ?? 'ARMY', chargeDateLabel, user.plan_amount, user.plan_currency);
+    await sendTrialEndingEmail(user.email, user.display_name ?? 'Fan', chargeDateLabel, user.plan_amount, user.plan_currency);
     sent++;
   }
 
