@@ -191,7 +191,7 @@ export default async function RadarPage() {
               <p className="text-[13px] text-text2 leading-relaxed mt-3 mb-3">{nextEvent.description}</p>
             )}
             <Link
-              href="/app/guide"
+              href={{ pathname: '/app/guide', query: { platform: nextEvent.platform } }}
               className="block text-center bg-accent-btn text-white font-bold text-[13px] rounded-xl py-2.5 w-full mt-3"
               style={{ boxShadow: 'var(--glow)' }}
             >

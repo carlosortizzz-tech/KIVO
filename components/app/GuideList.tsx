@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ChevronDown, ShieldQuestion, Rss, Ticket, BookOpenText } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Reveal } from '@/components/app/Reveal';
@@ -21,9 +21,21 @@ export type GuideRow = {
   steps: string[];
 };
 
-export function GuideList({ guides }: { guides: GuideRow[] }) {
+export function GuideList({ guides, openPlatform }: { guides: GuideRow[]; openPlatform?: string }) {
   const t = useTranslations('app.guide');
-  const [openId, setOpenId] = useState<string | null>(null);
+  const preselected = openPlatform ? guides.find((g) => g.platform === openPlatform)?.id ?? null : null;
+  const [openId, setOpenId] = useState<string | null>(preselected);
+  const cardRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  // Si se llegó con ?platform=X desde la tarjeta de "próximo evento" de Radar, la guía
+  // correspondiente ya nace abierta (arriba) — esto solo hace scroll hasta ella para que no
+  // quede fuera de la vista debajo de Noticias/Calendario.
+  useEffect(() => {
+    if (preselected && cardRefs.current[preselected]) {
+      cardRefs.current[preselected]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="flex flex-col gap-2.5">
@@ -32,7 +44,7 @@ export function GuideList({ guides }: { guides: GuideRow[] }) {
         const open = openId === g.id;
         return (
           <Reveal key={g.id} delayMs={80 + i * 60}>
-            <div className="bg-surface border border-border rounded-2xl overflow-hidden">
+            <div ref={(el) => { cardRefs.current[g.id] = el; }} className="bg-surface border border-border rounded-2xl overflow-hidden">
               <button
                 onClick={() => setOpenId(open ? null : g.id)}
                 aria-expanded={open}

@@ -9,9 +9,14 @@ import { SpotifyTracks } from '@/components/app/SpotifyTracks';
 import { KivoNews } from '@/components/app/KivoNews';
 import { GuideList, type GuideRow } from '@/components/app/GuideList';
 
-export default async function GuidePage() {
+export default async function GuidePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ platform?: string }>;
+}) {
   const t = await getTranslations('app.guide');
   const locale = await getLocale();
+  const { platform: openPlatform } = await searchParams;
   const plan = await getUserPlan();
   if (plan !== 'pro') return <ProGate feature={t('eyebrow')} />;
   const supabase = await createClient();
@@ -51,7 +56,7 @@ export default async function GuidePage() {
       <KivoNews />
 
       {guides.length > 0 ? (
-        <GuideList guides={guides} />
+        <GuideList guides={guides} openPlatform={openPlatform} />
       ) : (
         <div className="flex flex-col items-center text-center gap-2 py-10">
           <div className="text-sm text-text2">{t('empty')}</div>
