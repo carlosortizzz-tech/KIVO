@@ -276,6 +276,7 @@
       "search": "Chercher un guide (Weverse, Bubble, billets...)",
       "empty": "Aucun guide publié pour l'instant.",
       "minutes": "{count} min",
+      "stepsLabel": "Étapes",
       "newsTitle": "Actualités du jour",
       "scheduleTitle": "Les 14 prochains jours",
       "newsSource": "Source : {name}",

@@ -16,6 +16,13 @@ async function formatRelative(iso: string, locale: string, t: Awaited<ReturnType
   return t('radar.relativeDays', { days });
 }
 
+// Contenido editorial (39-INTERNACIONALIZACION): columnas por idioma en la tabla, con reserva
+// automática al español si falta la traducción de esa fila — nunca texto vacío.
+function pickLocale(locale: string, es: string, en: string | null, fr: string | null, ko: string | null): string {
+  const byLocale = locale === 'en' ? en : locale === 'fr' ? fr : locale === 'ko' ? ko : null;
+  return byLocale ?? es;
+}
+
 const typeKeys: Record<string, string> = {
   preventa: 'typePreventa',
   comeback: 'typeComeback',
@@ -30,25 +37,35 @@ export default async function RadarPage() {
   const locale = await getLocale();
   const t = await getTranslations('app');
   const supabase = await createClient();
-  const { data: events } = await supabase
+  const { data: eventRows } = await supabase
     .from('events')
-    .select('id, title, type, platform, starts_at, ends_at, description, url, venue')
+    .select('id, title, title_en, title_fr, title_ko, type, platform, starts_at, ends_at, description, description_en, description_fr, description_ko, url, venue')
     .order('starts_at', { ascending: true })
     .limit(10);
+  const events = (eventRows ?? []).map((ev) => ({
+    ...ev,
+    title: pickLocale(locale, ev.title, ev.title_en, ev.title_fr, ev.title_ko),
+    description: ev.description ? pickLocale(locale, ev.description, ev.description_en, ev.description_fr, ev.description_ko) : ev.description,
+  }));
 
   // La tarjeta de "próximo concierto" solo aparece dentro de la ventana de 20 días antes —
   // conciertos lejanos (meses) no se destacan aquí para no volver irrelevante el countdown.
   const CONCERT_WINDOW_DAYS = 20;
   const concertWindowEnd = new Date(Date.now() + CONCERT_WINDOW_DAYS * 86400000).toISOString();
-  const { data: nextConcert } = await supabase
+  const { data: nextConcertRow } = await supabase
     .from('events')
-    .select('id, title, starts_at, ends_at, description, url, venue')
+    .select('id, title, title_en, title_fr, title_ko, starts_at, ends_at, description, description_en, description_fr, description_ko, url, venue')
     .eq('type', 'concierto')
     .gte('starts_at', new Date().toISOString())
     .lte('starts_at', concertWindowEnd)
     .order('starts_at', { ascending: true })
     .limit(1)
     .maybeSingle();
+  const nextConcert = nextConcertRow && {
+    ...nextConcertRow,
+    title: pickLocale(locale, nextConcertRow.title, nextConcertRow.title_en, nextConcertRow.title_fr, nextConcertRow.title_ko),
+    description: nextConcertRow.description ? pickLocale(locale, nextConcertRow.description, nextConcertRow.description_en, nextConcertRow.description_fr, nextConcertRow.description_ko) : nextConcertRow.description,
+  };
 
   // Cuando la misma ciudad tiene varias fechas seguidas, se consolidan en UNA tarjeta (la más
   // próxima) — las demás se muestran como "fechas adicionales" acá y siguen apareciendo tal

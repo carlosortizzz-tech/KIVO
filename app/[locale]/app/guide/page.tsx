@@ -1,5 +1,5 @@
-import { Search, Rss, ShieldQuestion, Ticket, BookOpenText } from 'lucide-react';
-import { getTranslations } from 'next-intl/server';
+import { Search } from 'lucide-react';
+import { getTranslations, getLocale } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { Reveal } from '@/components/app/Reveal';
 import { ProGate } from '@/components/app/ProGate';
@@ -7,27 +7,34 @@ import { getUserPlan } from '@/lib/plan';
 import { YoutubeVideos } from '@/components/app/YoutubeVideos';
 import { SpotifyTracks } from '@/components/app/SpotifyTracks';
 import { KivoNews } from '@/components/app/KivoNews';
-
-const iconMap: Record<string, typeof Rss> = {
-  Weverse: BookOpenText,
-  Bubble: ShieldQuestion,
-  'Weverse Live': Rss,
-  Ticketing: Ticket,
-};
+import { GuideList, type GuideRow } from '@/components/app/GuideList';
 
 export default async function GuidePage() {
   const t = await getTranslations('app.guide');
+  const locale = await getLocale();
   const plan = await getUserPlan();
   if (plan !== 'pro') return <ProGate feature={t('eyebrow')} />;
   const supabase = await createClient();
-  const { data: guides, error } = await supabase
+  const { data: rows, error } = await supabase
     .from('guides')
-    .select('id, title, category, platform, read_minutes')
+    .select('id, title, title_en, title_fr, title_ko, category, category_en, category_fr, category_ko, platform, read_minutes, steps, steps_en, steps_fr, steps_ko')
     .order('created_at', { ascending: true });
 
   if (error) {
     throw new Error('No se pudieron cargar las guías de KIVO');
   }
+
+  // Contenido editorial (39-INTERNACIONALIZACION): columnas por idioma con reserva automática al
+  // español si falta la traducción de una fila — nunca texto vacío, nunca rompe el build por un
+  // campo null.
+  const guides: GuideRow[] = (rows ?? []).map((g) => ({
+    id: g.id,
+    title: (locale === 'en' ? g.title_en : locale === 'fr' ? g.title_fr : locale === 'ko' ? g.title_ko : null) ?? g.title,
+    category: (locale === 'en' ? g.category_en : locale === 'fr' ? g.category_fr : locale === 'ko' ? g.category_ko : null) ?? g.category,
+    platform: g.platform,
+    read_minutes: g.read_minutes,
+    steps: ((locale === 'en' ? g.steps_en : locale === 'fr' ? g.steps_fr : locale === 'ko' ? g.steps_ko : null) ?? g.steps) as string[],
+  }));
 
   return (
     <div>
@@ -43,30 +50,13 @@ export default async function GuidePage() {
 
       <KivoNews />
 
-      <div className="flex flex-col gap-2.5">
-        {(guides ?? []).map((g, i) => {
-          const Icon = iconMap[g.platform] ?? BookOpenText;
-          return (
-            <Reveal key={g.id} delayMs={80 + i * 60}>
-              <button className="icon-chip-accent-row flex items-center gap-3 bg-surface border border-border rounded-2xl p-3.5 w-full text-left transition-transform duration-150 active:scale-[0.98]">
-                <div className="icon-chip-accent firma-icon w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Icon size={20} strokeWidth={2} />
-                </div>
-                <div className="flex-1">
-                  <div className="text-sm font-bold">{g.title}</div>
-                  <div className="text-xs text-text2 mt-0.5">{g.category}</div>
-                </div>
-                <div className="text-[11px] text-text2 whitespace-nowrap">{t('minutes', { count: g.read_minutes })}</div>
-              </button>
-            </Reveal>
-          );
-        })}
-        {(!guides || guides.length === 0) && (
-          <div className="flex flex-col items-center text-center gap-2 py-10">
-            <div className="text-sm text-text2">{t('empty')}</div>
-          </div>
-        )}
-      </div>
+      {guides.length > 0 ? (
+        <GuideList guides={guides} />
+      ) : (
+        <div className="flex flex-col items-center text-center gap-2 py-10">
+          <div className="text-sm text-text2">{t('empty')}</div>
+        </div>
+      )}
       <YoutubeVideos />
       <SpotifyTracks />
     </div>

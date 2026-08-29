@@ -276,6 +276,7 @@
       "search": "가이드 검색 (위버스, 버블, 티켓...)",
       "empty": "아직 등록된 가이드가 없어요.",
       "minutes": "{count}분",
+      "stepsLabel": "단계",
       "newsTitle": "오늘의 뉴스",
       "scheduleTitle": "앞으로 14일",
       "newsSource": "출처: {name}",

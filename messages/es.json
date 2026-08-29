@@ -276,6 +276,7 @@
       "search": "Buscar guía (Weverse, Bubble, tickets...)",
       "empty": "Aún no hay guías publicadas.",
       "minutes": "{count} min",
+      "stepsLabel": "Pasos",
       "newsTitle": "Noticias de hoy",
       "scheduleTitle": "Próximos 14 días",
       "newsSource": "Fuente: {name}",
