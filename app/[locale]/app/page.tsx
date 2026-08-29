@@ -1,10 +1,11 @@
-import { MapPin } from 'lucide-react';
+import { MapPin, Snowflake } from 'lucide-react';
 import { getTranslations, getLocale } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { Countdown } from '@/components/app/Countdown';
 import { AddToCalendar } from '@/components/app/AddToCalendar';
 import { WeekStrip } from '@/components/app/WeekStrip';
 import { BadgeUnlockedModal } from '@/components/app/BadgeUnlockedModal';
+import { StreakFrozenBanner } from '@/components/app/StreakFrozenBanner';
 import { Link } from '@/i18n/navigation';
 
 async function formatRelative(iso: string, locale: string, t: Awaited<ReturnType<typeof getTranslations<'app'>>>) {
@@ -70,6 +71,8 @@ export default async function RadarPage() {
   // (24-GAMIFICACION: un hito celebrado al día siguiente no celebra nada).
   const { data: streakResult } = await supabase.rpc('bump_streak');
   const streak: number = streakResult?.streak ?? 1;
+  const freezes: number = streakResult?.freezes ?? 0;
+  const freezesConsumed: number = streakResult?.freezesConsumed ?? 0;
   const newBadgeCode: string | null = streakResult?.newBadge ?? null;
   const { data: newBadge } = newBadgeCode
     ? await supabase.from('badges').select('name, description, icon').eq('code', newBadgeCode).maybeSingle()
@@ -194,10 +197,17 @@ export default async function RadarPage() {
 
       <div className="flex items-center gap-3 bg-surface border border-border rounded-2xl p-3.5 mt-4">
         <div className="font-display text-xl font-extrabold text-accent2">{streak}</div>
-        <div className="text-xs text-text2"><b className="text-text block">{t('radar.streakLabel')}</b>{t('radar.streakSub')}</div>
+        <div className="text-xs text-text2 flex-1"><b className="text-text block">{t('radar.streakLabel')}</b>{t('radar.streakSub')}</div>
+        {freezes > 0 && (
+          <div className="flex items-center gap-1 text-[11px] font-bold text-accent2 bg-accent2/10 rounded-full px-2.5 py-1 whitespace-nowrap">
+            <Snowflake size={12} strokeWidth={2.5} />
+            {freezes}
+          </div>
+        )}
       </div>
 
       {newBadge && <BadgeUnlockedModal name={newBadge.name} description={newBadge.description} icon={newBadge.icon} />}
+      {!newBadge && freezesConsumed > 0 && <StreakFrozenBanner streak={streak} freezesLeft={freezes} />}
     </div>
   );
 }
