@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { isAdminEmail } from '@/lib/admin';
 import { AdminUsersTable, type AdminUserRow } from '@/components/app/AdminUsersTable';
 import { AdminReportsQueue, type ReportRow } from '@/components/app/AdminReportsQueue';
+import { AdminSafeQueue, type SafeReportRow } from '@/components/app/AdminSafeQueue';
 import { TriangleAlert } from 'lucide-react';
 
 function getAdmin() {
@@ -52,7 +53,16 @@ export default async function AdminPanelPage() {
     .eq('status', 'pending')
     .order('created_at', { ascending: false });
 
-  const reporterIds = [...new Set((pendingReports ?? []).map((r) => r.reported_by))];
+  const { data: pendingSafeReports } = await admin
+    .from('safe_reports')
+    .select('id, url_or_seller, reason, created_at, reported_by')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: false });
+
+  const reporterIds = [...new Set([
+    ...(pendingReports ?? []).map((r) => r.reported_by),
+    ...(pendingSafeReports ?? []).map((r) => r.reported_by),
+  ])];
   const { data: reporterProfiles } = reporterIds.length
     ? await admin.from('profiles').select('id, email').in('id', reporterIds)
     : { data: [] as { id: string; email: string | null }[] };
@@ -61,6 +71,14 @@ export default async function AdminPanelPage() {
   const reports: ReportRow[] = (pendingReports ?? []).map((r) => ({
     id: r.id,
     targetId: r.target_id,
+    reason: r.reason,
+    reporterEmail: reporterEmailById.get(r.reported_by) ?? null,
+    createdAt: r.created_at,
+  }));
+
+  const safeReports: SafeReportRow[] = (pendingSafeReports ?? []).map((r) => ({
+    id: r.id,
+    urlOrSeller: r.url_or_seller,
     reason: r.reason,
     reporterEmail: reporterEmailById.get(r.reported_by) ?? null,
     createdAt: r.created_at,
@@ -98,6 +116,7 @@ export default async function AdminPanelPage() {
       <h1 className="font-display text-lg font-extrabold mb-4">Panel del negocio</h1>
 
       <AdminReportsQueue reports={reports} />
+      <AdminSafeQueue reports={safeReports} />
 
       {fallosRecientes > 0 && (
         <div className="flex items-start gap-2.5 bg-danger/10 border border-danger/30 rounded-2xl p-3.5 mb-4">

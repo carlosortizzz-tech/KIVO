@@ -66,3 +66,13 @@ export async function removeReportedContent(reportId: string, targetId: string) 
   const { error } = await admin.from('forum_reports').update({ status: 'reviewed' }).eq('id', reportId);
   if (error) throw new Error(error.message);
 }
+
+// KIVO Safe: el dueño revisa cada reporte y decide si la estafa/vendedor es real (verified_scam,
+// entra al puntaje de confianza y a la lista de alertas) o no (verified_safe/dismissed). Sin esto
+// el trust score de Safe nunca tenía datos reales que mostrar — quedaba fijo en 100.
+export async function resolveSafeReport(reportId: string, status: 'verified_scam' | 'verified_safe' | 'dismissed') {
+  await requireAdmin();
+  const admin = getAdmin();
+  const { error } = await admin.from('safe_reports').update({ status }).eq('id', reportId);
+  if (error) throw new Error(error.message);
+}
