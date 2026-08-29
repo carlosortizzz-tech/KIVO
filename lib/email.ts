@@ -142,6 +142,7 @@ export async function sendEventReminderEmail(
       <h1>¡Hola ${name}! 👋</h1>
       <p><b>${eventTitle}</b> empieza ${whenLabel} — este es tu aviso de KIVO Radar para que no te agarre desprevenido.</p>
       <p><a href="${accessLink}" style="background:#7C3AED;color:#fff;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:600;display:inline-block">Ver la guía en KIVO →</a></p>
+      <p style="font-size:13px;color:#666">KIVO no vende tickets, membresías ni ningún cupo — solo te avisa a tiempo y te explica cómo hacerlo tú mismo en la plataforma oficial.</p>
       <p>Este enlace te deja entrar sin contraseña.</p>
     `),
   });
