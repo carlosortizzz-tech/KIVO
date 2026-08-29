@@ -4,13 +4,25 @@ import { useState } from 'react';
 import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
 
 type ConcertDate = { startsAt: string; venue: string | null };
+type BirthdayDate = { startsAt: string; member: string };
 
-export function WeekStrip({ locale, concertDates }: { locale: string; concertDates: ConcertDate[] }) {
+export function WeekStrip({
+  locale,
+  concertDates,
+  birthdayDates = [],
+}: {
+  locale: string;
+  concertDates: ConcertDate[];
+  birthdayDates?: BirthdayDate[];
+}) {
   const [weekOffset, setWeekOffset] = useState(0);
   const [activeKey, setActiveKey] = useState<string | null>(null);
   // 'en-CA' da YYYY-MM-DD en hora LOCAL del navegador — coherente con d.getDate() de abajo.
   const concertByDate = new Map(
     concertDates.map((c) => [new Date(c.startsAt).toLocaleDateString('en-CA'), c.venue])
+  );
+  const birthdayByDate = new Map(
+    birthdayDates.map((b) => [new Date(b.startsAt).toLocaleDateString('en-CA'), b.member])
   );
 
   const today = new Date();
@@ -53,7 +65,11 @@ export function WeekStrip({ locale, concertDates }: { locale: string; concertDat
           const dateKey = toDateKey(d);
           const isToday = d.toDateString() === today.toDateString();
           const venue = concertByDate.get(dateKey);
+          const member = birthdayByDate.get(dateKey);
           const hasConcert = venue !== undefined;
+          const hasBirthday = member !== undefined;
+          const hasTooltip = hasConcert || hasBirthday;
+          const tooltipText = venue ?? member;
           const dayName = d.toLocaleDateString(locale, { weekday: 'short' }).slice(0, 2);
           const isActive = activeKey === dateKey;
           return (
@@ -61,19 +77,22 @@ export function WeekStrip({ locale, concertDates }: { locale: string; concertDat
               key={i}
               className={`relative flex-1 text-center rounded-[10px] py-2 border select-none ${isToday ? 'bg-accent-btn border-accent-btn' : 'bg-surface border-border'}`}
               style={isToday ? { boxShadow: 'var(--glow)' } : undefined}
-              onPointerDown={hasConcert ? () => setActiveKey(dateKey) : undefined}
-              onPointerUp={hasConcert ? () => setActiveKey(null) : undefined}
-              onPointerLeave={hasConcert ? () => setActiveKey(null) : undefined}
-              onPointerCancel={hasConcert ? () => setActiveKey(null) : undefined}
+              onPointerDown={hasTooltip ? () => setActiveKey(dateKey) : undefined}
+              onPointerUp={hasTooltip ? () => setActiveKey(null) : undefined}
+              onPointerLeave={hasTooltip ? () => setActiveKey(null) : undefined}
+              onPointerCancel={hasTooltip ? () => setActiveKey(null) : undefined}
             >
               {hasConcert && (
                 <Star size={10} strokeWidth={0} fill="var(--warn)" className="absolute top-1 right-1" />
               )}
+              {hasBirthday && (
+                <Star size={10} strokeWidth={0} fill="var(--accent2)" className="absolute top-1 left-1" />
+              )}
               <div className={`text-[9px] ${isToday ? 'text-white/80' : 'text-text2'}`}>{dayName}</div>
               <div className="font-display text-[13px] font-bold mt-0.5">{d.getDate()}</div>
-              {isActive && venue && (
+              {isActive && tooltipText && (
                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 rounded-lg bg-text text-bg text-[11px] font-semibold whitespace-nowrap z-10 pointer-events-none">
-                  {venue}
+                  {tooltipText}
                 </div>
               )}
             </div>

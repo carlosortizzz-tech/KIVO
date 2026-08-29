@@ -41,6 +41,7 @@ export default async function RadarPage() {
   const { data: eventRows } = await supabase
     .from('events')
     .select('id, title, title_en, title_fr, title_ko, type, platform, starts_at, ends_at, description, description_en, description_fr, description_ko, url, venue')
+    .gte('starts_at', new Date().toISOString())
     .order('starts_at', { ascending: true })
     .limit(10);
   const events = (eventRows ?? []).map((ev) => ({
@@ -107,6 +108,16 @@ export default async function RadarPage() {
   // que coincida con los números que ya se muestran en la tira (también en hora local).
   const { data: allConcertRows } = await supabase.from('events').select('starts_at, venue').eq('type', 'concierto');
   const concertDates = (allConcertRows ?? []).map((r) => ({ startsAt: r.starts_at, venue: r.venue }));
+
+  // Mismo patrón que concertDates arriba, para la estrella morada de cumpleaños en la tira de días.
+  const { data: allBirthdayRows } = await supabase
+    .from('events')
+    .select('starts_at, title, title_en, title_fr, title_ko')
+    .eq('type', 'cumpleanos');
+  const birthdayDates = (allBirthdayRows ?? []).map((r) => ({
+    startsAt: r.starts_at,
+    member: pickLocale(locale, r.title, r.title_en, r.title_fr, r.title_ko),
+  }));
 
   const relatives = await Promise.all(restEvents.map((ev) => formatRelative(ev.starts_at, locale, t)));
 
@@ -201,7 +212,7 @@ export default async function RadarPage() {
         </div>
       )}
 
-      <WeekStrip locale={locale} concertDates={concertDates} />
+      <WeekStrip locale={locale} concertDates={concertDates} birthdayDates={birthdayDates} />
 
       {restEvents.length === 0 && !nextEvent && (
         <div className="text-center py-10 text-sm text-text2">{t('radar.noEvents')}</div>
