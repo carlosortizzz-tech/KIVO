@@ -1,4 +1,4 @@
-import { MapPin, Snowflake, CalendarDays } from 'lucide-react';
+import { MapPin, Snowflake, CalendarDays, Bell } from 'lucide-react';
 import { getTranslations, getLocale } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { Countdown } from '@/components/app/Countdown';
@@ -168,25 +168,36 @@ export default async function RadarPage() {
       )}
 
       {nextEvent && (
-        <div className="feature-card rounded-2xl p-4 mb-4">
-          <div className="flex items-start justify-between gap-2 mb-2">
-            <div className="text-xs font-bold uppercase tracking-wide text-accent2">
-              {t('radar.upcoming', { type: t(`radar.${typeKeys[nextEvent.type] ?? 'typePreventa'}` as never) })}
+        <div className="mb-4">
+          <CollapsibleSection
+            title={nextEvent.title}
+            icon={<Bell size={16} strokeWidth={2} />}
+          >
+            <div className="flex items-start justify-between gap-2 mb-3">
+              <div className="text-xs font-bold uppercase tracking-wide text-accent2">
+                {t('radar.upcoming', { type: t(`radar.${typeKeys[nextEvent.type] ?? 'typePreventa'}` as never) })}
+              </div>
+              <AddToCalendar event={{
+                id: nextEvent.id,
+                title: nextEvent.title,
+                startsAt: nextEvent.starts_at,
+                endsAt: nextEvent.ends_at,
+                description: nextEvent.description,
+                url: nextEvent.url,
+              }} />
             </div>
-            <AddToCalendar event={{
-              id: nextEvent.id,
-              title: nextEvent.title,
-              startsAt: nextEvent.starts_at,
-              endsAt: nextEvent.ends_at,
-              description: nextEvent.description,
-              url: nextEvent.url,
-            }} />
-          </div>
-          <div className="text-lg font-bold mb-3">{nextEvent.title}</div>
-          <Countdown target={nextEvent.starts_at} />
-          <button className="bg-accent-btn text-white font-bold text-[13px] rounded-xl py-2.5 w-full" style={{ boxShadow: 'var(--glow)' }}>
-            {t('radar.viewGuide')}
-          </button>
+            <Countdown target={nextEvent.starts_at} />
+            {nextEvent.description && (
+              <p className="text-[13px] text-text2 leading-relaxed mt-3 mb-3">{nextEvent.description}</p>
+            )}
+            <Link
+              href="/app/guide"
+              className="block text-center bg-accent-btn text-white font-bold text-[13px] rounded-xl py-2.5 w-full mt-3"
+              style={{ boxShadow: 'var(--glow)' }}
+            >
+              {t('radar.viewGuide')}
+            </Link>
+          </CollapsibleSection>
         </div>
       )}
 
