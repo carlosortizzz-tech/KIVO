@@ -248,6 +248,7 @@
       "upcoming": "Próxima {type}",
       "viewGuide": "Ver guía paso a paso →",
       "noEvents": "Aún no hay eventos cargados en tu radar. Vuelve pronto.",
+      "upcomingEventsTitle": "Próximos eventos",
       "streakLabel": "Racha diaria",
       "streakSub": "días seguidos en KIVO",
       "freezesAvailable": "{count, plural, =0 {Sin congeladores} one {1 congelador disponible} other {# congeladores disponibles}}",

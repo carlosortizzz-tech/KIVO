@@ -248,6 +248,7 @@
       "upcoming": "Prochain {type}",
       "viewGuide": "Voir le guide étape par étape →",
       "noEvents": "Aucun événement sur ton radar pour l'instant. Reviens bientôt.",
+      "upcomingEventsTitle": "Prochains événements",
       "streakLabel": "Série quotidienne",
       "streakSub": "jours consécutifs sur KIVO",
       "freezesAvailable": "{count, plural, =0 {Aucun gel} one {1 gel disponible} other {# gels disponibles}}",

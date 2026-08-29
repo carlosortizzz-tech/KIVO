@@ -1,4 +1,4 @@
-import { MapPin, Snowflake } from 'lucide-react';
+import { MapPin, Snowflake, CalendarDays } from 'lucide-react';
 import { getTranslations, getLocale } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { Countdown } from '@/components/app/Countdown';
@@ -6,6 +6,7 @@ import { AddToCalendar } from '@/components/app/AddToCalendar';
 import { WeekStrip } from '@/components/app/WeekStrip';
 import { BadgeUnlockedModal } from '@/components/app/BadgeUnlockedModal';
 import { StreakFrozenBanner } from '@/components/app/StreakFrozenBanner';
+import { CollapsibleSection } from '@/components/app/CollapsibleSection';
 import { Link } from '@/i18n/navigation';
 
 async function formatRelative(iso: string, locale: string, t: Awaited<ReturnType<typeof getTranslations<'app'>>>) {
@@ -191,26 +192,30 @@ export default async function RadarPage() {
 
       <WeekStrip locale={locale} concertDates={concertDates} />
 
-      <div className="flex flex-col gap-2.5">
-        {restEvents.length === 0 && !nextEvent && (
-          <div className="text-center py-10 text-sm text-text2">{t('radar.noEvents')}</div>
-        )}
-        {restEvents.map((ev, i) => (
-          <div key={ev.id} className="flex gap-3 items-start bg-surface border border-border rounded-2xl p-3.5">
-            <div className="icon-chip-accent w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-[10px] font-extrabold text-center leading-tight">
-              {new Date(ev.starts_at).toLocaleDateString(locale, { weekday: 'short' }).toUpperCase().slice(0, 3)}
-              <br />{new Date(ev.starts_at).getDate()}
-            </div>
-            <div className="flex-1">
-              <div className="text-[13px] font-bold mb-0.5">{ev.title}</div>
-              <div className="text-xs text-text2">{t(`radar.${typeKeys[ev.type] ?? 'typePreventa'}` as never)}{ev.platform ? ` · ${ev.platform}` : ''}</div>
-            </div>
-            <div className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-success/10 text-success whitespace-nowrap">
-              {relatives[i]}
-            </div>
+      {restEvents.length === 0 && !nextEvent && (
+        <div className="text-center py-10 text-sm text-text2">{t('radar.noEvents')}</div>
+      )}
+      {restEvents.length > 0 && (
+        <CollapsibleSection title={t('radar.upcomingEventsTitle')} icon={<CalendarDays size={16} strokeWidth={2} />} count={restEvents.length} defaultOpen>
+          <div className="flex flex-col gap-2.5">
+            {restEvents.map((ev, i) => (
+              <div key={ev.id} className="flex gap-3 items-start bg-sunken rounded-xl p-3.5">
+                <div className="icon-chip-accent w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-[10px] font-extrabold text-center leading-tight">
+                  {new Date(ev.starts_at).toLocaleDateString(locale, { weekday: 'short' }).toUpperCase().slice(0, 3)}
+                  <br />{new Date(ev.starts_at).getDate()}
+                </div>
+                <div className="flex-1">
+                  <div className="text-[13px] font-bold mb-0.5">{ev.title}</div>
+                  <div className="text-xs text-text2">{t(`radar.${typeKeys[ev.type] ?? 'typePreventa'}` as never)}{ev.platform ? ` · ${ev.platform}` : ''}</div>
+                </div>
+                <div className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-success/10 text-success whitespace-nowrap">
+                  {relatives[i]}
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </CollapsibleSection>
+      )}
 
       <div className="flex items-center gap-3 bg-surface border border-border rounded-2xl p-3.5 mt-4">
         <div className="font-display text-xl font-extrabold text-accent2">{streak}</div>
