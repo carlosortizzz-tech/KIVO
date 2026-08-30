@@ -5,14 +5,7 @@ import { useRouter } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { X } from 'lucide-react';
 import { submitForumPost } from '@/lib/community-actions';
-
-export const CATEGORIES = ['general', 'pregunta', 'comeback', 'concierto'] as const;
-export const categoryKey: Record<(typeof CATEGORIES)[number], string> = {
-  general: 'composeCategoryGeneral',
-  pregunta: 'composeCategoryPregunta',
-  comeback: 'composeCategoryComeback',
-  concierto: 'composeCategoryConcierto',
-};
+import { CATEGORIES, categoryKey } from '@/lib/community-categories';
 
 export function ComposePost() {
   const t = useTranslations('app.community');

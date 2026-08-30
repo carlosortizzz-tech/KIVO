@@ -6,7 +6,8 @@ import { getUserPlan } from '@/lib/plan';
 import { CommunityTabs } from '@/components/app/CommunityTabs';
 import { ExperienceComposer } from '@/components/app/ExperienceComposer';
 import { ExperienceCard, type ExperienceCardData } from '@/components/app/ExperienceCard';
-import { ComposePost, categoryKey, CATEGORIES } from '@/components/app/ComposePost';
+import { ComposePost } from '@/components/app/ComposePost';
+import { CATEGORIES, categoryKey } from '@/lib/community-categories';
 
 function timeAgo(iso: string, locale: string) {
   const diffMs = Date.now() - new Date(iso).getTime();
