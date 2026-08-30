@@ -13,6 +13,7 @@ async function getNextEvent() {
   const { data } = await supabase
     .from('events')
     .select('title, platform, starts_at')
+    .gte('starts_at', new Date().toISOString())
     .order('starts_at', { ascending: true })
     .limit(1)
     .maybeSingle();
