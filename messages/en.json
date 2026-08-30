@@ -1,14 +1,14 @@
 {
   "meta": {
     "title": "KIVO — Never miss a BTS presale again",
-    "description": "KIVO brings Weverse, Bubble, and every source together in one calendar for BTS fans worldwide. Not affiliated with HYBE."
+    "description": "KIVO brings every source together in one calendar for BTS fans worldwide. Not affiliated with HYBE."
   },
   "nav": {
     "enter": "Log in"
   },
   "landing": {
     "heroTitle": "Never miss another BTS presale",
-    "heroSubtitlePrefix": "brings Weverse, Bubble, and every source together in one calendar, and alerts you before it starts — not after it's sold out.",
+    "heroSubtitlePrefix": "brings every source together in one calendar, and alerts you before it starts — not after it's sold out.",
     "ctaCreateAccount": "Create my free account →",
     "proof": "7 days free · Cancel anytime",
     "trustBadge": "Made by fans, for fans — we're not HYBE and we don't pretend to be",
@@ -47,7 +47,7 @@
     "faqEyebrow": "Questions",
     "faqTitle": "Before you wonder",
     "faqQ1": "Isn't this the same as Weverse?",
-    "faqA1": "No. Weverse streams content; KIVO organizes it and tells you when and how to act on Weverse, Bubble, and every other platform.",
+    "faqA1": "No. Weverse streams content; KIVO organizes it and tells you when and how to act, no matter which platform it's on.",
     "faqQ2": "Is KIVO official BTS or HYBE content?",
     "faqA2": "No. KIVO is 100% fan-made, not affiliated with HYBE — that's why we focus on what's useful to you, not what's convenient for them to sell.",
     "faqQ3": "Why pay if I can get it for free on TikTok or Reddit?",
@@ -278,7 +278,7 @@
     "guide": {
       "eyebrow": "Guides",
       "title": "Step-by-step by platform",
-      "search": "Search a guide (Weverse, Bubble, tickets...)",
+      "search": "Search a guide (tickets, lives, memberships...)",
       "empty": "No guides published yet.",
       "minutes": "{count} min",
       "stepsLabel": "Steps",

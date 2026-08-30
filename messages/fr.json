@@ -1,14 +1,14 @@
 {
   "meta": {
     "title": "KIVO — Ne rate plus jamais une prévente BTS",
-    "description": "KIVO réunit Weverse, Bubble et toutes les sources en un seul calendrier pour les fans de BTS du monde entier. Non affilié à HYBE."
+    "description": "KIVO réunit toutes les sources en un seul calendrier pour les fans de BTS du monde entier. Non affilié à HYBE."
   },
   "nav": {
     "enter": "Connexion"
   },
   "landing": {
     "heroTitle": "Ne rate plus jamais une prévente BTS",
-    "heroSubtitlePrefix": "réunit Weverse, Bubble et toutes les sources en un seul calendrier, et t'alerte avant que ça commence — pas quand c'est déjà épuisé.",
+    "heroSubtitlePrefix": "réunit toutes les sources en un seul calendrier, et t'alerte avant que ça commence — pas quand c'est déjà épuisé.",
     "ctaCreateAccount": "Créer mon compte gratuit →",
     "proof": "7 jours gratuits · Annule quand tu veux",
     "trustBadge": "Fait par des fans, pour des fans — on n'est pas HYBE et on ne prétend pas l'être",
@@ -47,7 +47,7 @@
     "faqEyebrow": "Questions",
     "faqTitle": "Avant que tu hésites",
     "faqQ1": "Ce n'est pas la même chose que Weverse ?",
-    "faqA1": "Non. Weverse diffuse du contenu ; KIVO t'organise et te dit quand et comment agir sur Weverse, Bubble et toutes les autres plateformes.",
+    "faqA1": "Non. Weverse diffuse du contenu ; KIVO t'organise et te dit quand et comment agir, peu importe la plateforme.",
     "faqQ2": "KIVO est-il officiel BTS ou HYBE ?",
     "faqA2": "Non. KIVO est fait à 100% par des fans, non affilié à HYBE — c'est pourquoi on se concentre sur ce qui te sert, pas sur ce qui les arrange à vendre.",
     "faqQ3": "Pourquoi payer si je l'ai gratuitement sur TikTok ou Reddit ?",
@@ -278,7 +278,7 @@
     "guide": {
       "eyebrow": "Guides",
       "title": "Étape par étape par plateforme",
-      "search": "Chercher un guide (Weverse, Bubble, billets...)",
+      "search": "Chercher un guide (billets, lives, membership...)",
       "empty": "Aucun guide publié pour l'instant.",
       "minutes": "{count} min",
       "stepsLabel": "Étapes",
