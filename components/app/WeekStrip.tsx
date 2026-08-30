@@ -5,15 +5,18 @@ import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
 
 type ConcertDate = { startsAt: string; venue: string | null };
 type BirthdayDate = { startsAt: string; member: string };
+type AlbumDate = { startsAt: string; album: string };
 
 export function WeekStrip({
   locale,
   concertDates,
   birthdayDates = [],
+  albumDates = [],
 }: {
   locale: string;
   concertDates: ConcertDate[];
   birthdayDates?: BirthdayDate[];
+  albumDates?: AlbumDate[];
 }) {
   const [weekOffset, setWeekOffset] = useState(0);
   const [activeKey, setActiveKey] = useState<string | null>(null);
@@ -23,6 +26,9 @@ export function WeekStrip({
   );
   const birthdayByDate = new Map(
     birthdayDates.map((b) => [new Date(b.startsAt).toLocaleDateString('en-CA'), b.member])
+  );
+  const albumByDate = new Map(
+    albumDates.map((a) => [new Date(a.startsAt).toLocaleDateString('en-CA'), a.album])
   );
 
   const today = new Date();
@@ -66,10 +72,12 @@ export function WeekStrip({
           const isToday = d.toDateString() === today.toDateString();
           const venue = concertByDate.get(dateKey);
           const member = birthdayByDate.get(dateKey);
+          const album = albumByDate.get(dateKey);
           const hasConcert = venue !== undefined;
           const hasBirthday = member !== undefined;
-          const hasTooltip = hasConcert || hasBirthday;
-          const tooltipLines = [venue, member].filter((line): line is string => Boolean(line));
+          const hasAlbum = album !== undefined;
+          const hasTooltip = hasConcert || hasBirthday || hasAlbum;
+          const tooltipLines = [venue, member, album].filter((line): line is string => Boolean(line));
           const dayName = d.toLocaleDateString(locale, { weekday: 'short' }).slice(0, 2);
           const isActive = activeKey === dateKey;
           return (
@@ -87,6 +95,9 @@ export function WeekStrip({
               )}
               {hasBirthday && (
                 <Star size={10} strokeWidth={0} fill="var(--accent2)" className="absolute top-1 left-1" />
+              )}
+              {hasAlbum && (
+                <Star size={10} strokeWidth={0} fill="var(--danger)" className="absolute bottom-1 right-1" />
               )}
               <div className={`text-[9px] ${isToday ? 'text-white/80' : 'text-text2'}`}>{dayName}</div>
               <div className="font-display text-[13px] font-bold mt-0.5">{d.getDate()}</div>

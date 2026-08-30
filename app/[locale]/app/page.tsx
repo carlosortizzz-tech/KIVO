@@ -33,6 +33,7 @@ const typeKeys: Record<string, string> = {
   votacion: 'typeVotacion',
   concierto: 'typeConcierto',
   aniversario: 'typeAniversario',
+  album: 'typeAlbum',
 };
 
 export default async function RadarPage() {
@@ -120,6 +121,16 @@ export default async function RadarPage() {
   const birthdayDates = (allBirthdayRows ?? []).map((r) => ({
     startsAt: r.starts_at,
     member: pickLocale(locale, r.title, r.title_en, r.title_fr, r.title_ko),
+  }));
+
+  // Estrella roja: aniversarios de lanzamiento de álbumes.
+  const { data: allAlbumRows } = await supabase
+    .from('events')
+    .select('starts_at, title, title_en, title_fr, title_ko')
+    .eq('type', 'album');
+  const albumDates = (allAlbumRows ?? []).map((r) => ({
+    startsAt: r.starts_at,
+    album: pickLocale(locale, r.title, r.title_en, r.title_fr, r.title_ko),
   }));
 
   const relatives = await Promise.all(restEvents.map((ev) => formatRelative(ev.starts_at, locale, t)));
@@ -216,7 +227,7 @@ export default async function RadarPage() {
         </div>
       )}
 
-      <WeekStrip locale={locale} concertDates={concertDates} birthdayDates={birthdayDates} />
+      <WeekStrip locale={locale} concertDates={concertDates} birthdayDates={birthdayDates} albumDates={albumDates} />
 
       {restEvents.length === 0 && !nextEvent && (
         <div className="text-center py-10 text-sm text-text2">{t('radar.noEvents')}</div>

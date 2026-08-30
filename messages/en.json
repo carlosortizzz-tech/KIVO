@@ -271,6 +271,7 @@
       "typeLive": "live",
       "typeCumpleanos": "birthday",
       "typeAniversario": "anniversary",
+      "typeAlbum": "album",
       "typeVotacion": "vote",
       "typeConcierto": "concert",
       "relativeToday": "today",
