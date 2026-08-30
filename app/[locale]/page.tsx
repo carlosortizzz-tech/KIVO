@@ -108,7 +108,8 @@ export default async function LandingPage({
       <Reveal>
         <section className="py-10">
           <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-1.5">{t('problemsEyebrow')}</div>
-          <h2 className="font-display text-[20px] font-extrabold mb-4">{t('problemsTitle')}</h2>
+          <h2 className="font-display text-[20px] font-extrabold mb-2">{t('problemsTitle')}</h2>
+          <p className="text-xs text-text2 mb-4">{t('problemsProof')}</p>
           <div className="flex flex-col gap-3">
             {problems.map(({ icon: Icon, text }, i) => (
               <div key={i} className="flex gap-3 items-start bg-surface border border-border rounded-[18px] p-4">
