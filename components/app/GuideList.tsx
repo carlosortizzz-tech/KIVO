@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { ChevronDown, ShieldQuestion, ShieldAlert, Rss, Ticket, BookOpenText } from 'lucide-react';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { ChevronDown, Search, ShieldQuestion, ShieldAlert, Rss, Ticket, BookOpenText } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Reveal } from '@/components/app/Reveal';
 
@@ -22,11 +22,30 @@ export type GuideRow = {
   steps: string[];
 };
 
-export function GuideList({ guides, openPlatform }: { guides: GuideRow[]; openPlatform?: string }) {
+export function GuideList({
+  guides,
+  openPlatform,
+  searchPlaceholder,
+  noResultsLabel,
+}: {
+  guides: GuideRow[];
+  openPlatform?: string;
+  searchPlaceholder?: string;
+  noResultsLabel?: string;
+}) {
   const t = useTranslations('app.guide');
   const preselected = openPlatform ? guides.find((g) => g.platform === openPlatform)?.id ?? null : null;
   const [openId, setOpenId] = useState<string | null>(preselected);
+  const [query, setQuery] = useState('');
   const cardRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  const filteredGuides = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return guides;
+    return guides.filter(
+      (g) => g.title.toLowerCase().includes(q) || g.category.toLowerCase().includes(q) || g.platform.toLowerCase().includes(q)
+    );
+  }, [guides, query]);
 
   // Si se llegó con ?platform=X desde la tarjeta de "próximo evento" de Radar, la guía
   // correspondiente ya nace abierta (arriba) — esto solo hace scroll hasta ella para que no
@@ -40,7 +59,19 @@ export function GuideList({ guides, openPlatform }: { guides: GuideRow[]; openPl
 
   return (
     <div className="flex flex-col gap-2.5">
-      {guides.map((g, i) => {
+      <div className="flex items-center gap-2 bg-surface border border-border rounded-2xl px-3.5 py-3 mb-1.5 text-sm">
+        <Search size={16} strokeWidth={2} className="text-text2 flex-shrink-0" />
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={searchPlaceholder}
+          className="bg-transparent outline-none text-sm text-text placeholder:text-text2 flex-1 min-w-0"
+        />
+      </div>
+      {filteredGuides.length === 0 && (
+        <div className="text-center text-sm text-text2 py-6">{noResultsLabel}</div>
+      )}
+      {filteredGuides.map((g, i) => {
         const Icon = iconMap[g.platform] ?? BookOpenText;
         const open = openId === g.id;
         return (

@@ -284,6 +284,7 @@
       "eyebrow": "Guías",
       "title": "Paso a paso por plataforma",
       "search": "Buscar guía (tickets, lives, membresías...)",
+      "noResults": "No encontramos ninguna guía con eso. Prueba con otra palabra.",
       "empty": "Aún no hay guías publicadas.",
       "minutes": "{count} min",
       "stepsLabel": "Pasos",

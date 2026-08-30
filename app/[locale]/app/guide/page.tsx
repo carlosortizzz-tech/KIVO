@@ -1,4 +1,3 @@
-import { Search } from 'lucide-react';
 import { getTranslations, getLocale } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { Reveal } from '@/components/app/Reveal';
@@ -46,17 +45,12 @@ export default async function GuidePage({
       <Reveal>
         <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-1">{t('eyebrow')}</div>
         <h1 className="font-display text-lg font-extrabold mb-4">{t('title')}</h1>
-
-        <div className="flex items-center gap-2 bg-surface border border-border rounded-2xl px-3.5 py-3 mb-4 text-sm text-text2">
-          <Search size={16} strokeWidth={2} />
-          {t('search')}
-        </div>
       </Reveal>
 
       <KivoNews />
 
       {guides.length > 0 ? (
-        <GuideList guides={guides} openPlatform={openPlatform} />
+        <GuideList guides={guides} openPlatform={openPlatform} searchPlaceholder={t('search')} noResultsLabel={t('noResults')} />
       ) : (
         <div className="flex flex-col items-center text-center gap-2 py-10">
           <div className="text-sm text-text2">{t('empty')}</div>

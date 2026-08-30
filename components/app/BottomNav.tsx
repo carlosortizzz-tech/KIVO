@@ -16,7 +16,10 @@ export function BottomNav({ plan }: { plan: 'free' | 'pro' }) {
   ];
 
   return (
-    <nav className="sticky bottom-0 flex items-stretch justify-around border-t border-border bg-surface z-10">
+    <nav
+      className="sticky bottom-0 flex items-stretch justify-around border-t border-border bg-surface z-10"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+    >
       {items.map(({ href, label, Icon, pro }) => {
         const active = pathname === href;
         const locked = pro && plan !== 'pro';
@@ -24,7 +27,7 @@ export function BottomNav({ plan }: { plan: 'free' | 'pro' }) {
           <Link
             key={href}
             href={href}
-            className={`relative flex-1 flex flex-col items-center gap-1 py-2.5 pb-2 text-[10px] font-semibold ${
+            className={`relative flex-1 flex flex-col items-center gap-1 py-2.5 text-[10px] font-semibold whitespace-nowrap ${
               active ? 'text-accent2' : 'text-text2'
             }`}
           >

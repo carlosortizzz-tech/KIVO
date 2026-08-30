@@ -284,6 +284,7 @@
       "eyebrow": "Guides",
       "title": "Step-by-step by platform",
       "search": "Search a guide (tickets, lives, memberships...)",
+      "noResults": "No guide matches that. Try another word.",
       "empty": "No guides published yet.",
       "minutes": "{count} min",
       "stepsLabel": "Steps",
