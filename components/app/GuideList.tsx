@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { ChevronDown, ShieldQuestion, Rss, Ticket, BookOpenText } from 'lucide-react';
+import { ChevronDown, ShieldQuestion, ShieldAlert, Rss, Ticket, BookOpenText } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Reveal } from '@/components/app/Reveal';
 
@@ -10,6 +10,7 @@ const iconMap: Record<string, typeof Rss> = {
   Bubble: ShieldQuestion,
   'Weverse Live': Rss,
   Ticketing: Ticket,
+  Seguridad: ShieldAlert,
 };
 
 export type GuideRow = {
