@@ -85,7 +85,7 @@ export default async function CuentaPage() {
       </Reveal>
 
       <Reveal delayMs={60}>
-        <Link href="/app/cuenta/id" className="flex items-center gap-3 bg-surface border border-border rounded-2xl px-4 py-3.5 mb-6">
+        <Link href="/app/cuenta/id" className="flex items-center gap-3 bg-surface border border-border rounded-2xl px-4 py-3.5 mb-6 transition-transform duration-150 active:scale-[0.98]">
           <div className="icon-chip-accent firma-icon w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0">
             <IdCard size={16} strokeWidth={2} />
           </div>
@@ -96,11 +96,8 @@ export default async function CuentaPage() {
 
       <Reveal delayMs={120}>
         <div className="bg-surface border border-border rounded-2xl p-4 mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-bold">{t('levelLabel', { level: nivel })}</span>
-            <span className="text-xs text-text2">{xpEnNivel}/{xpParaSiguiente} XP</span>
-          </div>
-          <LevelBar pct={nivelPct} />
+          <div className="font-display text-xl font-extrabold text-accent2 mb-2">{t('levelLabel', { level: nivel })}</div>
+          <LevelBar pct={nivelPct} xpEnNivel={xpEnNivel} xpParaSiguiente={xpParaSiguiente} />
         </div>
       </Reveal>
 
@@ -118,12 +115,14 @@ export default async function CuentaPage() {
         )}
 
         <div className="grid grid-cols-2 gap-2.5 mb-6">
-          {gridBadges.map((b) => (
-            <div key={b.id} className={`rounded-2xl p-3.5 border ${b.unlocked ? 'bg-accent/10 border-accent/30' : 'bg-surface border-border opacity-50'}`}>
-              <div className="text-2xl mb-1.5">{b.icon ?? '🏆'}</div>
-              <div className="text-xs font-bold mb-0.5">{b.name}</div>
-              <div className="text-[11px] text-text2">{b.unlocked ? b.description : (b.progress ?? b.description)}</div>
-            </div>
+          {gridBadges.map((b, i) => (
+            <Reveal key={b.id} delayMs={i * 40}>
+              <div className={`rounded-2xl p-3.5 border ${b.unlocked ? 'bg-accent/10 border-accent/30' : 'bg-surface border-border opacity-50'}`}>
+                <div className="text-2xl mb-1.5">{b.icon ?? '🏆'}</div>
+                <div className="text-xs font-bold mb-0.5">{b.name}</div>
+                <div className="text-[11px] text-text2">{b.unlocked ? b.description : (b.progress ?? b.description)}</div>
+              </div>
+            </Reveal>
           ))}
         </div>
       </Reveal>
@@ -132,7 +131,7 @@ export default async function CuentaPage() {
         <div className="text-xs font-bold uppercase tracking-wide text-text2 mb-2">{t('sectionLegal')}</div>
         <div className="flex flex-col gap-2 mb-6">
           {links.map(({ href, label, Icon }) => (
-            <Link key={href} href={href} className="flex items-center gap-3 bg-surface border border-border rounded-2xl px-4 py-3.5">
+            <Link key={href} href={href} className="flex items-center gap-3 bg-surface border border-border rounded-2xl px-4 py-3.5 transition-transform duration-150 active:scale-[0.98]">
               <div className="icon-chip-accent firma-icon w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0">
                 <Icon size={16} strokeWidth={2} />
               </div>
