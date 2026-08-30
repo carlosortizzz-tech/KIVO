@@ -269,7 +269,7 @@ export default async function RadarPage() {
       <div className="bg-surface border border-border rounded-2xl p-3.5 mt-4">
         <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-0.5">{t('radar.latestReleaseTitle')}</div>
         <div className="text-sm font-bold mb-3">{t('radar.latestReleaseAlbum')}</div>
-        <InstagramEmbed url="https://www.instagram.com/reel/DXMK5nYjcm3/" />
+        <InstagramEmbed url="https://www.instagram.com/reel/DWGgC2dhulc/" />
       </div>
 
       {newBadge && <BadgeUnlockedModal name={newBadge.name} description={newBadge.description} icon={newBadge.icon} />}
