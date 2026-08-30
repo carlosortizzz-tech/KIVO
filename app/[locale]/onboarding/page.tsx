@@ -126,7 +126,7 @@ export default function OnboardingPage() {
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col justify-start pt-6 pb-8">
+      <div className="flex-1 flex flex-col justify-center pb-8">
         {step === 0 && (
           <div className="flex flex-col gap-4.5">
             <div className="firma-icon w-[88px] h-[88px] rounded-full flex items-center justify-center mb-2 relative" style={{ background: 'radial-gradient(circle, var(--glow-icon), transparent 70%)' }}>

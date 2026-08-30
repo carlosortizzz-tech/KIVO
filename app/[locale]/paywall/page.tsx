@@ -35,6 +35,7 @@ export default function PaywallPage() {
   const [answers, setAnswers] = useState<OnboardingAnswers>({});
   const [migrateFailed, setMigrateFailed] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [checkoutNotReady, setCheckoutNotReady] = useState(false);
 
   useEffect(() => {
     createClient()
@@ -77,7 +78,7 @@ export default function PaywallPage() {
     if (!checkoutUrl) {
       // El producto de Hotmart todavía no está creado/publicado — sin link de checkout, no hay
       // adónde mandar al usuario a pagar. Se le avisa en vez de dejarlo pasar gratis en silencio.
-      alert(t('checkoutNotReady'));
+      setCheckoutNotReady(true);
       return;
     }
     const url = new URL(checkoutUrl);
@@ -175,6 +176,9 @@ export default function PaywallPage() {
 
       <div className="fixed bottom-0 left-0 right-0 px-5 pb-5 pt-6" style={{ background: 'linear-gradient(180deg, transparent, var(--bg) 30%)' }}>
         <div className="max-w-[420px] mx-auto flex flex-col gap-2">
+          {checkoutNotReady && (
+            <p className="text-[11px] text-warn text-center -mt-1 mb-1">{t('checkoutNotReady')}</p>
+          )}
           <button onClick={handleStart} className="bg-accent-btn text-white font-bold text-[15px] rounded-[14px] py-4 transition-transform duration-150 active:scale-[0.97]" style={{ boxShadow: 'var(--glow)' }}>
             {t('cta')}
           </button>

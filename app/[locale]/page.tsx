@@ -79,7 +79,7 @@ export default async function LandingPage({
         </p>
         <Link
           href="/onboarding"
-          className="flex items-center justify-center gap-2 bg-accent-btn text-white font-bold text-[15px] rounded-2xl py-4 px-6 w-full"
+          className="flex items-center justify-center gap-2 bg-accent-btn text-white font-bold text-[15px] rounded-2xl py-4 px-6 w-full transition-transform duration-150 active:scale-[0.97]"
           style={{ boxShadow: 'var(--glow)' }}
         >
           {t('ctaCreateAccount')}
@@ -177,7 +177,7 @@ export default async function LandingPage({
               <div className="text-[11px] text-text2">{t('monthlyNote')}</div>
             </div>
           </div>
-          <Link href="/onboarding" className="mt-4 flex items-center justify-center gap-2 bg-accent-btn text-white font-bold text-[15px] rounded-2xl py-4 px-6 w-full" style={{ boxShadow: 'var(--glow)' }}>
+          <Link href="/onboarding" className="mt-4 flex items-center justify-center gap-2 bg-accent-btn text-white font-bold text-[15px] rounded-2xl py-4 px-6 w-full transition-transform duration-150 active:scale-[0.97]" style={{ boxShadow: 'var(--glow)' }}>
             {t('ctaCreateAccount')}
           </Link>
         </section>
@@ -205,7 +205,7 @@ export default async function LandingPage({
           <div className="rounded-[20px] p-7 text-center border border-accent/35" style={{ background: 'linear-gradient(180deg, #1B1128, #0F0817)', boxShadow: '0 0 40px rgba(180,79,245,0.15)' }}>
             <h2 className="font-display text-[19px] font-extrabold mb-2.5">{t('finalTitle')}</h2>
             <p className="text-sm text-text2 mb-4.5">{t('finalBody')}</p>
-            <Link href="/onboarding" className="flex items-center justify-center gap-2 bg-accent-btn text-white font-bold text-[15px] rounded-2xl py-4 px-6 w-full" style={{ boxShadow: 'var(--glow)' }}>
+            <Link href="/onboarding" className="flex items-center justify-center gap-2 bg-accent-btn text-white font-bold text-[15px] rounded-2xl py-4 px-6 w-full transition-transform duration-150 active:scale-[0.97]" style={{ boxShadow: 'var(--glow)' }}>
               {t('ctaCreateAccount')}
             </Link>
             <div className="text-[12px] text-accent2 mt-3.5 font-semibold">{t('finalPrice')}</div>
