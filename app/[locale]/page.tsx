@@ -1,4 +1,4 @@
-import { Calendar, Search, Globe2, ShieldAlert, UserRound } from 'lucide-react';
+import { Calendar, Search, Globe2, ShieldAlert, UserRound, HeartHandshake } from 'lucide-react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { Countdown } from '@/components/app/Countdown';
@@ -86,6 +86,10 @@ export default async function LandingPage({
         <div className="flex items-center gap-2.5 mt-3.5 text-xs text-text2">
           <span className="w-1.5 h-1.5 rounded-full bg-success" />
           {t('proof')}
+        </div>
+        <div className="flex items-center gap-2 mt-2.5 text-xs font-semibold text-accent2">
+          <HeartHandshake size={14} strokeWidth={2} />
+          {t('trustBadge')}
         </div>
 
         <div
