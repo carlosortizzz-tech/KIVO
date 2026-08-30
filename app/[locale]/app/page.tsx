@@ -32,6 +32,7 @@ const typeKeys: Record<string, string> = {
   cumpleanos: 'typeCumpleanos',
   votacion: 'typeVotacion',
   concierto: 'typeConcierto',
+  aniversario: 'typeAniversario',
 };
 
 export default async function RadarPage() {
@@ -109,11 +110,13 @@ export default async function RadarPage() {
   const { data: allConcertRows } = await supabase.from('events').select('starts_at, venue').eq('type', 'concierto');
   const concertDates = (allConcertRows ?? []).map((r) => ({ startsAt: r.starts_at, venue: r.venue }));
 
-  // Mismo patrón que concertDates arriba, para la estrella morada de cumpleaños en la tira de días.
+  // Mismo patrón que concertDates arriba, para la estrella morada en la tira de días — cubre
+  // cumpleaños de miembros Y aniversarios/celebraciones (FESTA, debut, etc.), ambos con el mismo
+  // tratamiento visual pero tipos distintos para no etiquetar mal un aniversario como "cumpleaños".
   const { data: allBirthdayRows } = await supabase
     .from('events')
     .select('starts_at, title, title_en, title_fr, title_ko')
-    .eq('type', 'cumpleanos');
+    .in('type', ['cumpleanos', 'aniversario']);
   const birthdayDates = (allBirthdayRows ?? []).map((r) => ({
     startsAt: r.starts_at,
     member: pickLocale(locale, r.title, r.title_en, r.title_fr, r.title_ko),

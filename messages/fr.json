@@ -270,6 +270,7 @@
       "typeMembresia": "membership",
       "typeLive": "live",
       "typeCumpleanos": "anniversaire",
+      "typeAniversario": "célébration",
       "typeVotacion": "vote",
       "typeConcierto": "concert",
       "relativeToday": "aujourd'hui",
