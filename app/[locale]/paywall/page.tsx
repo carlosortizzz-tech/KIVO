@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Rss, BookOpen, MessagesSquare, Check, ArrowLeft } from 'lucide-react';
+import { Rss, BookOpen, MessagesSquare, ShieldCheck, Check, ArrowLeft } from 'lucide-react';
 import { useRouter } from '@/i18n/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { track } from '@/lib/analytics';
@@ -115,6 +115,7 @@ export default function PaywallPage() {
 
         <div className="feature-card rounded-[20px] p-4 mb-5">
           {[
+            { Icon: ShieldCheck, title: t('safeTitle'), sub: t('safeDesc') },
             { Icon: Rss, title: t('radarTitle'), sub: radarSub },
             { Icon: BookOpen, title: t('guideTitle'), sub: guideSub },
             { Icon: MessagesSquare, title: t('communityTitle'), sub: t('communityDesc') },
