@@ -30,6 +30,7 @@ export async function POST(request: Request) {
   const { data: nextEvent } = await supabase
     .from('events')
     .select('id, starts_at')
+    .gte('starts_at', new Date().toISOString())
     .order('starts_at', { ascending: true })
     .limit(1)
     .maybeSingle();
@@ -45,15 +46,11 @@ export async function POST(request: Request) {
   }
 
   // Gamificación (24): primer logro real, desbloqueado en el onboarding — refuerza la respuesta
-  // que ya dio el usuario, no un badge de relleno. on_conflict evita duplicarlo en un re-envío.
+  // que ya dio el usuario, no un badge de relleno. grant_og_army_badge() (SECURITY DEFINER) es
+  // atómica e idempotente — el cliente ya NO puede insertar en user_badges directo (hallazgo de
+  // seguridad del 2026-08-30: permitía auto-otorgarse cualquier insignia sin haberla cumplido).
   if (parsed.data.respuestas.antiguedad === 'og') {
-    const { data: badge } = await supabase.from('badges').select('id').eq('code', 'og_army').maybeSingle();
-    if (badge) {
-      await supabase.from('user_badges').upsert(
-        { user_id: user.id, badge_id: badge.id },
-        { onConflict: 'user_id,badge_id', ignoreDuplicates: true }
-      );
-    }
+    await supabase.rpc('grant_og_army_badge');
   }
 
   return NextResponse.json({ success: true });
