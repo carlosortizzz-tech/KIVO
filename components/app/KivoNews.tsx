@@ -33,7 +33,7 @@ export async function KivoNews() {
   return (
     <Reveal>
       {hasNews && (
-        <CollapsibleSection title={t('newsTitle')} icon={<Newspaper size={16} strokeWidth={2} />} count={news!.length} defaultOpen>
+        <CollapsibleSection title={t('newsTitle')} icon={<Newspaper size={16} strokeWidth={2} />} count={news!.length}>
           <div className="flex flex-col gap-2.5">
             {news!.map((n) => (
               <a
