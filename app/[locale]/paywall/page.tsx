@@ -114,29 +114,6 @@ export default function PaywallPage() {
           <p className="text-sm text-text2 max-w-[34ch] mx-auto">{t('subtitle')}</p>
         </div>
 
-        <div className="feature-card rounded-[20px] p-4 mb-5">
-          {[
-            { Icon: ShieldCheck, title: t('safeTitle'), sub: t('safeDesc') },
-            { Icon: Rss, title: t('radarTitle'), sub: radarSub },
-            { Icon: BookOpen, title: t('guideTitle'), sub: guideSub },
-            { Icon: MessagesSquare, title: t('communityTitle'), sub: t('communityDesc') },
-          ].map(({ Icon, title, sub }, i) => (
-            <div key={title} className={`flex items-center gap-3 py-2 ${i > 0 ? 'border-t border-border' : ''}`}>
-              <div className="icon-chip-accent firma-icon w-9 h-9 rounded-[10px] flex items-center justify-center flex-shrink-0">
-                <Icon size={18} strokeWidth={2} />
-              </div>
-              <div className="text-sm"><b className="block text-sm mb-0.5">{title}</b>{sub}</div>
-            </div>
-          ))}
-        </div>
-        {migrateFailed && (
-          <p className="text-[11px] text-warn text-center -mt-3 mb-4">{t('migrateError')}</p>
-        )}
-
-        <div className="flex items-center justify-center gap-2 text-xs text-text2 mb-6 text-center">
-          <span className="w-1.5 h-1.5 rounded-full bg-success" /> {t('trustLine')}
-        </div>
-
         <div className="flex flex-col gap-3 mb-5">
           <button
             onClick={() => setPlan('anual')}
@@ -166,6 +143,29 @@ export default function PaywallPage() {
             <span className="text-right"><span className="block font-display text-2xl font-extrabold tabular-nums">$2.99</span><span className="text-[11px] text-text2">{t('perMonth')}</span></span>
           </button>
         </div>
+
+        <div className="flex items-center justify-center gap-2 text-xs text-text2 mb-5 text-center">
+          <span className="w-1.5 h-1.5 rounded-full bg-success" /> {t('trustLine')}
+        </div>
+
+        <div className="feature-card rounded-[20px] p-4 mb-5">
+          {[
+            { Icon: ShieldCheck, title: t('safeTitle'), sub: t('safeDesc') },
+            { Icon: Rss, title: t('radarTitle'), sub: radarSub },
+            { Icon: BookOpen, title: t('guideTitle'), sub: guideSub },
+            { Icon: MessagesSquare, title: t('communityTitle'), sub: t('communityDesc') },
+          ].map(({ Icon, title, sub }, i) => (
+            <div key={title} className={`flex items-center gap-3 py-2 ${i > 0 ? 'border-t border-border' : ''}`}>
+              <div className="icon-chip-accent firma-icon w-9 h-9 rounded-[10px] flex items-center justify-center flex-shrink-0">
+                <Icon size={18} strokeWidth={2} />
+              </div>
+              <div className="text-sm"><b className="block text-sm mb-0.5">{title}</b>{sub}</div>
+            </div>
+          ))}
+        </div>
+        {migrateFailed && (
+          <p className="text-[11px] text-warn text-center -mt-3 mb-4">{t('migrateError')}</p>
+        )}
 
         <div className="flex flex-col gap-2.5 text-[13px] text-text2 mb-6">
           <div>✓ {t('trialCharge', { date: chargeDate || '…' })}</div>
