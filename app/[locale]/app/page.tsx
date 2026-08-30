@@ -1,4 +1,4 @@
-import { MapPin, Snowflake, CalendarDays, Bell } from 'lucide-react';
+import { MapPin, Snowflake, CalendarDays, Bell, Flame, Disc3 } from 'lucide-react';
 import { getTranslations, getLocale } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { Countdown } from '@/components/app/Countdown';
@@ -248,7 +248,7 @@ export default async function RadarPage() {
             <div className="flex flex-col gap-2.5">
               {restEvents.map((ev, i) => (
                 <div key={ev.id} className="flex gap-3 items-start bg-sunken rounded-xl p-3.5">
-                  <div className="icon-chip-accent w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-[10px] font-extrabold text-center leading-tight">
+                  <div className="icon-chip-accent firma-icon w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-[10px] font-extrabold text-center leading-tight">
                     {new Date(ev.starts_at).toLocaleDateString(locale, { weekday: 'short' }).toUpperCase().slice(0, 3)}
                     <br />{new Date(ev.starts_at).getDate()}
                   </div>
@@ -268,6 +268,9 @@ export default async function RadarPage() {
 
       <Reveal delayMs={300}>
         <div className="flex items-center gap-3 bg-surface border border-border rounded-2xl p-3.5 mt-4">
+          <div className="icon-chip-accent firma-icon w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0">
+            <Flame size={18} strokeWidth={2} />
+          </div>
           <div className="font-display text-xl font-extrabold text-accent2">{streak}</div>
           <div className="text-xs text-text2 flex-1"><b className="text-text block">{t('radar.streakLabel')}</b>{t('radar.streakSub')}</div>
           {freezes > 0 && (
@@ -281,8 +284,15 @@ export default async function RadarPage() {
 
       <Reveal delayMs={360}>
         <div className="bg-surface border border-border rounded-2xl p-3.5 mt-4">
-          <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-0.5">{t('radar.latestReleaseTitle')}</div>
-          <div className="text-sm font-bold mb-3">{t('radar.latestReleaseAlbum')}</div>
+          <div className="flex items-center gap-3 mb-3">
+            <div className="icon-chip-accent firma-icon w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Disc3 size={16} strokeWidth={2} />
+            </div>
+            <div>
+              <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-0.5">{t('radar.latestReleaseTitle')}</div>
+              <div className="text-sm font-bold">{t('radar.latestReleaseAlbum')}</div>
+            </div>
+          </div>
           <InstagramEmbed url="https://www.instagram.com/reel/DWGgC2dhulc/" />
         </div>
       </Reveal>

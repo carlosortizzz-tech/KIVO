@@ -86,7 +86,9 @@ export default async function CuentaPage() {
 
       <Reveal delayMs={60}>
         <Link href="/app/cuenta/id" className="flex items-center gap-3 bg-surface border border-border rounded-2xl px-4 py-3.5 mb-6">
-          <IdCard size={16} strokeWidth={2} className="text-text2 flex-shrink-0" />
+          <div className="icon-chip-accent firma-icon w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0">
+            <IdCard size={16} strokeWidth={2} />
+          </div>
           <span className="flex-1 text-sm">{t('idLink')}</span>
           <ChevronRight size={16} strokeWidth={2} className="text-text2" />
         </Link>
@@ -107,7 +109,7 @@ export default async function CuentaPage() {
 
         {veteranBadge && (
           <div className="feature-card rounded-2xl p-4 mb-2.5 flex items-center gap-3.5" style={{ boxShadow: 'var(--glow)' }}>
-            <div className="text-3xl flex-shrink-0">{veteranBadge.icon ?? '🏆'}</div>
+            <div className="icon-chip-accent firma-icon w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 text-2xl">{veteranBadge.icon ?? '🏆'}</div>
             <div className="flex-1">
               <div className="text-sm font-bold text-accent2 mb-0.5">{veteranBadge.name}</div>
               <div className="text-xs text-text2">{veteranBadge.description}</div>
@@ -131,7 +133,9 @@ export default async function CuentaPage() {
         <div className="flex flex-col gap-2 mb-6">
           {links.map(({ href, label, Icon }) => (
             <Link key={href} href={href} className="flex items-center gap-3 bg-surface border border-border rounded-2xl px-4 py-3.5">
-              <Icon size={16} strokeWidth={2} className="text-text2 flex-shrink-0" />
+              <div className="icon-chip-accent firma-icon w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Icon size={16} strokeWidth={2} />
+              </div>
               <span className="flex-1 text-sm">{label}</span>
               <ChevronRight size={16} strokeWidth={2} className="text-text2" />
             </Link>
