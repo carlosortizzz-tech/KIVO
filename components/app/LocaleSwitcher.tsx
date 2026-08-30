@@ -14,6 +14,9 @@ export function LocaleSwitcher() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [, startTransition] = useTransition();
+  // Las rutas bajo /app tienen un BottomNav fijo — sin este offset, el botón flotante queda
+  // literalmente encima del último ítem del menú (hallazgo real del revisor-visual, 2026-08-30).
+  const hasBottomNav = pathname.startsWith('/app');
 
   function switchTo(next: string) {
     setOpen(false);
@@ -36,7 +39,10 @@ export function LocaleSwitcher() {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div
+      className={`fixed right-4 z-40 ${hasBottomNav ? 'bottom-20' : 'bottom-4'}`}
+      style={hasBottomNav ? { bottom: 'calc(5rem + env(safe-area-inset-bottom))' } : undefined}
+    >
       {open && (
         <div className="mb-2 bg-surface border border-border rounded-2xl p-1.5 flex flex-col gap-0.5 shadow-lg">
           {routing.locales.map((l) => (
