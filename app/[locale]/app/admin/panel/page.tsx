@@ -34,6 +34,24 @@ export default async function AdminPanelPage() {
     .select('id, email, display_name, plan, status, created_at, trial_ends_at, last_active_date')
     .order('created_at', { ascending: false });
 
+  // Debilidad real señalada en el análisis de mercado (2026-08-29): sin API oficial de
+  // Weverse/Bubble, el calendario de eventos se mantiene a mano/con IA — sin este aviso, se
+  // podría quedar desactualizado en silencio (Radar se vería "vacío" para todos los usuarios sin
+  // que el dueño se entere hasta que un cliente se queje).
+  const { count: proximosEventos } = await admin
+    .from('events')
+    .select('id', { count: 'exact', head: true })
+    .gte('starts_at', new Date().toISOString());
+  const { data: ultimoEventoRow } = await admin
+    .from('events')
+    .select('created_at')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const diasSinContenidoNuevo = ultimoEventoRow
+    ? Math.floor((Date.now() - new Date(ultimoEventoRow.created_at).getTime()) / 86400000)
+    : null;
+
   // webhook_log también recibe entradas de otras integraciones (youtube:fetch, spotify:fetch,
   // admin:*, email:*) que siguen la convención "espacio:acción" — los eventos REALES de Hotmart
   // son nombres planos (PURCHASE_APPROVED...) o vienen sin type (fallos de firma/hottok). Esta
@@ -117,6 +135,25 @@ export default async function AdminPanelPage() {
 
       <AdminReportsQueue reports={reports} />
       <AdminSafeQueue reports={safeReports} />
+
+      {(proximosEventos ?? 0) === 0 && (
+        <div className="flex items-start gap-2.5 bg-danger/10 border border-danger/30 rounded-2xl p-3.5 mb-4">
+          <TriangleAlert size={16} strokeWidth={2} className="text-danger flex-shrink-0 mt-0.5" />
+          <div className="text-xs text-text">
+            <b className="block mb-0.5">No hay ningún evento futuro cargado.</b>
+            KIVO Radar se le va a ver vacío a todos los usuarios — agrega los próximos eventos cuanto antes.
+          </div>
+        </div>
+      )}
+      {(proximosEventos ?? 0) > 0 && diasSinContenidoNuevo !== null && diasSinContenidoNuevo >= 21 && (
+        <div className="flex items-start gap-2.5 bg-warn/10 border border-warn/30 rounded-2xl p-3.5 mb-4">
+          <TriangleAlert size={16} strokeWidth={2} className="text-warn flex-shrink-0 mt-0.5" />
+          <div className="text-xs text-text">
+            <b className="block mb-0.5">Hace {diasSinContenidoNuevo} días que no se agrega un evento nuevo.</b>
+            Como no hay API oficial de Weverse/Bubble, el calendario depende de que lo actualices tú — no dejes que se quede atrás.
+          </div>
+        </div>
+      )}
 
       {fallosRecientes > 0 && (
         <div className="flex items-start gap-2.5 bg-danger/10 border border-danger/30 rounded-2xl p-3.5 mb-4">
