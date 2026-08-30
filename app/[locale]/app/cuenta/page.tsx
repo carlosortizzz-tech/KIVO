@@ -33,6 +33,12 @@ export default async function CuentaPage() {
     if (!unlocked && b.code === 'racha_30') progress = t('badgeProgress', { count: Math.max(0, 30 - streakCount) });
     return { ...b, unlocked, progress };
   });
+  // El fan veterano (sigue a BTS desde el debut) es un segmento de más edad y más poder
+  // adquisitivo (30-39, ver análisis de mercado) que responde mejor a orgullo de trayectoria
+  // que a mecánicas de juego — por eso este logro, cuando está desbloqueado, se destaca aparte
+  // en vez de mezclarse en la grilla genérica con las rachas.
+  const veteranBadge = badges.find((b) => b.code === 'og_army' && b.unlocked);
+  const gridBadges = badges.filter((b) => b.code !== 'og_army' || !b.unlocked);
   const { nivel, xpEnNivel, xpParaSiguiente } = progresoDeNivel(profile?.xp_total ?? 0);
   const nivelPct = Math.min(100, Math.round((xpEnNivel / xpParaSiguiente) * 100));
   const isPro = profile?.plan === 'pro';
@@ -91,8 +97,19 @@ export default async function CuentaPage() {
       </div>
 
       <div className="text-xs font-bold uppercase tracking-wide text-text2 mb-2">{t('sectionBadges')}</div>
+
+      {veteranBadge && (
+        <div className="feature-card rounded-2xl p-4 mb-2.5 flex items-center gap-3.5" style={{ boxShadow: 'var(--glow)' }}>
+          <div className="text-3xl flex-shrink-0">{veteranBadge.icon ?? '🏆'}</div>
+          <div className="flex-1">
+            <div className="text-sm font-bold text-accent2 mb-0.5">{veteranBadge.name}</div>
+            <div className="text-xs text-text2">{veteranBadge.description}</div>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-2 gap-2.5 mb-6">
-        {badges.map((b) => (
+        {gridBadges.map((b) => (
           <div key={b.id} className={`rounded-2xl p-3.5 border ${b.unlocked ? 'bg-accent/10 border-accent/30' : 'bg-surface border-border opacity-50'}`}>
             <div className="text-2xl mb-1.5">{b.icon ?? '🏆'}</div>
             <div className="text-xs font-bold mb-0.5">{b.name}</div>

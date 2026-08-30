@@ -18,6 +18,17 @@ export default async function KivoIdPage() {
     .eq('id', user.id)
     .maybeSingle();
 
+  // El badge de fan veterano (sigue a BTS desde el debut) se destaca en el ID compartible — es
+  // el objeto de "orgullo de trayectoria" que este segmento (30-39, más adulto) valora más que
+  // una racha o un nivel. Ver análisis de mercado — recomendación 6.
+  const { data: veteranBadgeRow } = await supabase
+    .from('user_badges')
+    .select('badges!inner(code, name, icon)')
+    .eq('user_id', user.id)
+    .eq('badges.code', 'og_army')
+    .maybeSingle();
+  const veteranLabel = veteranBadgeRow?.badges as unknown as { name: string; icon: string | null } | undefined;
+
   const name = profile?.display_name || user.email?.split('@')[0] || 'Fan';
   const isPro = profile?.plan === 'pro';
   const memberSince = profile?.created_at
@@ -48,10 +59,17 @@ export default async function KivoIdPage() {
         </div>
 
         <div className="font-display text-xl font-extrabold mb-1">{name}</div>
-        <div className="text-xs text-text2 mb-5">
+        <div className={`text-xs text-text2 ${veteranLabel ? 'mb-3' : 'mb-5'}`}>
           {isPro ? t('planPro') : t('planFree')}
           {memberSince && ` · ${t('memberSince', { date: memberSince })}`}
         </div>
+
+        {veteranLabel && (
+          <div className="inline-flex items-center gap-1.5 bg-accent/15 text-accent2 text-[11px] font-bold px-3 py-1 rounded-full mb-5">
+            <span>{veteranLabel.icon ?? '🏆'}</span>
+            {veteranLabel.name}
+          </div>
+        )}
 
         <div className="border-t border-white/10 pt-4">
           <div className="text-[10px] font-bold uppercase tracking-wide text-text2 mb-1">{t('idCode')}</div>
