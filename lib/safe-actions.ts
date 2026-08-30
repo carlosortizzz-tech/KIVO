@@ -2,39 +2,18 @@
 
 import { createClient } from '@/lib/supabase/server';
 
-// Server action porque el badge "primer_reporte" (24-GAMIFICACION) necesita verificar de forma
-// atómica si es el primer reporte del usuario ANTES de otorgarlo — hacerlo en el cliente permitiría
-// a alguien insertar el reporte y decidir por su cuenta si "ya tenía" el badge.
-export async function submitSafeReport(urlOrSeller: string, reason: string): Promise<{ badgeUnlocked: boolean }> {
+// El reporte + el badge "primer_reporte" + el XP (24-GAMIFICACION) viven en UNA función atómica
+// en la base de datos (submit_safe_report, SECURITY DEFINER) — nunca un insert directo desde
+// aquí seguido de una actualización de XP aparte, porque profiles.xp_total no tiene (a propósito)
+// permiso de escritura para el cliente. Ver hallazgo de seguridad del 2026-08-29.
+export async function submitSafeReport(urlOrSeller: string, reason: string): Promise<{ badgeUnlocked: boolean; xpGained: number }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('unauthorized');
   if (!urlOrSeller.trim() || !reason.trim()) throw new Error('faltan datos');
 
-  // ¿Es su primer reporte? Se pregunta ANTES de insertar el nuevo.
-  const { count } = await supabase
-    .from('safe_reports')
-    .select('id', { count: 'exact', head: true })
-    .eq('reported_by', user.id);
-  const isFirst = (count ?? 0) === 0;
-
-  const { error } = await supabase.from('safe_reports').insert({
-    reported_by: user.id,
-    url_or_seller: urlOrSeller.trim(),
-    reason: reason.trim(),
-  });
+  const { data, error } = await supabase.rpc('submit_safe_report', { p_url: urlOrSeller, p_reason: reason });
   if (error) throw new Error(error.message);
 
-  let badgeUnlocked = false;
-  if (isFirst) {
-    const { data: badge } = await supabase.from('badges').select('id').eq('code', 'primer_reporte').maybeSingle();
-    if (badge) {
-      const { error: badgeErr } = await supabase
-        .from('user_badges')
-        .upsert({ user_id: user.id, badge_id: badge.id }, { onConflict: 'user_id,badge_id', ignoreDuplicates: true });
-      if (!badgeErr) badgeUnlocked = true;
-    }
-  }
-
-  return { badgeUnlocked };
+  return { badgeUnlocked: data.badgeUnlocked, xpGained: data.xpGained };
 }

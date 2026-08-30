@@ -6,6 +6,7 @@ import { getUserPlan } from '@/lib/plan';
 import { CommunityTabs } from '@/components/app/CommunityTabs';
 import { ExperienceComposer } from '@/components/app/ExperienceComposer';
 import { ExperienceCard, type ExperienceCardData } from '@/components/app/ExperienceCard';
+import { ComposePost, categoryKey, CATEGORIES } from '@/components/app/ComposePost';
 
 function timeAgo(iso: string, locale: string) {
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -121,10 +122,7 @@ export default async function CommunityPage() {
         {t('moderated')}
       </div>
 
-      <div className="flex items-center gap-2.5 bg-surface border border-border rounded-2xl px-3.5 py-3 mb-4 text-sm text-text2">
-        <div className="w-7 h-7 rounded-full bg-accent-btn flex-shrink-0" />
-        {t('compose')}
-      </div>
+      <ComposePost />
 
       {posts && posts.length > 0 ? (
         <div className="flex flex-col gap-3">
@@ -138,7 +136,9 @@ export default async function CommunityPage() {
                   <div className="text-xs font-bold">{postAuthorNameById.get(p.user_id) ?? t('anonymousFan')}</div>
                   <div className="text-[11px] text-text2">{timeAgo(p.created_at, locale)}</div>
                 </div>
-                <div className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-accent-soft text-accent2">{p.category}</div>
+                <div className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-accent-soft text-accent2">
+                  {(CATEGORIES as readonly string[]).includes(p.category) ? t(categoryKey[p.category as (typeof CATEGORIES)[number]]) : p.category}
+                </div>
               </div>
               <p className="text-[13px] leading-relaxed">{p.body}</p>
             </div>
