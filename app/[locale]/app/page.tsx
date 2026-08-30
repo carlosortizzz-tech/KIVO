@@ -6,6 +6,7 @@ import { AddToCalendar } from '@/components/app/AddToCalendar';
 import { WeekStrip } from '@/components/app/WeekStrip';
 import { BadgeUnlockedModal } from '@/components/app/BadgeUnlockedModal';
 import { StreakFrozenBanner } from '@/components/app/StreakFrozenBanner';
+import { InstagramEmbed } from '@/components/app/InstagramEmbed';
 import { CollapsibleSection } from '@/components/app/CollapsibleSection';
 import { Link } from '@/i18n/navigation';
 
@@ -263,6 +264,12 @@ export default async function RadarPage() {
             {freezes}
           </div>
         )}
+      </div>
+
+      <div className="bg-surface border border-border rounded-2xl p-3.5 mt-4">
+        <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-0.5">{t('radar.latestReleaseTitle')}</div>
+        <div className="text-sm font-bold mb-3">{t('radar.latestReleaseAlbum')}</div>
+        <InstagramEmbed url="https://www.instagram.com/reel/DTF-nJKjZh1/" />
       </div>
 
       {newBadge && <BadgeUnlockedModal name={newBadge.name} description={newBadge.description} icon={newBadge.icon} />}

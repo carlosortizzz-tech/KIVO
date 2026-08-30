@@ -256,6 +256,8 @@
       "upcomingEventsTitle": "Prochains événements",
       "streakLabel": "Série quotidienne",
       "streakSub": "jours consécutifs sur KIVO",
+      "latestReleaseTitle": "Dernière sortie",
+      "latestReleaseAlbum": "Album ARIRANG",
       "freezesAvailable": "{count, plural, =0 {Aucun gel} one {1 gel disponible} other {# gels disponibles}}",
       "freezeUsedTitle": "Série sauvée",
       "freezeUsedBody": "On a utilisé un gel pour que ta série de {streak} jours ne soit pas rompue. Gels restants : {count}.",
