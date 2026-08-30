@@ -5,6 +5,8 @@ import { Link } from '@/i18n/navigation';
 import { ChevronRight, ShieldCheck, FileText, RotateCcw, IdCard } from 'lucide-react';
 import { LogoutButton } from '@/components/app/LogoutButton';
 import { ContactSupportButton } from '@/components/app/ContactSupportButton';
+import { Reveal } from '@/components/app/Reveal';
+import { LevelBar } from '@/components/app/LevelBar';
 import { progresoDeNivel } from '@/lib/gamification';
 
 export default async function CuentaPage() {
@@ -59,78 +61,86 @@ export default async function CuentaPage() {
 
   return (
     <div>
-      <h1 className="font-display text-lg font-extrabold mb-4">{t('title')}</h1>
+      <Reveal>
+        <h1 className="font-display text-lg font-extrabold mb-4">{t('title')}</h1>
 
-      <div className="bg-surface border border-border rounded-2xl p-4 mb-5">
-        <div className="text-sm font-bold mb-1">{user.email}</div>
-        <div className="flex items-center gap-2">
-          <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${isPro ? 'bg-accent/15 text-accent2' : 'bg-border text-text2'}`}>
-            {isPro ? t('planPro') : t('planFree')}
-          </span>
-          {memberSince && <span className="text-xs text-text2">{t('memberSince', { date: memberSince })}</span>}
+        <div className="bg-surface border border-border rounded-2xl p-4 mb-5">
+          <div className="text-sm font-bold mb-1">{user.email}</div>
+          <div className="flex items-center gap-2">
+            <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${isPro ? 'bg-accent/15 text-accent2' : 'bg-border text-text2'}`}>
+              {isPro ? t('planPro') : t('planFree')}
+            </span>
+            {memberSince && <span className="text-xs text-text2">{t('memberSince', { date: memberSince })}</span>}
+          </div>
+          {isTrialing && chargeDate && (
+            <div className="mt-3 pt-3 border-t border-border text-xs text-text2">
+              {profile?.plan_amount
+                ? t('trialChargeAmount', { date: chargeDate, amount: `${profile.plan_currency ?? '$'}${profile.plan_amount}` })
+                : t('trialCharge', { date: chargeDate })}
+              {' · '}
+              <Link href="/app/cuenta/cancelar" className="text-accent2 font-semibold">{t('cancelLink')}</Link>
+            </div>
+          )}
         </div>
-        {isTrialing && chargeDate && (
-          <div className="mt-3 pt-3 border-t border-border text-xs text-text2">
-            {profile?.plan_amount
-              ? t('trialChargeAmount', { date: chargeDate, amount: `${profile.plan_currency ?? '$'}${profile.plan_amount}` })
-              : t('trialCharge', { date: chargeDate })}
-            {' · '}
-            <Link href="/app/cuenta/cancelar" className="text-accent2 font-semibold">{t('cancelLink')}</Link>
+      </Reveal>
+
+      <Reveal delayMs={60}>
+        <Link href="/app/cuenta/id" className="flex items-center gap-3 bg-surface border border-border rounded-2xl px-4 py-3.5 mb-6">
+          <IdCard size={16} strokeWidth={2} className="text-text2 flex-shrink-0" />
+          <span className="flex-1 text-sm">{t('idLink')}</span>
+          <ChevronRight size={16} strokeWidth={2} className="text-text2" />
+        </Link>
+      </Reveal>
+
+      <Reveal delayMs={120}>
+        <div className="bg-surface border border-border rounded-2xl p-4 mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-bold">{t('levelLabel', { level: nivel })}</span>
+            <span className="text-xs text-text2">{xpEnNivel}/{xpParaSiguiente} XP</span>
+          </div>
+          <LevelBar pct={nivelPct} />
+        </div>
+      </Reveal>
+
+      <Reveal delayMs={180}>
+        <div className="text-xs font-bold uppercase tracking-wide text-text2 mb-2">{t('sectionBadges')}</div>
+
+        {veteranBadge && (
+          <div className="feature-card rounded-2xl p-4 mb-2.5 flex items-center gap-3.5" style={{ boxShadow: 'var(--glow)' }}>
+            <div className="text-3xl flex-shrink-0">{veteranBadge.icon ?? '🏆'}</div>
+            <div className="flex-1">
+              <div className="text-sm font-bold text-accent2 mb-0.5">{veteranBadge.name}</div>
+              <div className="text-xs text-text2">{veteranBadge.description}</div>
+            </div>
           </div>
         )}
-      </div>
 
-      <Link href="/app/cuenta/id" className="flex items-center gap-3 bg-surface border border-border rounded-2xl px-4 py-3.5 mb-6">
-        <IdCard size={16} strokeWidth={2} className="text-text2 flex-shrink-0" />
-        <span className="flex-1 text-sm">{t('idLink')}</span>
-        <ChevronRight size={16} strokeWidth={2} className="text-text2" />
-      </Link>
-
-      <div className="bg-surface border border-border rounded-2xl p-4 mb-6">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-bold">{t('levelLabel', { level: nivel })}</span>
-          <span className="text-xs text-text2">{xpEnNivel}/{xpParaSiguiente} XP</span>
+        <div className="grid grid-cols-2 gap-2.5 mb-6">
+          {gridBadges.map((b) => (
+            <div key={b.id} className={`rounded-2xl p-3.5 border ${b.unlocked ? 'bg-accent/10 border-accent/30' : 'bg-surface border-border opacity-50'}`}>
+              <div className="text-2xl mb-1.5">{b.icon ?? '🏆'}</div>
+              <div className="text-xs font-bold mb-0.5">{b.name}</div>
+              <div className="text-[11px] text-text2">{b.unlocked ? b.description : (b.progress ?? b.description)}</div>
+            </div>
+          ))}
         </div>
-        <div className="h-2 rounded-full bg-border overflow-hidden">
-          <div className="h-full rounded-full bg-accent-btn transition-[width] duration-500" style={{ width: `${nivelPct}%`, boxShadow: 'var(--glow)' }} />
+      </Reveal>
+
+      <Reveal delayMs={240}>
+        <div className="text-xs font-bold uppercase tracking-wide text-text2 mb-2">{t('sectionLegal')}</div>
+        <div className="flex flex-col gap-2 mb-6">
+          {links.map(({ href, label, Icon }) => (
+            <Link key={href} href={href} className="flex items-center gap-3 bg-surface border border-border rounded-2xl px-4 py-3.5">
+              <Icon size={16} strokeWidth={2} className="text-text2 flex-shrink-0" />
+              <span className="flex-1 text-sm">{label}</span>
+              <ChevronRight size={16} strokeWidth={2} className="text-text2" />
+            </Link>
+          ))}
+          <ContactSupportButton label={t('contactLink')} copiedLabel={t('contactCopied')} />
         </div>
-      </div>
 
-      <div className="text-xs font-bold uppercase tracking-wide text-text2 mb-2">{t('sectionBadges')}</div>
-
-      {veteranBadge && (
-        <div className="feature-card rounded-2xl p-4 mb-2.5 flex items-center gap-3.5" style={{ boxShadow: 'var(--glow)' }}>
-          <div className="text-3xl flex-shrink-0">{veteranBadge.icon ?? '🏆'}</div>
-          <div className="flex-1">
-            <div className="text-sm font-bold text-accent2 mb-0.5">{veteranBadge.name}</div>
-            <div className="text-xs text-text2">{veteranBadge.description}</div>
-          </div>
-        </div>
-      )}
-
-      <div className="grid grid-cols-2 gap-2.5 mb-6">
-        {gridBadges.map((b) => (
-          <div key={b.id} className={`rounded-2xl p-3.5 border ${b.unlocked ? 'bg-accent/10 border-accent/30' : 'bg-surface border-border opacity-50'}`}>
-            <div className="text-2xl mb-1.5">{b.icon ?? '🏆'}</div>
-            <div className="text-xs font-bold mb-0.5">{b.name}</div>
-            <div className="text-[11px] text-text2">{b.unlocked ? b.description : (b.progress ?? b.description)}</div>
-          </div>
-        ))}
-      </div>
-
-      <div className="text-xs font-bold uppercase tracking-wide text-text2 mb-2">{t('sectionLegal')}</div>
-      <div className="flex flex-col gap-2 mb-6">
-        {links.map(({ href, label, Icon }) => (
-          <Link key={href} href={href} className="flex items-center gap-3 bg-surface border border-border rounded-2xl px-4 py-3.5">
-            <Icon size={16} strokeWidth={2} className="text-text2 flex-shrink-0" />
-            <span className="flex-1 text-sm">{label}</span>
-            <ChevronRight size={16} strokeWidth={2} className="text-text2" />
-          </Link>
-        ))}
-        <ContactSupportButton label={t('contactLink')} copiedLabel={t('contactCopied')} />
-      </div>
-
-      <LogoutButton label={t('logout')} />
+        <LogoutButton label={t('logout')} />
+      </Reveal>
     </div>
   );
 }

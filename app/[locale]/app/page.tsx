@@ -8,6 +8,7 @@ import { BadgeUnlockedModal } from '@/components/app/BadgeUnlockedModal';
 import { StreakFrozenBanner } from '@/components/app/StreakFrozenBanner';
 import { InstagramEmbed } from '@/components/app/InstagramEmbed';
 import { CollapsibleSection } from '@/components/app/CollapsibleSection';
+import { Reveal } from '@/components/app/Reveal';
 import { Link } from '@/i18n/navigation';
 
 async function formatRelative(iso: string, locale: string, t: Awaited<ReturnType<typeof getTranslations<'app'>>>) {
@@ -150,127 +151,141 @@ export default async function RadarPage() {
 
   return (
     <div>
-      <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-1">{t('radar.greeting')}</div>
-      <h1 className="font-display text-lg font-extrabold mb-4">{t('radar.title')}</h1>
+      <Reveal>
+        <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-1">{t('radar.greeting')}</div>
+        <h1 className="font-display text-lg font-extrabold mb-4">{t('radar.title')}</h1>
 
-      {trialDay !== null && (
-        <Link href="/app/cuenta" className="flex items-center gap-2 bg-sunken rounded-full px-3.5 py-2 mb-4 w-fit">
-          <span className="w-1.5 h-1.5 rounded-full bg-accent2" />
-          <span className="text-xs font-semibold text-text2">{t('radar.trialDay', { day: trialDay })}</span>
-        </Link>
-      )}
+        {trialDay !== null && (
+          <Link href="/app/cuenta" className="flex items-center gap-2 bg-sunken rounded-full px-3.5 py-2 mb-4 w-fit">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent2" />
+            <span className="text-xs font-semibold text-text2">{t('radar.trialDay', { day: trialDay })}</span>
+          </Link>
+        )}
+      </Reveal>
 
       {nextConcert && (
-        <div className="feature-card rounded-2xl p-4 mb-4" style={{ boxShadow: 'var(--glow)' }}>
-          <div className="flex items-start justify-between gap-2 mb-2">
-            <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('radar.nextConcert')}</div>
-            <AddToCalendar event={{
-              id: nextConcert.id,
-              title: nextConcert.title,
-              startsAt: nextConcert.starts_at,
-              endsAt: nextConcert.ends_at,
-              description: nextConcert.description,
-              url: nextConcert.url,
-            }} />
+        <Reveal delayMs={60}>
+          <div className="feature-card rounded-2xl p-4 mb-4" style={{ boxShadow: 'var(--glow)' }}>
+            <div className="flex items-start justify-between gap-2 mb-2">
+              <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('radar.nextConcert')}</div>
+              <AddToCalendar event={{
+                id: nextConcert.id,
+                title: nextConcert.title,
+                startsAt: nextConcert.starts_at,
+                endsAt: nextConcert.ends_at,
+                description: nextConcert.description,
+                url: nextConcert.url,
+              }} />
+            </div>
+            <div className="text-lg font-bold mb-1">{nextConcert.title}</div>
+            {nextConcert.venue && (
+              <div className="flex items-center gap-1.5 text-xs text-text2 mb-1">
+                <MapPin size={14} strokeWidth={2} />
+                {nextConcert.venue}
+              </div>
+            )}
+            {sameVenueDates && sameVenueDates.length > 0 && (
+              <div className="text-[11px] text-text2 mb-3">
+                {t('radar.additionalDates', {
+                  dates: sameVenueDates
+                    .map((d) => new Date(d.starts_at).toLocaleDateString(locale, { day: 'numeric', month: 'short' }))
+                    .join(' · '),
+                })}
+              </div>
+            )}
+            <Countdown target={nextConcert.starts_at} />
           </div>
-          <div className="text-lg font-bold mb-1">{nextConcert.title}</div>
-          {nextConcert.venue && (
-            <div className="flex items-center gap-1.5 text-xs text-text2 mb-1">
-              <MapPin size={14} strokeWidth={2} />
-              {nextConcert.venue}
-            </div>
-          )}
-          {sameVenueDates && sameVenueDates.length > 0 && (
-            <div className="text-[11px] text-text2 mb-3">
-              {t('radar.additionalDates', {
-                dates: sameVenueDates
-                  .map((d) => new Date(d.starts_at).toLocaleDateString(locale, { day: 'numeric', month: 'short' }))
-                  .join(' · '),
-              })}
-            </div>
-          )}
-          <Countdown target={nextConcert.starts_at} />
-        </div>
+        </Reveal>
       )}
 
       {nextEvent && (
-        <div className="mb-4">
-          <CollapsibleSection
-            title={nextEvent.title}
-            icon={<Bell size={16} strokeWidth={2} />}
-          >
-            <div className="flex items-start justify-between gap-2 mb-3">
-              <div className="text-xs font-bold uppercase tracking-wide text-accent2">
-                {t('radar.upcoming', { type: t(`radar.${typeKeys[nextEvent.type] ?? 'typePreventa'}` as never) })}
-              </div>
-              <AddToCalendar event={{
-                id: nextEvent.id,
-                title: nextEvent.title,
-                startsAt: nextEvent.starts_at,
-                endsAt: nextEvent.ends_at,
-                description: nextEvent.description,
-                url: nextEvent.url,
-              }} />
-            </div>
-            <Countdown target={nextEvent.starts_at} />
-            {nextEvent.description && (
-              <p className="text-[13px] text-text2 leading-relaxed mt-3 mb-1">{nextEvent.description}</p>
-            )}
-            <p className="text-[11px] text-text2 leading-relaxed mb-3">{t('radar.notASeller')}</p>
-            <Link
-              href={{ pathname: '/app/guide', query: { platform: nextEvent.platform } }}
-              className="block text-center bg-accent-btn text-white font-bold text-[13px] rounded-xl py-2.5 w-full mt-3"
-              style={{ boxShadow: 'var(--glow)' }}
+        <Reveal delayMs={120}>
+          <div className="mb-4">
+            <CollapsibleSection
+              title={nextEvent.title}
+              icon={<Bell size={16} strokeWidth={2} />}
             >
-              {t('radar.viewGuide')}
-            </Link>
-          </CollapsibleSection>
-        </div>
+              <div className="flex items-start justify-between gap-2 mb-3">
+                <div className="text-xs font-bold uppercase tracking-wide text-accent2">
+                  {t('radar.upcoming', { type: t(`radar.${typeKeys[nextEvent.type] ?? 'typePreventa'}` as never) })}
+                </div>
+                <AddToCalendar event={{
+                  id: nextEvent.id,
+                  title: nextEvent.title,
+                  startsAt: nextEvent.starts_at,
+                  endsAt: nextEvent.ends_at,
+                  description: nextEvent.description,
+                  url: nextEvent.url,
+                }} />
+              </div>
+              <Countdown target={nextEvent.starts_at} />
+              {nextEvent.description && (
+                <p className="text-[13px] text-text2 leading-relaxed mt-3 mb-1">{nextEvent.description}</p>
+              )}
+              <p className="text-[11px] text-text2 leading-relaxed mb-3">{t('radar.notASeller')}</p>
+              <Link
+                href={{ pathname: '/app/guide', query: { platform: nextEvent.platform } }}
+                className="block text-center bg-accent-btn text-white font-bold text-[13px] rounded-xl py-2.5 w-full mt-3"
+                style={{ boxShadow: 'var(--glow)' }}
+              >
+                {t('radar.viewGuide')}
+              </Link>
+            </CollapsibleSection>
+          </div>
+        </Reveal>
       )}
 
-      <WeekStrip locale={locale} concertDates={concertDates} birthdayDates={birthdayDates} albumDates={albumDates} />
+      <Reveal delayMs={180}>
+        <WeekStrip locale={locale} concertDates={concertDates} birthdayDates={birthdayDates} albumDates={albumDates} />
+      </Reveal>
 
       {restEvents.length === 0 && !nextEvent && (
         <div className="text-center py-10 text-sm text-text2">{t('radar.noEvents')}</div>
       )}
       {restEvents.length > 0 && (
-        <CollapsibleSection title={t('radar.upcomingEventsTitle')} icon={<CalendarDays size={16} strokeWidth={2} />} count={restEvents.length} defaultOpen>
-          <div className="flex flex-col gap-2.5">
-            {restEvents.map((ev, i) => (
-              <div key={ev.id} className="flex gap-3 items-start bg-sunken rounded-xl p-3.5">
-                <div className="icon-chip-accent w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-[10px] font-extrabold text-center leading-tight">
-                  {new Date(ev.starts_at).toLocaleDateString(locale, { weekday: 'short' }).toUpperCase().slice(0, 3)}
-                  <br />{new Date(ev.starts_at).getDate()}
+        <Reveal delayMs={240}>
+          <CollapsibleSection title={t('radar.upcomingEventsTitle')} icon={<CalendarDays size={16} strokeWidth={2} />} count={restEvents.length} defaultOpen>
+            <div className="flex flex-col gap-2.5">
+              {restEvents.map((ev, i) => (
+                <div key={ev.id} className="flex gap-3 items-start bg-sunken rounded-xl p-3.5">
+                  <div className="icon-chip-accent w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-[10px] font-extrabold text-center leading-tight">
+                    {new Date(ev.starts_at).toLocaleDateString(locale, { weekday: 'short' }).toUpperCase().slice(0, 3)}
+                    <br />{new Date(ev.starts_at).getDate()}
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-[13px] font-bold mb-0.5">{ev.title}</div>
+                    <div className="text-xs text-text2">{t(`radar.${typeKeys[ev.type] ?? 'typePreventa'}` as never)}{ev.platform ? ` · ${ev.platform}` : ''}</div>
+                  </div>
+                  <div className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-success/10 text-success whitespace-nowrap">
+                    {relatives[i]}
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <div className="text-[13px] font-bold mb-0.5">{ev.title}</div>
-                  <div className="text-xs text-text2">{t(`radar.${typeKeys[ev.type] ?? 'typePreventa'}` as never)}{ev.platform ? ` · ${ev.platform}` : ''}</div>
-                </div>
-                <div className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-success/10 text-success whitespace-nowrap">
-                  {relatives[i]}
-                </div>
-              </div>
-            ))}
-          </div>
-        </CollapsibleSection>
+              ))}
+            </div>
+          </CollapsibleSection>
+        </Reveal>
       )}
 
-      <div className="flex items-center gap-3 bg-surface border border-border rounded-2xl p-3.5 mt-4">
-        <div className="font-display text-xl font-extrabold text-accent2">{streak}</div>
-        <div className="text-xs text-text2 flex-1"><b className="text-text block">{t('radar.streakLabel')}</b>{t('radar.streakSub')}</div>
-        {freezes > 0 && (
-          <div className="flex items-center gap-1 text-[11px] font-bold text-accent2 bg-accent2/10 rounded-full px-2.5 py-1 whitespace-nowrap">
-            <Snowflake size={12} strokeWidth={2.5} />
-            {freezes}
-          </div>
-        )}
-      </div>
+      <Reveal delayMs={300}>
+        <div className="flex items-center gap-3 bg-surface border border-border rounded-2xl p-3.5 mt-4">
+          <div className="font-display text-xl font-extrabold text-accent2">{streak}</div>
+          <div className="text-xs text-text2 flex-1"><b className="text-text block">{t('radar.streakLabel')}</b>{t('radar.streakSub')}</div>
+          {freezes > 0 && (
+            <div className="flex items-center gap-1 text-[11px] font-bold text-accent2 bg-accent2/10 rounded-full px-2.5 py-1 whitespace-nowrap">
+              <Snowflake size={12} strokeWidth={2.5} />
+              {freezes}
+            </div>
+          )}
+        </div>
+      </Reveal>
 
-      <div className="bg-surface border border-border rounded-2xl p-3.5 mt-4">
-        <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-0.5">{t('radar.latestReleaseTitle')}</div>
-        <div className="text-sm font-bold mb-3">{t('radar.latestReleaseAlbum')}</div>
-        <InstagramEmbed url="https://www.instagram.com/reel/DWGgC2dhulc/" />
-      </div>
+      <Reveal delayMs={360}>
+        <div className="bg-surface border border-border rounded-2xl p-3.5 mt-4">
+          <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-0.5">{t('radar.latestReleaseTitle')}</div>
+          <div className="text-sm font-bold mb-3">{t('radar.latestReleaseAlbum')}</div>
+          <InstagramEmbed url="https://www.instagram.com/reel/DWGgC2dhulc/" />
+        </div>
+      </Reveal>
 
       {newBadge && <BadgeUnlockedModal name={newBadge.name} description={newBadge.description} icon={newBadge.icon} />}
       {!newBadge && freezesConsumed > 0 && <StreakFrozenBanner streak={streak} freezesLeft={freezes} />}

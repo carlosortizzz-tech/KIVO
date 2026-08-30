@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { X } from 'lucide-react';
@@ -15,6 +15,13 @@ export function ComposePost() {
   const [body, setBody] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
+  const [shown, setShown] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    const id = requestAnimationFrame(() => setShown(true));
+    return () => cancelAnimationFrame(id);
+  }, [open]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -36,6 +43,7 @@ export function ComposePost() {
   function close() {
     setOpen(false);
     setError(false);
+    setShown(false);
   }
 
   return (
@@ -49,8 +57,15 @@ export function ComposePost() {
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" style={{ background: 'rgba(11,7,16,0.8)' }} onClick={close}>
-          <div className="bg-surface border border-border rounded-t-[24px] sm:rounded-[24px] p-5 w-full max-w-[420px]" onClick={(e) => e.stopPropagation()}>
+        <div
+          className={`fixed inset-0 z-50 flex items-end sm:items-center justify-center transition-opacity duration-250 ease-out ${shown ? 'opacity-100' : 'opacity-0'}`}
+          style={{ background: 'rgba(11,7,16,0.8)' }}
+          onClick={close}
+        >
+          <div
+            className={`bg-surface border border-border rounded-t-[24px] sm:rounded-[24px] p-5 w-full max-w-[420px] transition-transform duration-250 ease-out ${shown ? 'translate-y-0' : 'translate-y-4'}`}
+            onClick={(e) => e.stopPropagation()}
+          >
             <form onSubmit={handleSubmit}>
               <div className="flex items-center justify-between mb-4">
                 <div className="text-sm font-bold">{t('compose')}</div>
