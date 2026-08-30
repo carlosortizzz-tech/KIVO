@@ -199,8 +199,9 @@ export default async function RadarPage() {
             </div>
             <Countdown target={nextEvent.starts_at} />
             {nextEvent.description && (
-              <p className="text-[13px] text-text2 leading-relaxed mt-3 mb-3">{nextEvent.description}</p>
+              <p className="text-[13px] text-text2 leading-relaxed mt-3 mb-1">{nextEvent.description}</p>
             )}
+            <p className="text-[11px] text-text2 leading-relaxed mb-3">{t('radar.notASeller')}</p>
             <Link
               href={{ pathname: '/app/guide', query: { platform: nextEvent.platform } }}
               className="block text-center bg-accent-btn text-white font-bold text-[13px] rounded-xl py-2.5 w-full mt-3"

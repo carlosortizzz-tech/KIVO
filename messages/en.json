@@ -251,6 +251,7 @@
       "title": "Your Radar today",
       "upcoming": "Next {type}",
       "viewGuide": "View step-by-step guide →",
+      "notASeller": "KIVO doesn't sell or manage this — we just give you a heads-up and show you how to do it yourself.",
       "noEvents": "No events on your radar yet. Check back soon.",
       "upcomingEventsTitle": "Upcoming events",
       "streakLabel": "Daily streak",
