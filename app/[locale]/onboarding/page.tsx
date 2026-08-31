@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Check, Rss } from 'lucide-react';
 import { useRouter } from '@/i18n/navigation';
 import { track } from '@/lib/analytics';
+import { Reveal } from '@/components/app/Reveal';
 
 type Answers = {
   antiguedad?: string;
@@ -128,99 +129,113 @@ export default function OnboardingPage() {
 
       <div className="flex-1 flex flex-col justify-center pb-8">
         {step === 0 && (
-          <div className="flex flex-col gap-4.5">
-            <div className="firma-icon w-[88px] h-[88px] rounded-full flex items-center justify-center mb-2 relative" style={{ background: 'radial-gradient(circle, var(--glow-icon), transparent 70%)' }}>
-              <Rss size={40} strokeWidth={1.8} color="var(--accent2)" />
+          <Reveal>
+            <div className="flex flex-col gap-4.5">
+              <div className="firma-icon w-[88px] h-[88px] rounded-full flex items-center justify-center mb-2 relative" style={{ background: 'radial-gradient(circle, var(--glow-icon), transparent 70%)' }}>
+                <Rss size={40} strokeWidth={1.8} color="var(--accent2)" />
+              </div>
+              <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('kickerMinutes')}</div>
+              <h1 className="font-display text-2xl font-extrabold">{t('introTitle')}</h1>
+              <p className="text-sm text-text2">{t('introBody')}</p>
+              <div className="flex flex-col gap-2 text-[13px] text-text2">
+                <div>{t('introBullet1')}</div>
+                <div>{t('introBullet2')}</div>
+                <div>{t('introBullet3')}</div>
+              </div>
+              <button onClick={() => { track('onboarding_iniciado', {}); setStep(1); }} className="mt-1 bg-accent-btn text-white font-bold text-[15px] rounded-2xl py-4 w-full transition-transform duration-150 active:scale-[0.97]" style={{ boxShadow: 'var(--glow)' }}>
+                {t('start')}
+              </button>
             </div>
-            <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('kickerMinutes')}</div>
-            <h1 className="font-display text-2xl font-extrabold">{t('introTitle')}</h1>
-            <p className="text-sm text-text2">{t('introBody')}</p>
-            <div className="flex flex-col gap-2 text-[13px] text-text2">
-              <div>{t('introBullet1')}</div>
-              <div>{t('introBullet2')}</div>
-              <div>{t('introBullet3')}</div>
-            </div>
-            <button onClick={() => { track('onboarding_iniciado', {}); setStep(1); }} className="mt-1 bg-accent-btn text-white font-bold text-[15px] rounded-2xl py-4 w-full transition-transform duration-150 active:scale-[0.97]" style={{ boxShadow: 'var(--glow)' }}>
-              {t('start')}
-            </button>
-          </div>
+          </Reveal>
         )}
 
         {step === 1 && (
-          <div className="flex flex-col gap-4.5">
-            <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('step1of6')}</div>
-            <h2 className="font-display text-2xl font-extrabold">{t('q1Title')}</h2>
-            <div className="flex flex-col gap-2.5">
-              {chipsAntiguedad.map((c) => (
-                <Chip key={c.v} label={c.label} selected={answers.antiguedad === c.v} onClick={() => saveAnswer('antiguedad', c.v)} />
-              ))}
+          <Reveal>
+            <div className="flex flex-col gap-4.5">
+              <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('step1of6')}</div>
+              <h2 className="font-display text-2xl font-extrabold">{t('q1Title')}</h2>
+              <div className="flex flex-col gap-2.5">
+                {chipsAntiguedad.map((c) => (
+                  <Chip key={c.v} label={c.label} selected={answers.antiguedad === c.v} onClick={() => saveAnswer('antiguedad', c.v)} />
+                ))}
+              </div>
             </div>
-          </div>
+          </Reveal>
         )}
 
         {step === 2 && (
-          <div className="flex flex-col gap-4.5">
-            <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('step2of6')}</div>
-            <h2 className="font-display text-2xl font-extrabold">{t('q2Title')}</h2>
-            <p className="text-sm text-text2 -mt-2">{t('q2Sub')}</p>
-            <div className="flex flex-col gap-2.5">
-              {chipsDolor.map((c) => (
-                <Chip key={c.v} label={c.label} selected={answers.dolor === c.v} onClick={() => saveAnswer('dolor', c.v)} />
-              ))}
+          <Reveal>
+            <div className="flex flex-col gap-4.5">
+              <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('step2of6')}</div>
+              <h2 className="font-display text-2xl font-extrabold">{t('q2Title')}</h2>
+              <p className="text-sm text-text2 -mt-2">{t('q2Sub')}</p>
+              <div className="flex flex-col gap-2.5">
+                {chipsDolor.map((c) => (
+                  <Chip key={c.v} label={c.label} selected={answers.dolor === c.v} onClick={() => saveAnswer('dolor', c.v)} />
+                ))}
+              </div>
             </div>
-          </div>
+          </Reveal>
         )}
 
         {step === 3 && (
-          <div className="flex flex-col gap-4.5">
-            <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('recoEyebrow')}</div>
-            <div className="feature-card rounded-2xl p-6">
-              <div className="font-display text-4xl font-extrabold text-accent mb-2">{t('recoStat')}</div>
-              <p className="text-[15px] leading-relaxed">{t('recoText')}</p>
+          <Reveal>
+            <div className="flex flex-col gap-4.5">
+              <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('recoEyebrow')}</div>
+              <div className="feature-card rounded-2xl p-6">
+                <div className="font-display text-4xl font-extrabold text-accent mb-2">{t('recoStat')}</div>
+                <p className="text-[15px] leading-relaxed">{t('recoText')}</p>
+              </div>
+              <button onClick={() => { track('onboarding_paso_completado', { paso: progressMap[3], total_pasos: 6 }); setStep(4); }} className="bg-accent-btn text-white font-bold text-[15px] rounded-2xl py-4 w-full transition-transform duration-150 active:scale-[0.97]" style={{ boxShadow: 'var(--glow)' }}>
+                {t('recoCta')}
+              </button>
             </div>
-            <button onClick={() => { track('onboarding_paso_completado', { paso: progressMap[3], total_pasos: 6 }); setStep(4); }} className="bg-accent-btn text-white font-bold text-[15px] rounded-2xl py-4 w-full transition-transform duration-150 active:scale-[0.97]" style={{ boxShadow: 'var(--glow)' }}>
-              {t('recoCta')}
-            </button>
-          </div>
+          </Reveal>
         )}
 
         {step === 4 && (
-          <div className="flex flex-col gap-4.5">
-            <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('step3of6')}</div>
-            <h2 className="font-display text-2xl font-extrabold">{t('q3Title')}</h2>
-            <div className="flex flex-col gap-2.5">
-              {chipsPlataforma.map((c) => (
-                <Chip key={c.v} label={c.label} selected={answers.plataforma === c.v} onClick={() => saveAnswer('plataforma', c.v)} />
-              ))}
+          <Reveal>
+            <div className="flex flex-col gap-4.5">
+              <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('step3of6')}</div>
+              <h2 className="font-display text-2xl font-extrabold">{t('q3Title')}</h2>
+              <div className="flex flex-col gap-2.5">
+                {chipsPlataforma.map((c) => (
+                  <Chip key={c.v} label={c.label} selected={answers.plataforma === c.v} onClick={() => saveAnswer('plataforma', c.v)} />
+                ))}
+              </div>
             </div>
-          </div>
+          </Reveal>
         )}
 
         {step === 5 && (
-          <div className="flex flex-col gap-4.5">
-            <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('step4of6')}</div>
-            <h2 className="font-display text-2xl font-extrabold">{t('q4Title')}</h2>
-            <div className="flex flex-col gap-2.5">
-              {chipsAviso.map((c) => (
-                <Chip key={c.v} label={c.label} selected={answers.aviso === c.v} onClick={() => saveAnswer('aviso', c.v)} />
-              ))}
+          <Reveal>
+            <div className="flex flex-col gap-4.5">
+              <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('step4of6')}</div>
+              <h2 className="font-display text-2xl font-extrabold">{t('q4Title')}</h2>
+              <div className="flex flex-col gap-2.5">
+                {chipsAviso.map((c) => (
+                  <Chip key={c.v} label={c.label} selected={answers.aviso === c.v} onClick={() => saveAnswer('aviso', c.v)} />
+                ))}
+              </div>
             </div>
-          </div>
+          </Reveal>
         )}
 
         {step === 6 && (
-          <div className="flex flex-col gap-4.5">
-            <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('step5of6')}</div>
-            <h2 className="font-display text-2xl font-extrabold">{t('commitTitle')}</h2>
-            <div className="rounded-[20px] p-6 text-center border border-accent bg-surface" style={{ boxShadow: 'var(--glow)' }}>
-              <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('commitEyebrow')}</div>
-              <div className="font-display text-[19px] font-extrabold my-2.5">{t('commitGoal')}</div>
-              <p className="text-sm text-text2">{t('commitBody')}</p>
+          <Reveal>
+            <div className="flex flex-col gap-4.5">
+              <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('step5of6')}</div>
+              <h2 className="font-display text-2xl font-extrabold">{t('commitTitle')}</h2>
+              <div className="rounded-[20px] p-6 text-center border border-accent bg-surface" style={{ boxShadow: 'var(--glow)' }}>
+                <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('commitEyebrow')}</div>
+                <div className="font-display text-[19px] font-extrabold my-2.5">{t('commitGoal')}</div>
+                <p className="text-sm text-text2">{t('commitBody')}</p>
+              </div>
+              <button onClick={startLoading} className="bg-accent-btn text-white font-bold text-[15px] rounded-2xl py-4 w-full transition-transform duration-150 active:scale-[0.97]" style={{ boxShadow: 'var(--glow)' }}>
+                {t('commitCta')}
+              </button>
             </div>
-            <button onClick={startLoading} className="bg-accent-btn text-white font-bold text-[15px] rounded-2xl py-4 w-full transition-transform duration-150 active:scale-[0.97]" style={{ boxShadow: 'var(--glow)' }}>
-              {t('commitCta')}
-            </button>
-          </div>
+          </Reveal>
         )}
 
         {step === 7 && (
@@ -249,21 +264,23 @@ export default function OnboardingPage() {
         )}
 
         {step === 8 && (
-          <div className="flex flex-col gap-4.5">
-            <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('doneEyebrow')}</div>
-            <h1 className="font-display text-2xl font-extrabold">{t('doneTitle')}</h1>
-            <p className="text-sm text-text2 -mt-2">{resultText}</p>
-            <div className="feature-card rounded-2xl p-5.5">
-              <div className="text-[11px] font-bold uppercase tracking-wide text-accent2 mb-2">{t('radarNext')}</div>
-              <div className="text-[17px] font-bold mb-3.5">{t('defaultEventTitle')}</div>
-              <div className="flex items-center gap-2.5 bg-white/5 rounded-xl px-3 py-2.5 text-[13px]">
-                {t('streakStarted')}
+          <Reveal>
+            <div className="flex flex-col gap-4.5">
+              <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('doneEyebrow')}</div>
+              <h1 className="font-display text-2xl font-extrabold">{t('doneTitle')}</h1>
+              <p className="text-sm text-text2 -mt-2">{resultText}</p>
+              <div className="feature-card rounded-2xl p-5.5">
+                <div className="text-[11px] font-bold uppercase tracking-wide text-accent2 mb-2">{t('radarNext')}</div>
+                <div className="text-[17px] font-bold mb-3.5">{t('defaultEventTitle')}</div>
+                <div className="flex items-center gap-2.5 bg-white/5 rounded-xl px-3 py-2.5 text-[13px]">
+                  {t('streakStarted')}
+                </div>
               </div>
+              <button onClick={() => router.push('/crear-cuenta')} className="bg-accent-btn text-white font-bold text-[15px] rounded-2xl py-4 w-full transition-transform duration-150 active:scale-[0.97]" style={{ boxShadow: 'var(--glow)' }}>
+                {t('saveCta')}
+              </button>
             </div>
-            <button onClick={() => router.push('/crear-cuenta')} className="bg-accent-btn text-white font-bold text-[15px] rounded-2xl py-4 w-full transition-transform duration-150 active:scale-[0.97]" style={{ boxShadow: 'var(--glow)' }}>
-              {t('saveCta')}
-            </button>
-          </div>
+          </Reveal>
         )}
       </div>
     </div>

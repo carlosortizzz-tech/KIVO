@@ -6,6 +6,7 @@ import { Rss, BookOpen, MessagesSquare, ShieldCheck, Check, ArrowLeft } from 'lu
 import { useRouter } from '@/i18n/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { track } from '@/lib/analytics';
+import { Reveal } from '@/components/app/Reveal';
 
 const HOTMART_CHECKOUT_URLS: Record<'mensual' | 'anual', string | undefined> = {
   mensual: process.env.NEXT_PUBLIC_HOTMART_CHECKOUT_URL_MENSUAL,
@@ -47,29 +48,36 @@ export default function PaywallPage() {
     track('paywall_visto', { plan: 'free' });
   }, []);
 
+  function tryMigrate() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    try {
+      const parsed = JSON.parse(raw);
+      setAnswers(parsed.respuestas ?? {});
+    } catch {}
+
+    fetch('/api/onboarding/migrate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: raw,
+    })
+      .then((res) => {
+        if (res.ok) {
+          localStorage.removeItem(STORAGE_KEY);
+          setMigrateFailed(false);
+        } else {
+          setMigrateFailed(true);
+        }
+      })
+      .catch(() => setMigrateFailed(true));
+  }
+
   useEffect(() => {
     const d = new Date();
     d.setDate(d.getDate() + 7);
     setChargeDate(d.toLocaleDateString(locale, { day: 'numeric', month: 'long' }));
-
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      try {
-        const parsed = JSON.parse(raw);
-        setAnswers(parsed.respuestas ?? {});
-      } catch {}
-
-      fetch('/api/onboarding/migrate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: raw,
-      })
-        .then((res) => {
-          if (res.ok) localStorage.removeItem(STORAGE_KEY);
-          else setMigrateFailed(true);
-        })
-        .catch(() => setMigrateFailed(true));
-    }
+    tryMigrate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale]);
 
   function handleStart() {
@@ -108,12 +116,15 @@ export default function PaywallPage() {
       </div>
 
       <div>
-        <div className="text-center pb-5 pt-2">
-          <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-2">{t('eyebrow')}</div>
-          <h1 className="font-display text-[23px] font-extrabold mb-2">{t('title')}</h1>
-          <p className="text-sm text-text2 max-w-[34ch] mx-auto">{t('subtitle')}</p>
-        </div>
+        <Reveal>
+          <div className="text-center pb-5 pt-2">
+            <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-2">{t('eyebrow')}</div>
+            <h1 className="font-display text-[23px] font-extrabold mb-2">{t('title')}</h1>
+            <p className="text-sm text-text2 max-w-[34ch] mx-auto">{t('subtitle')}</p>
+          </div>
+        </Reveal>
 
+        <Reveal delayMs={60}>
         <div className="flex flex-col gap-3 mb-5">
           <button
             onClick={() => setPlan('anual')}
@@ -147,7 +158,9 @@ export default function PaywallPage() {
         <div className="flex items-center justify-center gap-2 text-xs text-text2 mb-5 text-center">
           <span className="w-1.5 h-1.5 rounded-full bg-success" /> {t('trustLine')}
         </div>
+        </Reveal>
 
+        <Reveal delayMs={120}>
         <div className="feature-card rounded-[20px] p-4 mb-5">
           {[
             { Icon: ShieldCheck, title: t('safeTitle'), sub: t('safeDesc') },
@@ -164,7 +177,9 @@ export default function PaywallPage() {
           ))}
         </div>
         {migrateFailed && (
-          <p className="text-[11px] text-warn text-center -mt-3 mb-4">{t('migrateError')}</p>
+          <p className="text-[11px] text-warn text-center -mt-3 mb-4">
+            {t('migrateError')} <button type="button" onClick={tryMigrate} className="underline font-semibold">{t('migrateRetry')}</button>
+          </p>
         )}
 
         <div className="flex flex-col gap-2.5 text-[13px] text-text2 mb-6">
@@ -172,6 +187,7 @@ export default function PaywallPage() {
           <div>✓ {t('cancelAnytime')}</div>
           <div>✓ {t('guarantee')}</div>
         </div>
+        </Reveal>
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 px-5 pb-5 pt-6" style={{ background: 'linear-gradient(180deg, transparent, var(--bg) 30%)' }}>

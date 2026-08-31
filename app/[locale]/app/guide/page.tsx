@@ -24,8 +24,20 @@ export default async function GuidePage({
     .select('id, title, title_en, title_fr, title_ko, category, category_en, category_fr, category_ko, platform, read_minutes, steps, steps_en, steps_fr, steps_ko')
     .order('created_at', { ascending: true });
 
+  // Falla real de Supabase (no "sin guías") — se muestra un estado propio con qué pasó y qué
+  // hacer, en vez de reventar a la pantalla de error genérica de Next.js (regla UX de errores).
   if (error) {
-    throw new Error('No se pudieron cargar las guías de KIVO');
+    return (
+      <div>
+        <Reveal>
+          <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-1">{t('eyebrow')}</div>
+          <h1 className="font-display text-lg font-extrabold mb-4">{t('title')}</h1>
+          <div className="flex flex-col items-center text-center gap-2 py-10">
+            <div className="text-sm text-text2">{t('loadError')}</div>
+          </div>
+        </Reveal>
+      </div>
+    );
   }
 
   // Contenido editorial (39-INTERNACIONALIZACION): columnas por idioma con reserva automática al
