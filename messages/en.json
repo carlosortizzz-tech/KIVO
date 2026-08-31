@@ -200,6 +200,8 @@
     "memberSince": "Member since {date}",
     "trialCharge": "Your first charge is on {date}",
     "trialChargeAmount": "You'll be charged {amount} on {date}",
+    "pastDueTitle": "We couldn't charge your last payment",
+    "pastDueBody": "Your Pro access stays active until {date} — update your payment method before then to keep it.",
     "planFree": "Free plan",
     "planPro": "Pro plan",
     "idLink": "Your KIVO ID",

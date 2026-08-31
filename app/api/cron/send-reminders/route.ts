@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { sendEventReminderEmail, sendTrialEndingEmail } from '@/lib/email';
+import { sendEventReminderEmail, sendTrialEndingEmail, sendGracePeriodEndedEmail } from '@/lib/email';
 
 export const runtime = 'nodejs';
 
@@ -95,6 +95,36 @@ export async function GET(req: NextRequest) {
 
     const chargeDateLabel = new Date(user.trial_ends_at).toLocaleDateString('es', { day: 'numeric', month: 'long' });
     await sendTrialEndingEmail(user.email, user.display_name ?? 'Fan', chargeDateLabel, user.plan_amount, user.plan_currency);
+    sent++;
+  }
+
+  // Fin del período de gracia (58-RETENCION-DE-INGRESOS / dunning): a quien le falló el pago se le
+  // mantiene Pro por 4 días reales (ver apply_hotmart_event) — acá se baja a 'free' recién cuando
+  // ese plazo real ya venció, y solo si sigue en 'past_due' (si Hotmart ya cobró de nuevo, el
+  // webhook ya limpió grace_period_ends_at y este usuario no aparece en el barrido).
+  const { data: expiredGrace } = await admin
+    .from('profiles')
+    .select('id, email, display_name')
+    .eq('status', 'past_due')
+    .eq('plan', 'pro')
+    .lt('grace_period_ends_at', new Date(now).toISOString())
+    .not('email', 'is', null);
+
+  for (const user of expiredGrace ?? []) {
+    if (!user.email) continue;
+    // Idempotencia: solo baja de plan si SIGUE cumpliendo la condición al momento del update
+    // (evita una carrera si el webhook de Hotmart llega justo en medio del barrido del cron).
+    const { data: downgraded } = await admin
+      .from('profiles')
+      .update({ plan: 'free', grace_period_ends_at: null })
+      .eq('id', user.id)
+      .eq('status', 'past_due')
+      .eq('plan', 'pro')
+      .select('id')
+      .maybeSingle();
+    if (!downgraded) { skipped++; continue; }
+
+    await sendGracePeriodEndedEmail(user.email, user.display_name ?? 'Fan');
     sent++;
   }
 

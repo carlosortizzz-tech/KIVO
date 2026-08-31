@@ -200,6 +200,8 @@
     "memberSince": "{date}부터 회원",
     "trialCharge": "첫 결제일은 {date}이에요",
     "trialChargeAmount": "{date}에 {amount}이 청구돼요",
+    "pastDueTitle": "마지막 결제를 처리하지 못했어요",
+    "pastDueBody": "Pro 이용은 {date}까지 계속 유지돼요 — 그 전에 결제 수단을 업데이트해주세요.",
     "planFree": "무료 플랜",
     "planPro": "Pro 플랜",
     "idLink": "내 KIVO ID",

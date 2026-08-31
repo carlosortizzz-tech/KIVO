@@ -74,20 +74,37 @@ export async function sendCancellationEmail(email: string, name: string) {
   if (error) await logEmailFailure('cancellation', email, `${error.name}: ${error.message}`);
 }
 
-export async function sendPaymentFailedEmail(email: string, name: string) {
+export async function sendPaymentFailedEmail(email: string, name: string, graceEndsAt: string) {
   const resend = getResend();
   if (!resend) { await logEmailFailure('payment_failed', email, 'RESEND_API_KEY no configurada'); return; }
+  const dateLabel = new Date(graceEndsAt).toLocaleDateString('es', { day: 'numeric', month: 'long' });
   const { error } = await resend.emails.send({
     from: FROM,
     to: email,
     subject: 'No pudimos procesar tu pago de KIVO',
     html: emailShell(`
       <h1>Hola ${name},</h1>
-      <p>Tu último pago no se pudo procesar. Tu acceso sigue activo por unos días mientras lo resolvemos, pero necesitamos que actualices tu método de pago para no perderlo.</p>
+      <p>Tu último pago no se pudo procesar. Tu acceso Pro sigue activo hasta el <b>${dateLabel}</b> mientras lo resolvemos, pero necesitamos que actualices tu método de pago para no perderlo.</p>
       <p><a href="${APP_URL}/login" style="background:#7C3AED;color:#fff;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:600;display:inline-block">Actualizar método de pago →</a></p>
     `),
   });
   if (error) await logEmailFailure('payment_failed', email, `${error.name}: ${error.message}`);
+}
+
+export async function sendGracePeriodEndedEmail(email: string, name: string) {
+  const resend = getResend();
+  if (!resend) { await logEmailFailure('grace_period_ended', email, 'RESEND_API_KEY no configurada'); return; }
+  const { error } = await resend.emails.send({
+    from: FROM,
+    to: email,
+    subject: 'Tu acceso Pro a KIVO terminó',
+    html: emailShell(`
+      <h1>Hola ${name},</h1>
+      <p>No pudimos cobrar tu suscripción a tiempo, así que tu acceso Pro a KIVO terminó por ahora. Guardamos tu cuenta y tu historial — en cuanto actualices tu método de pago, tu Pro vuelve automáticamente.</p>
+      <p><a href="${APP_URL}/paywall" style="background:#7C3AED;color:#fff;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:600;display:inline-block">Reactivar mi Pro →</a></p>
+    `),
+  });
+  if (error) await logEmailFailure('grace_period_ended', email, `${error.name}: ${error.message}`);
 }
 
 export async function sendTrialEndingEmail(

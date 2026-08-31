@@ -196,7 +196,8 @@ async function handlePost(req: NextRequest) {
     } else if (newStatus === 'cancelled') {
       await sendCancellationEmail(email, name);
     } else if (newStatus === 'past_due') {
-      await sendPaymentFailedEmail(email, name);
+      const graceEndsAt: string | undefined = data?.grace_period_ends_at;
+      if (graceEndsAt) await sendPaymentFailedEmail(email, name, graceEndsAt);
     }
     if (newStatus === 'active' || newStatus === 'trialing') {
       // 'ciclo' (mensual/anual) queda "desconocido": Hotmart no manda el nombre del producto/oferta

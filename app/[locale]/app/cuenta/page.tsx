@@ -18,7 +18,7 @@ export default async function CuentaPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('plan, created_at, status, trial_ends_at, plan_amount, plan_currency, streak_count, xp_total')
+    .select('plan, created_at, status, trial_ends_at, plan_amount, plan_currency, streak_count, xp_total, grace_period_ends_at')
     .eq('id', user.id)
     .maybeSingle();
 
@@ -45,6 +45,10 @@ export default async function CuentaPage() {
   const nivelPct = Math.min(100, Math.round((xpEnNivel / xpParaSiguiente) * 100));
   const isPro = profile?.plan === 'pro';
   const isTrialing = profile?.status === 'trialing';
+  const isPastDue = profile?.status === 'past_due' && !!profile?.grace_period_ends_at;
+  const graceDate = profile?.grace_period_ends_at
+    ? new Date(profile.grace_period_ends_at).toLocaleDateString(locale, { day: 'numeric', month: 'long' })
+    : '';
   const memberSince = profile?.created_at
     ? new Date(profile.created_at).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })
     : '';
@@ -83,6 +87,15 @@ export default async function CuentaPage() {
           )}
         </div>
       </Reveal>
+
+      {isPastDue && (
+        <Reveal delayMs={30}>
+          <div className="bg-warn/[0.08] border border-warn/25 rounded-2xl p-4 mb-5 text-xs text-text2">
+            <div className="font-bold text-warn text-sm mb-1">{t('pastDueTitle')}</div>
+            <p>{t('pastDueBody', { date: graceDate })}</p>
+          </div>
+        </Reveal>
+      )}
 
       <Reveal delayMs={60}>
         <Link href="/app/cuenta/id" className="flex items-center gap-3 bg-surface border border-border rounded-2xl px-4 py-3.5 mb-6 transition-transform duration-150 active:scale-[0.98]">

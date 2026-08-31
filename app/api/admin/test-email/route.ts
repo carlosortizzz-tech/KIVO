@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import { isAdminEmail } from '@/lib/admin';
-import { sendWelcomeEmail, sendTrialEndingEmail, sendCancellationEmail, sendPaymentFailedEmail } from '@/lib/email';
+import { sendWelcomeEmail, sendTrialEndingEmail, sendCancellationEmail, sendPaymentFailedEmail, sendGracePeriodEndedEmail } from '@/lib/email';
 
 // Utilidad de admin para probar el copy real de los correos transaccionales sin tener que
 // forzar una compra/cancelación real. Mismo guard que "Live ahora" — solo el dueño.
@@ -28,7 +28,10 @@ async function handle(to: string | null, type: string | null) {
       await sendCancellationEmail(to, 'Fan');
       break;
     case 'payment_failed':
-      await sendPaymentFailedEmail(to, 'Fan');
+      await sendPaymentFailedEmail(to, 'Fan', new Date(Date.now() + 4 * 86400000).toISOString());
+      break;
+    case 'grace_period_ended':
+      await sendGracePeriodEndedEmail(to, 'Fan');
       break;
     default:
       await sendWelcomeEmail(to, 'Fan');
