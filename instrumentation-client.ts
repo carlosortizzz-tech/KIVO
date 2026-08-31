@@ -1,9 +1,12 @@
-// Sentry se inicializa desde `components/app/SentryInit.tsx`, no acá. Este archivo especial
-// (convención de Next.js) siempre se empaqueta en el chunk inicial de la página, sin importar
-// cómo se escriba el import() adentro -- confirmado midiendo el bundle real en producción, con
-// y sin `bundleSizeOptimizations` de Sentry (esas optimizaciones tampoco aplican bajo Turbopack,
-// el bundler por defecto de Next 16 -- limitación documentada del plugin de Sentry, no una
-// configuración faltante). Cargar el SDK desde un componente cliente normal, montado tras la
-// hidratación, sí permite que el bundler lo separe en su propio chunk diferido de verdad
-// (38-PERFORMANCE-BUDGET).
-export {};
+import * as Sentry from '@sentry/nextjs';
+
+// Sin tracing/replay a propósito (38-PERFORMANCE-BUDGET): KIVO solo necesita captura de errores.
+// Se intentó diferir la carga de 3 formas distintas (requestIdleCallback acá, opciones de recorte
+// de Sentry, un componente cliente aparte) y ninguna evitó que Next.js/Turbopack lo incluyera en
+// el chunk inicial de la página — es una limitación real de la herramienta hoy (2026-08-30), no
+// una configuración faltante. Se acepta el peso (~140KB comprimidos) del SDK como el costo real
+// de tener monitoreo de errores en producción, documentado en ESTADO.md.
+Sentry.init({
+  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  environment: process.env.NEXT_PUBLIC_VERCEL_ENV ?? process.env.NODE_ENV,
+});
