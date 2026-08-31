@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { LocaleSwitcher } from "@/components/app/LocaleSwitcher";
 import { AnalyticsInit } from "@/components/app/AnalyticsInit";
+import { SentryInit } from "@/components/app/SentryInit";
 import "../globals.css";
 
 const bricolage = Bricolage_Grotesque({
@@ -55,6 +56,7 @@ export default async function LocaleLayout({
       <body className="min-h-full flex flex-col bg-bg text-text antialiased">
         <NextIntlClientProvider>
           <AnalyticsInit />
+          <SentryInit />
           {children}
           <LocaleSwitcher />
         </NextIntlClientProvider>

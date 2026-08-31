@@ -22,4 +22,13 @@ export default withSentryConfig(withNextIntl(nextConfig), {
   widenClientFileUpload: false,
   disableLogger: true,
   automaticVercelMonitors: false,
+  // KIVO solo usa captura de errores (sin tracing ni Session Replay) -- se recorta ese código del
+  // bundle del cliente en vez de dejarlo entrar sin usarse (38-PERFORMANCE-BUDGET).
+  bundleSizeOptimizations: {
+    excludeDebugStatements: true,
+    excludeTracing: true,
+    excludeReplayShadowDom: true,
+    excludeReplayIframe: true,
+    excludeReplayWorker: true,
+  },
 });
