@@ -105,17 +105,16 @@ async function handlePost(req: NextRequest) {
   const eventId =
     payload.id ?? payload.event_id ?? payload.data?.purchase?.transaction ?? `${event}:${email}:${ts ?? ''}`;
 
-  let newStatus = statusForEvent(event);
+  const newStatus = statusForEvent(event);
   // Hallazgo real (confirmado con una compra de prueba en producción, 2026-08-27): Hotmart NO
   // manda un evento de trial separado (el placeholder SUBSCRIPTION_TRIAL_START de membership-fsm
   // nunca llegó) — en vez de eso, manda PURCHASE_APPROVED con price.value = 0 (el "cobro
-  // simbólico" de validación de tarjeta que Hotmart le muestra al comprador). Sin este ajuste,
-  // CADA trial resolvía directo a 'active' con trial_ends_at vacío, y el puente del trial (correo
-  // D6 + indicador "Día X de 7") nunca se disparaba para nadie. $0 en un PURCHASE_APPROVED/
-  // COMPLETE = inicio de trial, no cobro real.
-  if ((event === 'PURCHASE_APPROVED' || event === 'PURCHASE_COMPLETE') && priceValue === 0) {
-    newStatus = 'trialing';
-  }
+  // simbólico" de validación de tarjeta que Hotmart le muestra al comprador) para el inicio de
+  // prueba. La DECISIÓN de si $0 significa "inicio de trial" ahora vive en apply_hotmart_event()
+  // (SQL), no acá — porque solo la base de datos sabe si el usuario YA estaba en trialing/active
+  // (hallazgo 2026-09-03: tratar CUALQUIER evento $0 como "inicio de trial" sin mirar el estado
+  // anterior le reseteaba el reloj de prueba a usuarios que ya habían pagado de verdad la 2ª cuota).
+  const priceIsZero = (event === 'PURCHASE_APPROVED' || event === 'PURCHASE_COMPLETE') && priceValue === 0;
   if (!newStatus) {
     // Se registra igual (con el event_id crudo del payload, sin pasar por la RPC) para que
     // el backoffice VEA que Hotmart mandó algo, aunque sea un tipo de evento que no manejamos
@@ -143,6 +142,7 @@ async function handlePost(req: NextRequest) {
     p_name: name,
     p_subscriber_code: subscriberCode ?? null,
     p_new_status: newStatus,
+    p_price_is_zero: priceIsZero,
   });
 
   if (error) {
@@ -174,6 +174,7 @@ async function handlePost(req: NextRequest) {
       p_name: name,
       p_subscriber_code: subscriberCode ?? null,
       p_new_status: newStatus,
+      p_price_is_zero: priceIsZero,
     });
     if (retryErr) {
       console.error('webhook hotmart error (retry)', { event, code: retryErr.code });
@@ -182,7 +183,8 @@ async function handlePost(req: NextRequest) {
     }
     await admin.from('webhook_log').insert({ event_id: eventId, type: event, result: 'applied' });
     await sendWelcomeEmail(email, name);
-    if (newStatus === 'active') await trackPlanActualizado(authUser.user.id, 'desconocido');
+    const retryEffectiveStatus: string | undefined = retryData?.new_status;
+    if (retryEffectiveStatus === 'active') await trackPlanActualizado(authUser.user.id, 'desconocido');
     if (priceValue) await admin.from('profiles').update({ plan_amount: priceValue, plan_currency: priceCurrency ?? null }).eq('id', authUser.user.id);
     return NextResponse.json({ received: true, result: retryData?.status ?? 'applied' });
   }
@@ -190,21 +192,26 @@ async function handlePost(req: NextRequest) {
   const result = status === 'applied' ? 'applied' : status === 'duplicate' ? 'duplicate' : 'illegal';
   await admin.from('webhook_log').insert({ event_id: eventId, type: event, result });
 
+  // El estado que de verdad quedó guardado lo decide la RPC (data.new_status), no el mapeo crudo
+  // del evento (newStatus) — pueden diferir cuando el heurístico $0=trialing se ignora por venir
+  // de un usuario que ya estaba en trialing/active/past_due (ver nota arriba).
+  const effectiveStatus: string | undefined = status === 'applied' ? data?.new_status : undefined;
+
   if (status === 'applied') {
-    if (newStatus === 'active' || newStatus === 'trialing') {
+    if (effectiveStatus === 'active' || effectiveStatus === 'trialing') {
       await sendWelcomeEmail(email, name);
-    } else if (newStatus === 'cancelled') {
+    } else if (effectiveStatus === 'cancelled') {
       await sendCancellationEmail(email, name);
-    } else if (newStatus === 'past_due') {
+    } else if (effectiveStatus === 'past_due') {
       const graceEndsAt: string | undefined = data?.grace_period_ends_at;
       if (graceEndsAt) await sendPaymentFailedEmail(email, name, graceEndsAt);
     }
-    if (newStatus === 'active' || newStatus === 'trialing') {
+    if (effectiveStatus === 'active' || effectiveStatus === 'trialing') {
       // 'ciclo' (mensual/anual) queda "desconocido": Hotmart no manda el nombre del producto/oferta
       // en este payload — no se inventa el dato, se etiqueta honestamente.
       const { data: profile } = await admin.from('profiles').select('id').eq('email', email).maybeSingle();
       if (profile?.id) {
-        if (newStatus === 'active') await trackPlanActualizado(profile.id, 'desconocido');
+        if (effectiveStatus === 'active') await trackPlanActualizado(profile.id, 'desconocido');
         if (priceValue) await admin.from('profiles').update({ plan_amount: priceValue, plan_currency: priceCurrency ?? null }).eq('id', profile.id);
       }
     }
