@@ -190,7 +190,16 @@ async function handlePost(req: NextRequest) {
   }
 
   const result = status === 'applied' ? 'applied' : status === 'duplicate' ? 'duplicate' : 'illegal';
-  await admin.from('webhook_log').insert({ event_id: eventId, type: event, result });
+  // detail guarda el precio crudo que mandó Hotmart -- hallazgo 2026-09-03: sin esto, cuando un
+  // evento llega con price=0 no hay forma de saber después si fue un inicio de prueba legítimo o
+  // un cobro real mal reportado (ej. una "cuota" de pago en cuotas), hasta que ya es tarde y los
+  // logs de Vercel de esa hora ya expiraron.
+  await admin.from('webhook_log').insert({
+    event_id: eventId,
+    type: event,
+    result,
+    detail: `price_raw=${priceValue ?? 'undefined'} price_is_zero=${priceIsZero} new_status_mapped=${newStatus} effective_status=${data?.new_status ?? 'n/a'}`,
+  });
 
   // El estado que de verdad quedó guardado lo decide la RPC (data.new_status), no el mapeo crudo
   // del evento (newStatus) — pueden diferir cuando el heurístico $0=trialing se ignora por venir
