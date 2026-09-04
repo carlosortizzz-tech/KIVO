@@ -69,6 +69,12 @@ async function handlePost(req: NextRequest) {
       buyer?: { email?: string; name?: string };
       purchase?: { transaction?: string; approved_date?: number; price?: { value?: number; currency_value?: string } };
       subscription?: { subscriber?: { code?: string } };
+      // Eventos a nivel de SUSCRIPCIÓN (cancelación, cambio de plan) NO traen `data.buyer` --
+      // el comprador vive en `data.subscriber` directamente (verificado con la documentación
+      // oficial de Hotmart: https://developers.hotmart.com/docs/en/2.0.0/webhook/cancel-subscription-webhook/).
+      // Hallazgo real 2026-09-04: las 2 primeras cancelaciones de prueba fallaron con 400
+      // "missing buyer email" porque el código solo miraba `data.buyer.email`.
+      subscriber?: { code?: string; email?: string; name?: string };
     };
   };
   try {
@@ -94,9 +100,12 @@ async function handlePost(req: NextRequest) {
 
   // 5. Datos del evento
   const event = payload.event ?? '';
-  const email = payload.data?.buyer?.email;
-  const name = payload.data?.buyer?.name ?? '';
-  const subscriberCode = payload.data?.subscription?.subscriber?.code;
+  // Eventos de COMPRA (PURCHASE_*) traen el comprador en `data.buyer`; eventos de SUSCRIPCIÓN
+  // (SUBSCRIPTION_CANCELLATION, cambio de plan, etc.) lo traen en `data.subscriber` directamente
+  // -- se intenta primero buyer (el caso más común) y se cae a subscriber si no está.
+  const email = payload.data?.buyer?.email ?? payload.data?.subscriber?.email;
+  const name = payload.data?.buyer?.name ?? payload.data?.subscriber?.name ?? '';
+  const subscriberCode = payload.data?.subscription?.subscriber?.code ?? payload.data?.subscriber?.code;
   // Best-effort: si Hotmart manda el precio real en el payload, lo guardamos para poder mostrar
   // el monto EXACTO en el aviso pre-cobro del trial (02C) y afinar el MRR del backoffice (21) más
   // adelante — si no viene, queda null y no se inventa un número.
