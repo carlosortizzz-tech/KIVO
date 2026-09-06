@@ -26,6 +26,11 @@ function pickLocale(locale: string, es: string, en: string | null, fr: string | 
   return byLocale ?? es;
 }
 
+// Estos 3 tipos son fechas que se REPITEN cada año sobre algo que ya ocurrió (el álbum ya
+// salió, el cumpleaños ya nació) — el kicker debe decir "Aniversario", nunca "Próxima X",
+// que insinúa un lanzamiento o evento todavía sin ocurrir.
+const ANNIVERSARY_TYPES = new Set(['album', 'aniversario', 'cumpleanos']);
+
 const typeKeys: Record<string, string> = {
   preventa: 'typePreventa',
   comeback: 'typeComeback',
@@ -207,7 +212,7 @@ export default async function RadarPage() {
             >
               <div className="flex items-start justify-between gap-2 mb-3">
                 <div className="text-xs font-bold uppercase tracking-wide text-accent2">
-                  {t('radar.upcoming', { type: t(`radar.${typeKeys[nextEvent.type] ?? 'typePreventa'}` as never) })}
+                  {t(ANNIVERSARY_TYPES.has(nextEvent.type) ? 'radar.anniversaryLabel' : 'radar.upcoming', { type: t(`radar.${typeKeys[nextEvent.type] ?? 'typePreventa'}` as never) })}
                 </div>
                 <AddToCalendar event={{
                   id: nextEvent.id,

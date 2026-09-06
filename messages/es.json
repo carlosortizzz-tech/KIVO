@@ -253,6 +253,7 @@
       "badgeClose": "¡Genial!",
       "title": "Tu Radar de hoy",
       "upcoming": "Próxima {type}",
+      "anniversaryLabel": "Aniversario · {type}",
       "viewGuide": "Ver guía paso a paso →",
       "notASeller": "KIVO no vende ni gestiona esto — solo te avisa a tiempo y te explica cómo hacerlo tú mismo.",
       "noEvents": "Aún no hay eventos cargados en tu radar. Vuelve pronto.",
