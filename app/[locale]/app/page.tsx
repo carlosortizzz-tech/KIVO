@@ -245,7 +245,15 @@ export default async function RadarPage() {
       </Reveal>
 
       {restEvents.length === 0 && !nextEvent && (
-        <div className="text-center py-10 text-sm text-text2">{t('radar.noEvents')}</div>
+        <div className="flex flex-col items-center text-center gap-3 py-14 px-4">
+          <div className="icon-chip-accent firma-icon w-14 h-14 rounded-full flex items-center justify-center">
+            <CalendarDays size={24} color="var(--accent2)" strokeWidth={1.8} />
+          </div>
+          <div className="text-sm font-bold">{t('radar.noEvents')}</div>
+          <Link href="/app/guide" className="text-[13px] font-bold text-accent2 underline underline-offset-2">
+            {t('radar.noEventsCta')}
+          </Link>
+        </div>
       )}
       {restEvents.length > 0 && (
         <Reveal delayMs={240}>

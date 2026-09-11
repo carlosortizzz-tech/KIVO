@@ -22,7 +22,7 @@ export function CollapsibleSection({
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className="bg-surface border border-border rounded-2xl overflow-hidden mb-2.5">
+    <div className="surface-elevated rounded-2xl overflow-hidden mb-2.5">
       <button
         onClick={() => setOpen(!open)}
         aria-expanded={open}

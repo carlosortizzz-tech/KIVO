@@ -8,15 +8,31 @@ import { routing } from '@/i18n/routing';
 
 const LABELS: Record<string, string> = { es: 'ES', en: 'EN', fr: 'FR', ko: '한국어' };
 
+// El revisor-visual encontró el MISMO choque (el botón flotante tapando contenido de scroll)
+// en 4 pantallas distintas de /app (Community, Radar, Guide, Safe) a lo largo de varias rondas
+// — no es un caso puntual, es que "flotar sobre contenido con scroll" nunca es seguro sea cual
+// sea el contenido. Fix de raíz: en rutas /app este componente NO se monta (AppLayout ya tiene
+// su propia fila de íconos en el header — LocaleSwitcherInline vive ahí, integrado al flujo,
+// nunca flotando). Aquí solo queda la versión flotante para landing/onboarding/paywall, que no
+// tienen ese header.
 export function LocaleSwitcher() {
+  const pathname = usePathname();
+  if (pathname.startsWith('/app')) return null;
+  return <LocaleSwitcherButton className="fixed right-4 bottom-4 z-40" />;
+}
+
+// Versión integrada para el header de /app (mismo tratamiento visual que los demás íconos de
+// esa fila: w-9 h-9, bg-surface, border-border) — nunca flota sobre el contenido.
+export function LocaleSwitcherInline() {
+  return <LocaleSwitcherButton className="relative" compact />;
+}
+
+function LocaleSwitcherButton({ className, compact = false }: { className: string; compact?: boolean }) {
   const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [, startTransition] = useTransition();
-  // Las rutas bajo /app tienen un BottomNav fijo — sin este offset, el botón flotante queda
-  // literalmente encima del último ítem del menú (hallazgo real del revisor-visual, 2026-08-30).
-  const hasBottomNav = pathname.startsWith('/app');
 
   function switchTo(next: string) {
     setOpen(false);
@@ -39,12 +55,9 @@ export function LocaleSwitcher() {
   }
 
   return (
-    <div
-      className={`fixed right-4 z-40 ${hasBottomNav ? 'bottom-20' : 'bottom-4'}`}
-      style={hasBottomNav ? { bottom: 'calc(5rem + env(safe-area-inset-bottom))' } : undefined}
-    >
+    <div className={className}>
       {open && (
-        <div className="mb-2 bg-surface border border-border rounded-2xl p-1.5 flex flex-col gap-0.5 shadow-lg">
+        <div className="absolute right-0 mb-2 bottom-full bg-surface border border-border rounded-2xl p-1.5 flex flex-col gap-0.5 shadow-lg min-w-[120px]">
           {routing.locales.map((l) => (
             <button
               key={l}
@@ -58,17 +71,17 @@ export function LocaleSwitcher() {
           ))}
         </div>
       )}
-      {/* Revertido a círculo compacto (round 5 del revisor-visual): la versión con el código de
-          idioma como texto era más ancha y chocaba con contenido de feed corto debajo — un
-          botón fijo sobre contenido con scroll siempre corre ese riesgo, agrandarlo lo empeora
-          en vez de arreglarlo. El label completo se ve igual dentro del menú al abrirlo. */}
       <button
         onClick={() => setOpen((v) => !v)}
         aria-label="Cambiar idioma"
-        className="w-11 h-11 rounded-full bg-surface border border-border flex items-center justify-center text-text2 transition-transform duration-150 active:scale-95"
-        style={{ boxShadow: '0 4px 16px rgba(0,0,0,0.3)' }}
+        className={
+          compact
+            ? 'w-9 h-9 rounded-full bg-surface border border-border flex items-center justify-center text-text2 transition-transform duration-150 active:scale-95'
+            : 'w-11 h-11 rounded-full bg-surface border border-border flex items-center justify-center text-text2 transition-transform duration-150 active:scale-95'
+        }
+        style={compact ? undefined : { boxShadow: '0 4px 16px rgba(0,0,0,0.3)' }}
       >
-        <Globe size={18} strokeWidth={2} />
+        <Globe size={compact ? 16 : 18} strokeWidth={2} />
       </button>
     </div>
   );

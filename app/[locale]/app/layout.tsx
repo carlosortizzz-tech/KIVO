@@ -5,6 +5,7 @@ import { isAdminEmail } from '@/lib/admin';
 import { Link } from '@/i18n/navigation';
 import { Radio, LayoutDashboard } from 'lucide-react';
 import { AnalyticsSession } from '@/components/app/AnalyticsSession';
+import { LocaleSwitcherInline } from '@/components/app/LocaleSwitcher';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -33,6 +34,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           />
         </div>
         <div className="flex items-center gap-2.5">
+          <LocaleSwitcherInline />
           {isAdmin && (
             <>
               <Link href="/app/admin/panel" aria-label="Panel del negocio" className="w-9 h-9 rounded-full bg-surface border border-border flex items-center justify-center text-text2">

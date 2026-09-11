@@ -15,12 +15,14 @@ export function SafeReportForm() {
   const [reason, setReason] = useState('');
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState(false);
   const [badgeUnlocked, setBadgeUnlocked] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!urlOrSeller.trim() || !reason.trim() || busy) return;
     setBusy(true);
+    setError(false);
     try {
       const result = await submitSafeReport(urlOrSeller, reason);
       if (result.badgeUnlocked) {
@@ -32,7 +34,9 @@ export function SafeReportForm() {
       }
       router.refresh();
     } catch {
-      // silencioso a propósito: se deja el formulario abierto con los datos intactos para reintentar
+      // El formulario se deja abierto con los datos intactos para reintentar — pero antes
+      // (hallazgo real del revisor-visual) no avisaba NADA, el usuario no sabía que había fallado.
+      setError(true);
     } finally {
       setBusy(false);
     }
@@ -41,6 +45,7 @@ export function SafeReportForm() {
   function close() {
     setOpen(false);
     setSent(false);
+    setError(false);
     setUrlOrSeller('');
     setReason('');
   }
@@ -85,6 +90,7 @@ export function SafeReportForm() {
                   rows={3}
                   className="w-full bg-sunken border border-border rounded-xl px-3.5 py-3 text-sm mb-4 outline-none focus:border-accent resize-none"
                 />
+                {error && <p className="text-xs text-danger mb-3 -mt-2">{t('formError')}</p>}
                 <button
                   type="submit"
                   disabled={busy || !urlOrSeller.trim() || !reason.trim()}
