@@ -337,6 +337,7 @@
       "moreOptions": "Plus d'options",
       "deletePost": "Supprimer la publication",
       "deleteConfirm": "Supprimer cette publication ? C'est irréversible.",
+      "deleteError": "Impossible de supprimer — réessaie.",
       "deleting": "Suppression…",
       "tabFeed": "Fil",
       "tabExperiences": "Expériences",

@@ -16,10 +16,12 @@ export function PostMenu({ postId }: { postId: string }) {
   const [open, setOpen] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(false);
 
   function close() {
     setOpen(false);
     setConfirming(false);
+    setError(false);
   }
 
   // Ronda 2 del revisor-visual: el menú se quedaba flotando abierto si el usuario tocaba
@@ -45,12 +47,14 @@ export function PostMenu({ postId }: { postId: string }) {
   async function handleDelete() {
     if (busy) return;
     setBusy(true);
+    setError(false);
     try {
       await deleteForumPost(postId);
       close();
       router.refresh();
     } catch {
       setBusy(false);
+      setError(true);
     }
   }
 
@@ -67,6 +71,7 @@ export function PostMenu({ postId }: { postId: string }) {
           {confirming ? (
             <div className="px-3.5 py-2.5">
               <div className="text-xs text-text mb-2.5">{t('deleteConfirm')}</div>
+              {error && <div className="text-[11px] text-danger mb-2.5">{t('deleteError')}</div>}
               <div className="flex gap-2">
                 <button
                   onClick={() => setConfirming(false)}

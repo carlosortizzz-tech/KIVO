@@ -135,9 +135,11 @@ export default async function CommunityPage() {
 
       {posts && posts.length > 0 ? (
         <div className="flex flex-col gap-3">
-          {posts.map((p, i) => (
+          {posts.map((p, i) => {
+            const isOwn = currentUser?.id === p.user_id;
+            return (
             <Reveal key={p.id} delayMs={i * 50}>
-              <div className="bg-surface border border-border rounded-2xl p-3.5">
+              <div className={isOwn ? 'feature-card rounded-2xl p-3.5' : 'bg-surface border border-border rounded-2xl p-3.5'}>
                 <div className="flex items-center gap-2 mb-2">
                   <div className="icon-chip-accent firma-icon w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0">
                     {(postAuthorNameById.get(p.user_id) ?? '?')[0]?.toUpperCase()}
@@ -149,12 +151,13 @@ export default async function CommunityPage() {
                   <div className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-accent-soft text-accent2">
                     {(CATEGORIES as readonly string[]).includes(p.category) ? t(categoryKey[p.category as (typeof CATEGORIES)[number]]) : p.category}
                   </div>
-                  {currentUser?.id === p.user_id && <PostMenu postId={p.id} />}
+                  {isOwn && <PostMenu postId={p.id} />}
                 </div>
                 <p className="text-[13px] leading-relaxed">{p.body}</p>
               </div>
             </Reveal>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="flex flex-col items-center text-center gap-3 py-14 px-4">

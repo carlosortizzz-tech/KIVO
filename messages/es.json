@@ -337,6 +337,7 @@
       "moreOptions": "Más opciones",
       "deletePost": "Eliminar publicación",
       "deleteConfirm": "¿Eliminar esta publicación? No se puede deshacer.",
+      "deleteError": "No se pudo eliminar — intenta de nuevo.",
       "deleting": "Eliminando…",
       "tabFeed": "Feed",
       "tabExperiences": "Experiencias",
