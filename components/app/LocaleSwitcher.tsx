@@ -57,7 +57,14 @@ function LocaleSwitcherButton({ className, compact = false }: { className: strin
   return (
     <div className={className}>
       {open && (
-        <div className="absolute right-0 mb-2 bottom-full bg-surface border border-border rounded-2xl p-1.5 flex flex-col gap-0.5 shadow-lg min-w-[120px]">
+        // La versión "compact" vive arriba en el header (poco espacio libre encima) — abrir el
+        // menú hacia ARRIBA (bottom-full) lo cortaba fuera del viewport (hallazgo real del
+        // revisor-visual). La versión flotante sigue abriendo hacia arriba porque vive abajo.
+        <div
+          className={`absolute right-0 bg-surface border border-border rounded-2xl p-1.5 flex flex-col gap-0.5 shadow-lg min-w-[120px] ${
+            compact ? 'top-full mt-2' : 'bottom-full mb-2'
+          }`}
+        >
           {routing.locales.map((l) => (
             <button
               key={l}
@@ -72,7 +79,13 @@ function LocaleSwitcherButton({ className, compact = false }: { className: strin
         </div>
       )}
       <button
-        onClick={() => setOpen((v) => !v)}
+        onClick={(e) => {
+          setOpen((v) => !v);
+          // El anillo de :focus-visible (globals.css) se quedaba pegado tras el tap en algunos
+          // navegadores móviles — hallazgo real del revisor-visual. blur() lo limpia sin afectar
+          // el foco real por teclado (focus-visible solo se dispara en navegación por teclado).
+          e.currentTarget.blur();
+        }}
         aria-label="Cambiar idioma"
         className={
           compact
