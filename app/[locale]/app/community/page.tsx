@@ -196,7 +196,7 @@ export default async function CommunityPage() {
   return (
     <div>
       <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-1">{t('eyebrow')}</div>
-      <h1 className="font-display text-lg font-extrabold mb-4">{t('title')}</h1>
+      <h1 className="font-display text-2xl font-extrabold mb-4 tracking-tight">{t('title')}</h1>
       <CommunityTabs feed={feed} experiences={experiencesTab} />
     </div>
   );

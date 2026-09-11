@@ -34,7 +34,7 @@ export default async function SafePage() {
   return (
     <div>
       <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-1">{t('eyebrow')}</div>
-      <h1 className="font-display text-lg font-extrabold mb-4">{t('title')}</h1>
+      <h1 className="font-display text-2xl font-extrabold mb-4 tracking-tight">{t('title')}</h1>
 
       <div className="feature-card rounded-2xl p-4 mb-4 flex items-center gap-4">
         <div className="relative w-16 h-16 flex-shrink-0">

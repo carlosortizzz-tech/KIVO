@@ -85,4 +85,22 @@ body {
   color: var(--text);
   font-family: var(--font-onest), sans-serif;
   -webkit-font-smoothing: antialiased;
+  position: relative;
+}
+
+/* Segundo dispositivo ownable (FICHA-ARTE): grano fotográfico sutil sobre TODO el fondo —
+   hallazgo real del revisor-visual ("identidad" 2/20, dependía solo del glow). z-index NEGATIVO
+   a propósito: en el orden de pintado CSS, un descendiente posicionado con z-index negativo
+   queda SIEMPRE detrás del contenido normal de la app, sin tener que tocar ningún otro selector
+   (evita el riesgo de romper el stacking de modales/nav). Textura fija, muy baja opacidad.
+*/
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }

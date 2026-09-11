@@ -131,7 +131,7 @@ export default async function AdminPanelPage() {
   return (
     <div>
       <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-1">Admin</div>
-      <h1 className="font-display text-lg font-extrabold mb-4">Panel del negocio</h1>
+      <h1 className="font-display text-2xl font-extrabold mb-4 tracking-tight">Panel del negocio</h1>
 
       <AdminReportsQueue reports={reports} />
       <AdminSafeQueue reports={safeReports} />

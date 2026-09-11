@@ -66,7 +66,7 @@ export default async function CuentaPage() {
   return (
     <div>
       <Reveal>
-        <h1 className="font-display text-lg font-extrabold mb-4">{t('title')}</h1>
+        <h1 className="font-display text-2xl font-extrabold mb-4 tracking-tight">{t('title')}</h1>
 
         <div className="bg-surface border border-border rounded-2xl p-4 mb-5">
           <div className="text-sm font-bold mb-1">{user.email}</div>

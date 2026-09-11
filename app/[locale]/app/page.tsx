@@ -158,7 +158,7 @@ export default async function RadarPage() {
     <div>
       <Reveal>
         <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-1">{t('radar.greeting')}</div>
-        <h1 className="font-display text-lg font-extrabold mb-4">{t('radar.title')}</h1>
+        <h1 className="font-display text-2xl font-extrabold mb-4 tracking-tight">{t('radar.title')}</h1>
 
         {trialDay !== null && (
           <Link href="/app/cuenta" className="flex items-center gap-2 bg-sunken rounded-full px-3.5 py-2 mb-4 w-fit">

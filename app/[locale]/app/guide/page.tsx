@@ -31,7 +31,7 @@ export default async function GuidePage({
       <div>
         <Reveal>
           <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-1">{t('eyebrow')}</div>
-          <h1 className="font-display text-lg font-extrabold mb-4">{t('title')}</h1>
+          <h1 className="font-display text-2xl font-extrabold mb-4 tracking-tight">{t('title')}</h1>
           <div className="flex flex-col items-center text-center gap-2 py-10">
             <div className="text-sm text-text2">{t('loadError')}</div>
           </div>
@@ -56,7 +56,7 @@ export default async function GuidePage({
     <div>
       <Reveal>
         <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-1">{t('eyebrow')}</div>
-        <h1 className="font-display text-lg font-extrabold mb-4">{t('title')}</h1>
+        <h1 className="font-display text-2xl font-extrabold mb-4 tracking-tight">{t('title')}</h1>
       </Reveal>
 
       <KivoNews />
