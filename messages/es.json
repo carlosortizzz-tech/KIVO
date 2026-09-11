@@ -336,6 +336,7 @@
       "promptConcertText": "En el concierto de...",
       "moreOptions": "Más opciones",
       "deletePost": "Eliminar publicación",
+      "deleteConfirm": "¿Eliminar esta publicación? No se puede deshacer.",
       "deleting": "Eliminando…",
       "tabFeed": "Feed",
       "tabExperiences": "Experiencias",

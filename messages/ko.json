@@ -336,6 +336,7 @@
       "promptConcertText": "콘서트에서...",
       "moreOptions": "더 보기",
       "deletePost": "게시글 삭제",
+      "deleteConfirm": "이 게시글을 삭제할까요? 되돌릴 수 없어요.",
       "deleting": "삭제 중…",
       "tabFeed": "피드",
       "tabExperiences": "경험 공유",

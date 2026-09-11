@@ -336,6 +336,7 @@
       "promptConcertText": "Au concert de...",
       "moreOptions": "Plus d'options",
       "deletePost": "Supprimer la publication",
+      "deleteConfirm": "Supprimer cette publication ? C'est irréversible.",
       "deleting": "Suppression…",
       "tabFeed": "Fil",
       "tabExperiences": "Expériences",
