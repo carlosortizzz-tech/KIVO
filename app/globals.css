@@ -52,6 +52,16 @@
   box-shadow: var(--glow);
 }
 
+/* Foco de teclado propio — sin esto el navegador dibuja su contorno azul nativo, que choca
+   contra toda la paleta morado-neón de la app (hallazgo real del revisor-visual en Community,
+   pero aplica a CUALQUIER botón/link de toda la app, no solo ahí). */
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-chip);
+}
+
 @theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);

@@ -17,3 +17,17 @@ export async function submitForumPost(category: string, body: string): Promise<{
   revalidatePath('/app/community');
   return { xpGained: data.xpGained };
 }
+
+// Borrado suave: la política RLS `forum_posts_update_own` ya solo permite al dueño actualizar
+// su propia fila, y `forum_posts_read` ya excluye `deleted_at IS NOT NULL` — no hace falta RPC
+// nueva, solo el UPDATE directo (mismo patrón de confianza en RLS que el resto del proyecto).
+export async function deleteForumPost(postId: string): Promise<void> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('unauthorized');
+
+  const { error } = await supabase.from('forum_posts').update({ deleted_at: new Date().toISOString() }).eq('id', postId);
+  if (error) throw new Error(error.message);
+
+  revalidatePath('/app/community');
+}

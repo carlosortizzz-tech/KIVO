@@ -9,6 +9,10 @@ export function CommunityTabs({ feed, experiences }: { feed: ReactNode; experien
   const [faded, setFaded] = useState(true);
 
   useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setFaded(true);
+      return;
+    }
     setFaded(false);
     const id = requestAnimationFrame(() => setFaded(true));
     return () => cancelAnimationFrame(id);

@@ -334,6 +334,9 @@
       "promptQuestionText": "I have a question about...",
       "promptConcertLabel": "Tell us about a concert",
       "promptConcertText": "At the concert in...",
+      "moreOptions": "More options",
+      "deletePost": "Delete post",
+      "deleting": "Deleting…",
       "tabFeed": "Feed",
       "tabExperiences": "Experiences",
       "experiences": {

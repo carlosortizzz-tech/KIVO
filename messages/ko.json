@@ -334,6 +334,9 @@
       "promptQuestionText": "궁금한 게 있어요...",
       "promptConcertLabel": "콘서트 후기 남기기",
       "promptConcertText": "콘서트에서...",
+      "moreOptions": "더 보기",
+      "deletePost": "게시글 삭제",
+      "deleting": "삭제 중…",
       "tabFeed": "피드",
       "tabExperiences": "경험 공유",
       "experiences": {

@@ -7,6 +7,7 @@ import { CommunityTabs } from '@/components/app/CommunityTabs';
 import { ExperienceComposer } from '@/components/app/ExperienceComposer';
 import { ExperienceCard, type ExperienceCardData } from '@/components/app/ExperienceCard';
 import { ComposePost } from '@/components/app/ComposePost';
+import { PostMenu } from '@/components/app/PostMenu';
 import { CommunityPrompts } from '@/components/app/CommunityPrompts';
 import { Reveal } from '@/components/app/Reveal';
 import { CATEGORIES, categoryKey } from '@/lib/community-categories';
@@ -119,6 +120,7 @@ export default async function CommunityPage() {
     ? await supabase.from('profiles').select('id, display_name').in('id', postAuthorIds)
     : { data: [] as { id: string; display_name: string | null }[] };
   const postAuthorNameById = new Map((postAuthors ?? []).map((a) => [a.id, a.display_name ?? t('anonymousFan')]));
+  const { data: { user: currentUser } } = await supabase.auth.getUser();
 
   const experiences = await buildExperiencesFeed();
 
@@ -140,13 +142,14 @@ export default async function CommunityPage() {
                   <div className="icon-chip-accent firma-icon w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0">
                     {(postAuthorNameById.get(p.user_id) ?? '?')[0]?.toUpperCase()}
                   </div>
-                  <div>
+                  <div className="flex-1 min-w-0">
                     <div className="text-xs font-bold">{postAuthorNameById.get(p.user_id) ?? t('anonymousFan')}</div>
                     <div className="text-[11px] text-text2">{timeAgo(p.created_at, locale)}</div>
                   </div>
-                  <div className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-accent-soft text-accent2">
+                  <div className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-accent-soft text-accent2">
                     {(CATEGORIES as readonly string[]).includes(p.category) ? t(categoryKey[p.category as (typeof CATEGORIES)[number]]) : p.category}
                   </div>
+                  {currentUser?.id === p.user_id && <PostMenu postId={p.id} />}
                 </div>
                 <p className="text-[13px] leading-relaxed">{p.body}</p>
               </div>
