@@ -58,7 +58,7 @@ export default async function SafePage() {
       {alerts && alerts.length > 0 ? (
         <div className="flex flex-col gap-2.5 mb-4">
           {alerts.map((a) => (
-            <div key={a.id} className="flex gap-3 items-start bg-surface border border-border rounded-2xl p-3.5">
+            <div key={a.id} className="flex gap-3 items-start surface-elevated rounded-2xl p-3.5">
               <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(224,82,82,.12)' }}>
                 <AlertTriangle size={18} color="var(--danger)" strokeWidth={2} />
               </div>
@@ -79,7 +79,7 @@ export default async function SafePage() {
 
       <SafeReportForm />
 
-      <div className="bg-surface border border-border rounded-2xl p-4">
+      <div className="surface-elevated rounded-2xl p-4">
         <div className="text-sm font-bold mb-2.5">{t('rulesTitle')}</div>
         <ul className="flex flex-col gap-2 text-[13px] text-text2">
           <li className="flex gap-2"><span className="text-accent2 font-bold">1.</span>{t('rule1')}</li>

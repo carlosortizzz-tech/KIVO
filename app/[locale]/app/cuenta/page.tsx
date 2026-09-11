@@ -68,7 +68,7 @@ export default async function CuentaPage() {
       <Reveal>
         <h1 className="font-display text-2xl font-extrabold mb-4 tracking-tight">{t('title')}</h1>
 
-        <div className="bg-surface border border-border rounded-2xl p-4 mb-5">
+        <div className="surface-elevated rounded-2xl p-4 mb-5">
           <div className="text-sm font-bold mb-1">{user.email}</div>
           <div className="flex items-center gap-2">
             <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${isPro ? 'bg-accent/15 text-accent2' : 'bg-border text-text2'}`}>
@@ -98,7 +98,7 @@ export default async function CuentaPage() {
       )}
 
       <Reveal delayMs={60}>
-        <Link href="/app/cuenta/id" className="flex items-center gap-3 bg-surface border border-border rounded-2xl px-4 py-3.5 mb-6 transition-transform duration-150 active:scale-[0.98]">
+        <Link href="/app/cuenta/id" className="flex items-center gap-3 surface-elevated rounded-2xl px-4 py-3.5 mb-6 transition-transform duration-150 active:scale-[0.98]">
           <div className="icon-chip-accent firma-icon w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0">
             <IdCard size={16} strokeWidth={2} />
           </div>
@@ -108,7 +108,7 @@ export default async function CuentaPage() {
       </Reveal>
 
       <Reveal delayMs={120}>
-        <div className="bg-surface border border-border rounded-2xl p-4 mb-6">
+        <div className="surface-elevated rounded-2xl p-4 mb-6">
           <div className="font-display text-xl font-extrabold text-accent2 mb-2">{t('levelLabel', { level: nivel })}</div>
           <LevelBar pct={nivelPct} xpEnNivel={xpEnNivel} xpParaSiguiente={xpParaSiguiente} />
         </div>
@@ -144,7 +144,7 @@ export default async function CuentaPage() {
         <div className="text-xs font-bold uppercase tracking-wide text-text2 mb-2">{t('sectionLegal')}</div>
         <div className="flex flex-col gap-2 mb-6">
           {links.map(({ href, label, Icon }) => (
-            <Link key={href} href={href} className="flex items-center gap-3 bg-surface border border-border rounded-2xl px-4 py-3.5 transition-transform duration-150 active:scale-[0.98]">
+            <Link key={href} href={href} className="flex items-center gap-3 surface-elevated rounded-2xl px-4 py-3.5 transition-transform duration-150 active:scale-[0.98]">
               <div className="icon-chip-accent firma-icon w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0">
                 <Icon size={16} strokeWidth={2} />
               </div>

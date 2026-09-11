@@ -272,7 +272,7 @@ export default async function RadarPage() {
       )}
 
       <Reveal delayMs={300}>
-        <div className="flex items-center gap-3 bg-surface border border-border rounded-2xl p-3.5 mt-4">
+        <div className="flex items-center gap-3 surface-elevated rounded-2xl p-3.5 mt-4">
           <div className="icon-chip-accent firma-icon w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0">
             <Flame size={18} strokeWidth={2} />
           </div>
@@ -288,7 +288,7 @@ export default async function RadarPage() {
       </Reveal>
 
       <Reveal delayMs={360}>
-        <div className="bg-surface border border-border rounded-2xl p-3.5 mt-4">
+        <div className="surface-elevated rounded-2xl p-3.5 mt-4">
           <div className="flex items-center gap-3 mb-3">
             <div className="icon-chip-accent firma-icon w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0">
               <Disc3 size={16} strokeWidth={2} />

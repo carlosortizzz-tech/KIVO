@@ -59,7 +59,7 @@ export function GuideList({
 
   return (
     <div className="flex flex-col gap-2.5">
-      <div className="flex items-center gap-2 bg-surface border border-border rounded-2xl px-3.5 py-3 mb-1.5 text-sm">
+      <div className="flex items-center gap-2 surface-elevated rounded-2xl px-3.5 py-3 mb-1.5 text-sm">
         <Search size={16} strokeWidth={2} className="text-text2 flex-shrink-0" />
         <input
           value={query}
@@ -76,7 +76,7 @@ export function GuideList({
         const open = openId === g.id;
         return (
           <Reveal key={g.id} delayMs={80 + i * 60}>
-            <div ref={(el) => { cardRefs.current[g.id] = el; }} className="bg-surface border border-border rounded-2xl overflow-hidden">
+            <div ref={(el) => { cardRefs.current[g.id] = el; }} className="surface-elevated rounded-2xl overflow-hidden">
               <button
                 onClick={() => setOpenId(open ? null : g.id)}
                 aria-expanded={open}
