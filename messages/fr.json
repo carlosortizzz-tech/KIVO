@@ -244,7 +244,16 @@
     "proGate": {
       "title": "{feature} fait partie de KIVO Pro",
       "body": "Débloque-le avec le reste de KIVO — 7 jours gratuits, annule quand tu veux.",
-      "cta": "Voir les plans →"
+      "cta": "Voir les plans →",
+      "guideBullet1": "Guides étape par étape pour chaque plateforme (Weverse, Bubble, Fancafe...)",
+      "guideBullet2": "Expliqués simplement, sans jargon",
+      "guideBullet3": "Mis à jour dès qu'un détail change",
+      "communityBullet1": "Connecte-toi avec de vrais fans vérifiés",
+      "communityBullet2": "Partage ce que tu sais et pose tes questions",
+      "communityBullet3": "Espace modéré, sans bots ni spam",
+      "safeBullet1": "Vérifie avant d'acheter du merch ou des billets",
+      "safeBullet2": "Alertes d'arnaques signalées par la communauté",
+      "safeBullet3": "Apprends à repérer les faux comptes et liens"
     },
     "radar": {
       "greeting": "Bon retour",
@@ -318,6 +327,13 @@
       "composeCancel": "Annuler",
       "emptyTitle": "Pas encore de publications",
       "emptyBody": "Sois le premier à raconter ce qui se passe aujourd'hui.",
+      "promptsTitle": "Idées pour commencer",
+      "promptGeneralLabel": "Partage quelque chose",
+      "promptGeneralText": "Qu'est-ce que vous pensez de...",
+      "promptQuestionLabel": "Pose une question à la communauté",
+      "promptQuestionText": "J'ai une question sur...",
+      "promptConcertLabel": "Raconte un concert",
+      "promptConcertText": "Au concert de...",
       "tabFeed": "Fil",
       "tabExperiences": "Expériences",
       "experiences": {

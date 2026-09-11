@@ -23,6 +23,19 @@ export function ComposePost() {
     return () => cancelAnimationFrame(id);
   }, [open]);
 
+  // Los chips de "ideas para publicar" (CommunityPrompts) abren este mismo composer
+  // precargado, en vez de duplicar el formulario/modal.
+  useEffect(() => {
+    function onPrompt(e: Event) {
+      const detail = (e as CustomEvent<{ category: (typeof CATEGORIES)[number]; text: string }>).detail;
+      setCategory(detail.category);
+      setBody(detail.text);
+      setOpen(true);
+    }
+    window.addEventListener('kivo:composePrompt', onPrompt);
+    return () => window.removeEventListener('kivo:composePrompt', onPrompt);
+  }, []);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!body.trim() || busy) return;

@@ -8,7 +8,7 @@ import { SafeReportForm } from '@/components/app/SafeReportForm';
 export default async function SafePage() {
   const t = await getTranslations('app.safe');
   const plan = await getUserPlan();
-  if (plan !== 'pro') return <ProGate feature={t('eyebrow')} />;
+  if (plan !== 'pro') return <ProGate feature={t('eyebrow')} type="safe" />;
   const supabase = await createClient();
   // Las "alertas" son reportes de la comunidad ya CONFIRMADOS como estafa (status='verified_scam')
   // — antes esto apuntaba a una tabla "scam_alerts" que nunca existió en la base de datos, así que

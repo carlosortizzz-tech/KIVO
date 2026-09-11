@@ -17,7 +17,7 @@ export default async function GuidePage({
   const locale = await getLocale();
   const { platform: openPlatform } = await searchParams;
   const plan = await getUserPlan();
-  if (plan !== 'pro') return <ProGate feature={t('eyebrow')} />;
+  if (plan !== 'pro') return <ProGate feature={t('eyebrow')} type="guide" />;
   const supabase = await createClient();
   const { data: rows, error } = await supabase
     .from('guides')

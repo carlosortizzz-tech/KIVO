@@ -244,7 +244,16 @@
     "proGate": {
       "title": "{feature}은(는) KIVO Pro 전용이에요",
       "body": "KIVO의 나머지 기능과 함께 잠금 해제하세요 — 7일 무료, 언제든 취소 가능.",
-      "cta": "플랜 보기 →"
+      "cta": "플랜 보기 →",
+      "guideBullet1": "플랫폼별 단계별 가이드 (위버스, 버블, 팬카페...)",
+      "guideBullet2": "어려운 용어 없이 쉽게 설명",
+      "guideBullet3": "변경 사항이 생기면 바로 업데이트",
+      "communityBullet1": "실제 인증된 팬들과 연결",
+      "communityBullet2": "아는 걸 나누고 궁금한 걸 물어보세요",
+      "communityBullet3": "봇과 스팸 없는 관리되는 공간",
+      "safeBullet1": "굿즈나 티켓 구매 전에 확인하세요",
+      "safeBullet2": "커뮤니티가 신고한 사기 알림",
+      "safeBullet3": "가짜 계정과 링크를 알아보는 법"
     },
     "radar": {
       "greeting": "다시 오셨네요",
@@ -318,6 +327,13 @@
       "composeCancel": "취소",
       "emptyTitle": "아직 게시글이 없어요",
       "emptyBody": "오늘의 소식을 가장 먼저 나눠보세요.",
+      "promptsTitle": "시작할 만한 아이디어",
+      "promptGeneralLabel": "이야기 나누기",
+      "promptGeneralText": "여러분은 어떻게 생각하세요...",
+      "promptQuestionLabel": "커뮤니티에 질문하기",
+      "promptQuestionText": "궁금한 게 있어요...",
+      "promptConcertLabel": "콘서트 후기 남기기",
+      "promptConcertText": "콘서트에서...",
       "tabFeed": "피드",
       "tabExperiences": "경험 공유",
       "experiences": {

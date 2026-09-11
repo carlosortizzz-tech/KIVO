@@ -7,7 +7,13 @@ import { CommunityTabs } from '@/components/app/CommunityTabs';
 import { ExperienceComposer } from '@/components/app/ExperienceComposer';
 import { ExperienceCard, type ExperienceCardData } from '@/components/app/ExperienceCard';
 import { ComposePost } from '@/components/app/ComposePost';
+import { CommunityPrompts } from '@/components/app/CommunityPrompts';
+import { Reveal } from '@/components/app/Reveal';
 import { CATEGORIES, categoryKey } from '@/lib/community-categories';
+
+// Debajo de este número de publicaciones reales, el feed se sentiría vacío — se rellena con
+// las ideas de CommunityPrompts en vez de dejar espacio muerto bajo el único post.
+const LOW_VOLUME_THRESHOLD = 4;
 
 function timeAgo(iso: string, locale: string) {
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -99,7 +105,7 @@ async function buildExperiencesFeed(): Promise<ExperienceCardData[]> {
 export default async function CommunityPage() {
   const t = await getTranslations('app.community');
   const plan = await getUserPlan();
-  if (plan !== 'pro') return <ProGate feature={t('eyebrow')} />;
+  if (plan !== 'pro') return <ProGate feature={t('eyebrow')} type="community" />;
   const locale = await getLocale();
   const supabase = await createClient();
   const { data: posts } = await supabase
@@ -127,33 +133,37 @@ export default async function CommunityPage() {
 
       {posts && posts.length > 0 ? (
         <div className="flex flex-col gap-3">
-          {posts.map((p) => (
-            <div key={p.id} className="bg-surface border border-border rounded-2xl p-3.5">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-7 h-7 rounded-full bg-accent-soft text-accent2 flex items-center justify-center text-[11px] font-bold flex-shrink-0">
-                  {(postAuthorNameById.get(p.user_id) ?? '?')[0]?.toUpperCase()}
+          {posts.map((p, i) => (
+            <Reveal key={p.id} delayMs={i * 50}>
+              <div className="bg-surface border border-border rounded-2xl p-3.5">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="icon-chip-accent firma-icon w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0">
+                    {(postAuthorNameById.get(p.user_id) ?? '?')[0]?.toUpperCase()}
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold">{postAuthorNameById.get(p.user_id) ?? t('anonymousFan')}</div>
+                    <div className="text-[11px] text-text2">{timeAgo(p.created_at, locale)}</div>
+                  </div>
+                  <div className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-accent-soft text-accent2">
+                    {(CATEGORIES as readonly string[]).includes(p.category) ? t(categoryKey[p.category as (typeof CATEGORIES)[number]]) : p.category}
+                  </div>
                 </div>
-                <div>
-                  <div className="text-xs font-bold">{postAuthorNameById.get(p.user_id) ?? t('anonymousFan')}</div>
-                  <div className="text-[11px] text-text2">{timeAgo(p.created_at, locale)}</div>
-                </div>
-                <div className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-accent-soft text-accent2">
-                  {(CATEGORIES as readonly string[]).includes(p.category) ? t(categoryKey[p.category as (typeof CATEGORIES)[number]]) : p.category}
-                </div>
+                <p className="text-[13px] leading-relaxed">{p.body}</p>
               </div>
-              <p className="text-[13px] leading-relaxed">{p.body}</p>
-            </div>
+            </Reveal>
           ))}
         </div>
       ) : (
         <div className="flex flex-col items-center text-center gap-3 py-14 px-4">
-          <div className="w-14 h-14 rounded-full bg-accent-soft flex items-center justify-center">
+          <div className="icon-chip-accent firma-icon w-14 h-14 rounded-full flex items-center justify-center">
             <MessageCircle size={24} color="var(--accent2)" strokeWidth={1.8} />
           </div>
           <div className="text-sm font-bold">{t('emptyTitle')}</div>
           <p className="text-[13px] text-text2 max-w-[26ch]">{t('emptyBody')}</p>
         </div>
       )}
+
+      {(posts?.length ?? 0) < LOW_VOLUME_THRESHOLD && <CommunityPrompts />}
     </>
   );
 
@@ -162,13 +172,15 @@ export default async function CommunityPage() {
       <ExperienceComposer />
       {experiences.length > 0 ? (
         <div className="flex flex-col gap-3">
-          {experiences.map((exp) => (
-            <ExperienceCard key={exp.key} data={exp} />
+          {experiences.map((exp, i) => (
+            <Reveal key={exp.key} delayMs={i * 50}>
+              <ExperienceCard data={exp} />
+            </Reveal>
           ))}
         </div>
       ) : (
         <div className="flex flex-col items-center text-center gap-3 py-14 px-4">
-          <div className="w-14 h-14 rounded-full bg-accent-soft flex items-center justify-center">
+          <div className="icon-chip-accent firma-icon w-14 h-14 rounded-full flex items-center justify-center">
             <Camera size={24} color="var(--accent2)" strokeWidth={1.8} />
           </div>
           <div className="text-sm font-bold">{t('experiences.emptyTitle')}</div>
