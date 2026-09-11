@@ -80,27 +80,20 @@ button:focus-visible {
   --font-sans: var(--font-onest);
 }
 
+/* Segundo dispositivo ownable (FICHA-ARTE): grano fotográfico sobre TODO el fondo — hallazgo
+   real del revisor-visual ("identidad" 2/20, dependía solo del glow). Primer intento (pseudo-
+   elemento `body::before` con z-index negativo) NO SE PINTABA — verificado a nivel de píxel
+   (varianza 0 en un screenshot real), por el comportamiento del navegador de propagar el
+   background de `body` al canvas raíz por encima de descendientes con z-index negativo. Fix:
+   el grano va directo en el `background-image` de `body` (2 capas, sin pseudo-elemento ni
+   z-index) — no depende de ningún orden de pintado, así que no puede fallar en silencio.
+*/
 body {
-  background: var(--bg);
+  background-color: var(--bg);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.09'/%3E%3C/svg%3E");
+  background-blend-mode: screen;
   color: var(--text);
   font-family: var(--font-onest), sans-serif;
   -webkit-font-smoothing: antialiased;
   position: relative;
-}
-
-/* Segundo dispositivo ownable (FICHA-ARTE): grano fotográfico sutil sobre TODO el fondo —
-   hallazgo real del revisor-visual ("identidad" 2/20, dependía solo del glow). z-index NEGATIVO
-   a propósito: en el orden de pintado CSS, un descendiente posicionado con z-index negativo
-   queda SIEMPRE detrás del contenido normal de la app, sin tener que tocar ningún otro selector
-   (evita el riesgo de romper el stacking de modales/nav). Textura fija, muy baja opacidad.
-*/
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0.035;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
