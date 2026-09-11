@@ -58,17 +58,17 @@ export function LocaleSwitcher() {
           ))}
         </div>
       )}
+      {/* Revertido a círculo compacto (round 5 del revisor-visual): la versión con el código de
+          idioma como texto era más ancha y chocaba con contenido de feed corto debajo — un
+          botón fijo sobre contenido con scroll siempre corre ese riesgo, agrandarlo lo empeora
+          en vez de arreglarlo. El label completo se ve igual dentro del menú al abrirlo. */}
       <button
         onClick={() => setOpen((v) => !v)}
         aria-label="Cambiar idioma"
-        // Antes era un círculo solo-ícono — el revisor-visual lo confundía con otros íconos de
-        // "mundo/idioma" en pantalla (ej. el de CommunityPrompts). El código del idioma actual
-        // visible como texto lo vuelve autoexplicativo sin tener que tocarlo.
-        className="h-11 pl-3 pr-3.5 rounded-full bg-surface border border-border flex items-center gap-1.5 text-text2 text-xs font-bold transition-transform duration-150 active:scale-95"
+        className="w-11 h-11 rounded-full bg-surface border border-border flex items-center justify-center text-text2 transition-transform duration-150 active:scale-95"
         style={{ boxShadow: '0 4px 16px rgba(0,0,0,0.3)' }}
       >
-        <Globe size={16} strokeWidth={2} />
-        {LABELS[locale]}
+        <Globe size={18} strokeWidth={2} />
       </button>
     </div>
   );
