@@ -61,10 +61,14 @@ export function LocaleSwitcher() {
       <button
         onClick={() => setOpen((v) => !v)}
         aria-label="Cambiar idioma"
-        className="w-11 h-11 rounded-full bg-surface border border-border flex items-center justify-center text-text2 transition-transform duration-150 active:scale-95"
+        // Antes era un círculo solo-ícono — el revisor-visual lo confundía con otros íconos de
+        // "mundo/idioma" en pantalla (ej. el de CommunityPrompts). El código del idioma actual
+        // visible como texto lo vuelve autoexplicativo sin tener que tocarlo.
+        className="h-11 pl-3 pr-3.5 rounded-full bg-surface border border-border flex items-center gap-1.5 text-text2 text-xs font-bold transition-transform duration-150 active:scale-95"
         style={{ boxShadow: '0 4px 16px rgba(0,0,0,0.3)' }}
       >
-        <Globe size={18} strokeWidth={2} />
+        <Globe size={16} strokeWidth={2} />
+        {LABELS[locale]}
       </button>
     </div>
   );

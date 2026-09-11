@@ -139,7 +139,7 @@ export default async function CommunityPage() {
             const isOwn = currentUser?.id === p.user_id;
             return (
             <Reveal key={p.id} delayMs={i * 50}>
-              <div className={isOwn ? 'feature-card rounded-2xl p-3.5' : 'bg-surface border border-border rounded-2xl p-3.5'}>
+              <div className={isOwn ? 'feature-card rounded-2xl p-3.5' : 'surface-elevated rounded-2xl p-3.5'}>
                 <div className="flex items-center gap-2 mb-2">
                   <div className="icon-chip-accent firma-icon w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0">
                     {(postAuthorNameById.get(p.user_id) ?? '?')[0]?.toUpperCase()}

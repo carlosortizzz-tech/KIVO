@@ -30,6 +30,18 @@
   border: 1px solid var(--feature-border);
   box-shadow: var(--glow-soft);
 }
+
+/* Elevación NEUTRA (sin morado) — hallazgo del revisor-visual: pantallas tipo feed con varias
+   tarjetas de igual jerarquía se ven planas si solo UNA tiene glow (regla pensada para pantallas
+   de una sola misión, como el paywall). Esta clase le da a CUALQUIER tarjeta un nivel "elevado"
+   real (sombra neutra, sin acento) sin sumar más glow/neón — el glow de marca se sigue reservando
+   para el elemento héroe real de cada pantalla. Reutilizable en las demás pantallas del proyecto.
+*/
+.surface-elevated {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.3);
+}
 .icon-chip-accent {
   background: var(--glow-icon);
   color: var(--accent2);

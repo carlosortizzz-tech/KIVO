@@ -67,7 +67,7 @@ export function ComposePost() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2.5 bg-surface border border-border rounded-2xl px-3.5 py-3 mb-4 text-sm text-text2 w-full text-left"
+        className="flex items-center gap-2.5 surface-elevated rounded-2xl px-3.5 py-3 mb-4 text-sm text-text2 w-full text-left"
       >
         <div className="w-7 h-7 rounded-full bg-accent-btn flex-shrink-0" />
         {t('compose')}
