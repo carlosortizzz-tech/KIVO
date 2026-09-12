@@ -211,6 +211,16 @@ export async function generateDailyNews(): Promise<{ inserted: number }> {
   const client = new Anthropic({ apiKey });
   const admin = getAdmin();
 
+  // Limpieza real, no solo un filtro de lectura: antes, un evento de calendario vencido (o uno
+  // sin fecha que el modelo nunca pudo confirmar) se quedaba en la tabla PARA SIEMPRE — la
+  // pantalla lo ocultaba con un filtro `event_at >= hoy`, pero ese mismo filtro dejaba pasar los
+  // registros sin fecha (`event_at is null`) sin importar cuán viejos fueran. Resultado real
+  // encontrado en producción: 3 conciertos de Los Ángeles de hace más de una semana seguían
+  // apareciendo en "Próximos 14 días" porque nunca lograron guardar una fecha ISO válida.
+  // Se borran aquí, en cada corrida, en vez de acumularse — "próximos 14 días" debe reflejar
+  // SIEMPRE lo que falta, nunca lo que ya pasó.
+  await admin.from('news_items').delete().eq('kind', 'schedule').or(`event_at.lt.${new Date().toISOString()},event_at.is.null`);
+
   // Las dos búsquedas son independientes — correrlas en paralelo (no una tras otra) es lo que
   // mantiene el total dentro del límite de tiempo de la función (antes, secuencial, se topaba
   // con FUNCTION_INVOCATION_TIMEOUT antes de llegar siquiera a insertar el calendario).
@@ -263,7 +273,11 @@ export async function generateDailyNews(): Promise<{ inserted: number }> {
       );
       if (!searchText) return 0;
       const items = await extract(client, searchText, scheduleExtractTool, ScheduleListSchema, 'calendario');
-      const valid = await withoutAlreadyPublished(admin, items.filter((it) => validUrl(it.source_url)));
+      // Un evento de "próximos 14 días" SIN fecha confirmada no es información de calendario —
+      // es exactamente el tipo de dato que nunca puede expirar solo (causa raíz del hallazgo real
+      // de arriba). Se descarta el item completo aquí, no solo la fecha.
+      const withRealDate = items.filter((it) => isoDateOrNull(it.event_at) !== null);
+      const valid = await withoutAlreadyPublished(admin, withRealDate.filter((it) => validUrl(it.source_url)));
       if (valid.length === 0) return 0;
       const { error } = await admin.from('news_items').insert(
         valid.map((it) => ({
