@@ -60,8 +60,11 @@ function LocaleSwitcherButton({ className, compact = false }: { className: strin
         // La versión "compact" vive arriba en el header (poco espacio libre encima) — abrir el
         // menú hacia ARRIBA (bottom-full) lo cortaba fuera del viewport (hallazgo real del
         // revisor-visual). La versión flotante sigue abriendo hacia arriba porque vive abajo.
+        // Bug real reportado por el usuario: el menú no tenía z-index, así que el contenido de
+        // la pantalla (el título de cada página) se pintaba ENCIMA de él — se veía como si
+        // faltaran idiomas (FR/한국어) cuando en realidad estaban ahí, solo tapados.
         <div
-          className={`absolute right-0 bg-surface border border-border rounded-2xl p-1.5 flex flex-col gap-0.5 shadow-lg min-w-[120px] ${
+          className={`absolute right-0 z-40 bg-surface border border-border rounded-2xl p-1.5 flex flex-col gap-0.5 shadow-lg min-w-[120px] ${
             compact ? 'top-full mt-2' : 'bottom-full mb-2'
           }`}
         >
