@@ -63,16 +63,34 @@ async function search(client: Anthropic, prompt: string, label: string): Promise
 
 const NewsItemSchema = z.object({
   headline: z.string().min(1).max(200),
+  headline_en: z.string().min(1).max(200),
+  headline_fr: z.string().min(1).max(200),
+  headline_ko: z.string().min(1).max(200),
   summary: z.string().min(1).max(600),
+  summary_en: z.string().min(1).max(600),
+  summary_fr: z.string().min(1).max(600),
+  summary_ko: z.string().min(1).max(600),
   source_url: z.string().url(),
   source_name: z.string().min(1).max(120),
   published_at: z.string().optional(),
 });
 const NewsListSchema = z.object({ items: z.array(NewsItemSchema).max(6) });
 
+// Hallazgo real del usuario (2026-09-11): la app cambiaba de idioma en TODO (nav, títulos de
+// sección) menos en el contenido de las noticias — porque news_items nunca tuvo columnas por
+// idioma, a diferencia de la tabla `events`. En vez de duplicar el costo de IA con una llamada de
+// traducción aparte, se piden las 4 versiones EN LA MISMA extracción (mismo patrón de "una
+// llamada barata al día" del resto del pipeline).
+const localizedFields = {
+  headline: { type: 'string', description: 'Titular corto en ESPAÑOL, sin clickbait' },
+  headline_en: { type: 'string', description: 'El mismo titular, traducido a inglés' },
+  headline_fr: { type: 'string', description: 'El mismo titular, traducido a francés' },
+  headline_ko: { type: 'string', description: 'El mismo titular, traducido a coreano' },
+} as const;
+
 const newsExtractTool = {
   name: 'save_news_items',
-  description: 'Guarda las noticias reales de BTS encontradas, con su fuente exacta.',
+  description: 'Guarda las noticias reales de BTS encontradas, con su fuente exacta, en los 4 idiomas de la app.',
   input_schema: {
     type: 'object' as const,
     properties: {
@@ -82,13 +100,16 @@ const newsExtractTool = {
         items: {
           type: 'object',
           properties: {
-            headline: { type: 'string', description: 'Titular corto en español, sin clickbait' },
-            summary: { type: 'string', description: '1-2 frases en español, solo hechos verificados en la búsqueda' },
+            ...localizedFields,
+            summary: { type: 'string', description: '1-2 frases en ESPAÑOL, solo hechos verificados en la búsqueda' },
+            summary_en: { type: 'string', description: 'El mismo resumen, traducido a inglés' },
+            summary_fr: { type: 'string', description: 'El mismo resumen, traducido a francés' },
+            summary_ko: { type: 'string', description: 'El mismo resumen, traducido a coreano' },
             source_url: { type: 'string', description: 'URL exacta y completa de la fuente original' },
             source_name: { type: 'string', description: 'Nombre del medio o sitio (ej. "Billboard", "Soompi")' },
             published_at: { type: 'string', description: 'Fecha de publicación en ISO 8601, SOLO si se encontró' },
           },
-          required: ['headline', 'summary', 'source_url', 'source_name'],
+          required: ['headline', 'headline_en', 'headline_fr', 'headline_ko', 'summary', 'summary_en', 'summary_fr', 'summary_ko', 'source_url', 'source_name'],
           additionalProperties: false,
         },
       },
@@ -100,7 +121,13 @@ const newsExtractTool = {
 
 const ScheduleItemSchema = z.object({
   headline: z.string().min(1).max(200),
+  headline_en: z.string().min(1).max(200),
+  headline_fr: z.string().min(1).max(200),
+  headline_ko: z.string().min(1).max(200),
   summary: z.string().min(1).max(600),
+  summary_en: z.string().min(1).max(600),
+  summary_fr: z.string().min(1).max(600),
+  summary_ko: z.string().min(1).max(600),
   source_url: z.string().url(),
   source_name: z.string().min(1).max(120),
   event_at: z.string().optional(), // ISO 8601 CON hora si se conoce (para convertir a hora local en la UI); si no, se omite
@@ -109,7 +136,7 @@ const ScheduleListSchema = z.object({ items: z.array(ScheduleItemSchema).max(8) 
 
 const scheduleExtractTool = {
   name: 'save_schedule_items',
-  description: 'Guarda los eventos oficiales confirmados de BTS de los próximos 14 días.',
+  description: 'Guarda los próximos eventos oficiales confirmados de BTS, en los 4 idiomas de la app.',
   input_schema: {
     type: 'object' as const,
     properties: {
@@ -119,13 +146,19 @@ const scheduleExtractTool = {
         items: {
           type: 'object',
           properties: {
-            headline: { type: 'string', description: 'Qué es el evento, corto y claro, en español' },
-            summary: { type: 'string', description: '1-2 frases con el detalle (dónde, qué canal, etc.)' },
+            headline: { type: 'string', description: 'Qué es el evento, corto y claro, en ESPAÑOL' },
+            headline_en: { type: 'string', description: 'El mismo titular, traducido a inglés' },
+            headline_fr: { type: 'string', description: 'El mismo titular, traducido a francés' },
+            headline_ko: { type: 'string', description: 'El mismo titular, traducido a coreano' },
+            summary: { type: 'string', description: '1-2 frases con el detalle en ESPAÑOL (dónde, qué canal, etc.)' },
+            summary_en: { type: 'string', description: 'El mismo resumen, traducido a inglés' },
+            summary_fr: { type: 'string', description: 'El mismo resumen, traducido a francés' },
+            summary_ko: { type: 'string', description: 'El mismo resumen, traducido a coreano' },
             source_url: { type: 'string', description: 'URL exacta del anuncio oficial' },
             source_name: { type: 'string', description: 'Nombre del medio o cuenta oficial' },
             event_at: { type: 'string', description: 'Fecha y hora del evento en ISO 8601 CON zona horaria, SOLO si se encontró exacta' },
           },
-          required: ['headline', 'summary', 'source_url', 'source_name'],
+          required: ['headline', 'headline_en', 'headline_fr', 'headline_ko', 'summary', 'summary_en', 'summary_fr', 'summary_ko', 'source_url', 'source_name'],
           additionalProperties: false,
         },
       },
@@ -246,7 +279,13 @@ export async function generateDailyNews(): Promise<{ inserted: number }> {
         valid.map((it) => ({
           kind: 'news',
           headline: it.headline,
+          headline_en: it.headline_en,
+          headline_fr: it.headline_fr,
+          headline_ko: it.headline_ko,
           summary: it.summary,
+          summary_en: it.summary_en,
+          summary_fr: it.summary_fr,
+          summary_ko: it.summary_ko,
           source_url: it.source_url,
           source_name: it.source_name,
           published_at: isoDateOrNull(it.published_at),
@@ -287,7 +326,13 @@ export async function generateDailyNews(): Promise<{ inserted: number }> {
         valid.map((it) => ({
           kind: 'schedule',
           headline: it.headline,
+          headline_en: it.headline_en,
+          headline_fr: it.headline_fr,
+          headline_ko: it.headline_ko,
           summary: it.summary,
+          summary_en: it.summary_en,
+          summary_fr: it.summary_fr,
+          summary_ko: it.summary_ko,
           source_url: it.source_url,
           source_name: it.source_name,
           event_at: isoDateOrNull(it.event_at),

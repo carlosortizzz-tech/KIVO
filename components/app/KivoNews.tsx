@@ -1,30 +1,50 @@
 import { Newspaper, ExternalLink, CalendarClock } from 'lucide-react';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, getLocale } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { Reveal } from '@/components/app/Reveal';
 import { LocalEventTime } from '@/components/app/LocalEventTime';
 import { CollapsibleSection } from '@/components/app/CollapsibleSection';
 
+// Hallazgo real del usuario (2026-09-11): al cambiar el idioma de la app, el nav y los títulos
+// cambiaban pero el CONTENIDO de las noticias se quedaba en español — news_items nunca tuvo
+// columnas por idioma. Mismo patrón que pickLocale() en Radar: reserva automática al español si
+// falta la traducción de esa fila (contenido cargado antes de este fix, o si el cron falló).
+function pickLocale(locale: string, es: string, en: string | null, fr: string | null, ko: string | null): string {
+  const byLocale = locale === 'en' ? en : locale === 'fr' ? fr : locale === 'ko' ? ko : null;
+  return byLocale ?? es;
+}
+
 export async function KivoNews() {
   const t = await getTranslations('app.guide');
+  const locale = await getLocale();
   const supabase = await createClient();
 
-  const { data: news } = await supabase
+  const { data: newsRows } = await supabase
     .from('news_items')
-    .select('id, headline, summary, source_url, source_name')
+    .select('id, headline, headline_en, headline_fr, headline_ko, summary, summary_en, summary_fr, summary_ko, source_url, source_name')
     .eq('kind', 'news')
     .order('created_at', { ascending: false })
     .limit(5);
+  const news = (newsRows ?? []).map((n) => ({
+    ...n,
+    headline: pickLocale(locale, n.headline, n.headline_en, n.headline_fr, n.headline_ko),
+    summary: pickLocale(locale, n.summary, n.summary_en, n.summary_fr, n.summary_ko),
+  }));
 
   // Solo eventos que todavía no pasaron (o sin hora exacta, pero recientes) — sin esto, el
   // calendario iría acumulando anuncios viejos para siempre.
-  const { data: schedule } = await supabase
+  const { data: scheduleRows } = await supabase
     .from('news_items')
-    .select('id, headline, summary, source_url, source_name, event_at')
+    .select('id, headline, headline_en, headline_fr, headline_ko, summary, summary_en, summary_fr, summary_ko, source_url, source_name, event_at')
     .eq('kind', 'schedule')
     .or(`event_at.gte.${new Date().toISOString()},event_at.is.null`)
     .order('event_at', { ascending: true, nullsFirst: false })
     .limit(8);
+  const schedule = (scheduleRows ?? []).map((s) => ({
+    ...s,
+    headline: pickLocale(locale, s.headline, s.headline_en, s.headline_fr, s.headline_ko),
+    summary: pickLocale(locale, s.summary, s.summary_en, s.summary_fr, s.summary_ko),
+  }));
 
   const hasNews = news && news.length > 0;
   const hasSchedule = schedule && schedule.length > 0;
