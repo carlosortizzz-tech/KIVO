@@ -305,7 +305,7 @@
       "minutes": "{count} min",
       "stepsLabel": "Étapes",
       "newsTitle": "Actualités du jour",
-      "scheduleTitle": "Les 14 prochains jours",
+      "scheduleTitle": "Prochains événements",
       "newsSource": "Source : {name}",
       "videosTitle": "Dernières vidéos officielles",
       "spotifyTitle": "Tendance en ce moment",

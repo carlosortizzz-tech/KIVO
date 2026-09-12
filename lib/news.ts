@@ -261,14 +261,18 @@ export async function generateDailyNews(): Promise<{ inserted: number }> {
     (async () => {
       const searchText = await search(
         client,
-        'Busca eventos OFICIALES y CONFIRMADOS de BTS (el grupo de K-pop) programados para los ' +
-          'próximos 14 días a partir de hoy: lanzamientos de música/videos con fecha anunciada, ' +
-          'conciertos, transmisiones en vivo, ceremonias o premiaciones donde vayan a estar. ' +
-          'SOLO incluye lo que un anuncio OFICIAL (HYBE/BIGHIT MUSIC, Weverse, o un medio confiable ' +
-          'citando la fuente oficial) haya confirmado con fecha — NUNCA rumores, especulación, ni ' +
-          '"se espera que". Si encuentras la hora exacta del evento, inclúyela con su zona horaria. ' +
-          'Responde en español. Si no hay nada confirmado para los próximos 14 días, dilo ' +
-          'explícitamente — no inventes fechas.',
+        'Busca los PRÓXIMOS eventos OFICIALES y CONFIRMADOS de BTS (el grupo de K-pop) a partir de ' +
+          'hoy, dentro de los próximos 60 días: lanzamientos de música/videos con fecha anunciada, ' +
+          'conciertos de la gira ARIRANG (revisa el itinerario completo anunciado, no solo la ' +
+          'próxima ciudad), transmisiones en vivo, ceremonias o premiaciones donde vayan a estar. ' +
+          'SOLO incluye lo que un anuncio OFICIAL (HYBE/BIGHIT MUSIC, Weverse, Live Nation/promotor ' +
+          'oficial del tour, o un medio confiable citando la fuente oficial) haya confirmado con ' +
+          'fecha — NUNCA rumores, especulación, ni "se espera que". Si no hay NADA dentro de 60 ' +
+          'días, busca igual el PRÓXIMO evento confirmado más cercano en el tiempo aunque esté más ' +
+          'lejos — esta sección nunca debe quedar vacía si existe algún evento futuro anunciado. ' +
+          'Si encuentras la hora exacta del evento, inclúyela con su zona horaria. Responde en ' +
+          'español. Solo si de verdad no existe NINGÚN evento futuro anunciado (nada programado en ' +
+          'absoluto), dilo explícitamente — no inventes fechas.',
         'calendario'
       );
       if (!searchText) return 0;
