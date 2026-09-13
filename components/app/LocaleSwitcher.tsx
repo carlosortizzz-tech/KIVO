@@ -57,6 +57,13 @@ function LocaleSwitcherButton({ className, compact = false }: { className: strin
   return (
     <div className={className}>
       {open && (
+        // Backdrop transparente: cierra el menú al tocar fuera (antes no existía ningún cierre
+        // por click-afuera) y evita que el menú se sienta "flotando sin control" sobre el
+        // contenido de la pantalla — hallazgo del revisor-visual (Safe): el desplegable se
+        // solapaba con la card de abajo sin ninguna forma de descartarlo salvo elegir un idioma.
+        <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} />
+      )}
+      {open && (
         // La versión "compact" vive arriba en el header (poco espacio libre encima) — abrir el
         // menú hacia ARRIBA (bottom-full) lo cortaba fuera del viewport (hallazgo real del
         // revisor-visual). La versión flotante sigue abriendo hacia arriba porque vive abajo.
@@ -64,7 +71,7 @@ function LocaleSwitcherButton({ className, compact = false }: { className: strin
         // la pantalla (el título de cada página) se pintaba ENCIMA de él — se veía como si
         // faltaran idiomas (FR/한국어) cuando en realidad estaban ahí, solo tapados.
         <div
-          className={`absolute right-0 z-40 bg-surface border border-border rounded-2xl p-1.5 flex flex-col gap-0.5 shadow-lg min-w-[120px] ${
+          className={`absolute right-0 z-40 bg-surface border border-border rounded-[var(--radius-btn)] p-1.5 flex flex-col gap-0.5 shadow-lg min-w-[120px] ${
             compact ? 'top-full mt-2' : 'bottom-full mb-2'
           }`}
         >
@@ -72,7 +79,7 @@ function LocaleSwitcherButton({ className, compact = false }: { className: strin
             <button
               key={l}
               onClick={() => switchTo(l)}
-              className={`text-xs font-semibold px-3 py-2 rounded-xl text-left transition-colors ${
+              className={`text-xs font-semibold px-3 py-2 rounded-[var(--radius-btn)] text-left transition-colors ${
                 l === locale ? 'bg-accent-soft text-accent2' : 'text-text2'
               }`}
             >

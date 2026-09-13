@@ -230,7 +230,7 @@ export default async function RadarPage() {
               <p className="text-[11px] text-text2 leading-relaxed mb-3">{t('radar.notASeller')}</p>
               <Link
                 href={{ pathname: '/app/guide', query: { platform: nextEvent.platform } }}
-                className="block text-center bg-accent-btn text-white font-bold text-[13px] rounded-[var(--radius-btn)] py-2.5 w-full mt-3"
+                className="block text-center bg-accent-btn text-white font-bold text-[13px] rounded-[var(--radius-btn)] py-2.5 w-full mt-3 transition-transform duration-150 active:scale-[0.97]"
                 style={{ boxShadow: 'var(--glow)' }}
               >
                 {t('radar.viewGuide')}
