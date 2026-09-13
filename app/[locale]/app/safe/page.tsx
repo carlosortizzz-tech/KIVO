@@ -63,6 +63,7 @@ export default async function SafePage() {
               </div>
             </Reveal>
           ))}
+          <p className="text-[11px] text-text2 px-1">{t('disputeNote')}</p>
         </div>
       ) : (
         <Reveal delayMs={60}>
