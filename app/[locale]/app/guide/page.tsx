@@ -66,15 +66,17 @@ export default async function GuidePage({
       {guides.length > 0 ? (
         <GuideList guides={guides} openPlatform={openPlatform} searchPlaceholder={t('search')} noResultsLabel={t('noResults')} />
       ) : (
-        <div className="flex flex-col items-center text-center gap-3 py-14 px-4">
-          <div className="icon-chip-accent firma-icon w-14 h-14 rounded-full flex items-center justify-center">
-            <BookOpen size={24} color="var(--accent2)" strokeWidth={1.8} />
+        <Reveal delayMs={40}>
+          <div className="flex flex-col items-center text-center gap-3 py-14 px-4">
+            <div className="icon-chip-accent firma-icon w-14 h-14 rounded-full flex items-center justify-center">
+              <BookOpen size={24} color="var(--accent2)" strokeWidth={1.8} />
+            </div>
+            <div className="text-sm font-bold">{t('empty')}</div>
+            <Link href="/app/community" className="text-[13px] font-bold text-accent2 underline underline-offset-2">
+              {t('emptyCta')}
+            </Link>
           </div>
-          <div className="text-sm font-bold">{t('empty')}</div>
-          <Link href="/app/community" className="text-[13px] font-bold text-accent2 underline underline-offset-2">
-            {t('emptyCta')}
-          </Link>
-        </div>
+        </Reveal>
       )}
       <YoutubeVideos />
       <SpotifyTracks />

@@ -28,7 +28,7 @@ export function BadgeUnlockedModal({ name, description, icon }: { name: string; 
       onClick={close}
     >
       <div
-        className="feature-card rounded-[24px] p-7 text-center max-w-[320px] w-full transition-transform duration-350"
+        className="feature-card rounded-[var(--radius-card)] p-7 text-center max-w-[320px] w-full transition-transform duration-350"
         style={{
           boxShadow: '0 0 50px rgba(180,79,245,0.35)',
           transform: visible ? 'scale(1)' : 'scale(0.85)',
@@ -42,7 +42,7 @@ export function BadgeUnlockedModal({ name, description, icon }: { name: string; 
         {description && <p className="text-sm text-text2 mb-5">{description}</p>}
         <button
           onClick={close}
-          className="bg-accent-btn text-white font-bold text-[14px] rounded-2xl py-3 w-full transition-transform duration-150 active:scale-[0.97]"
+          className="bg-accent-btn text-white font-bold text-[14px] rounded-[var(--radius-btn)] py-3 w-full transition-transform duration-150 active:scale-[0.97]"
           style={{ boxShadow: 'var(--glow)' }}
         >
           {t('badgeClose')}

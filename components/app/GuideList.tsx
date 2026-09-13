@@ -59,7 +59,7 @@ export function GuideList({
 
   return (
     <div className="flex flex-col gap-2.5">
-      <div className="flex items-center gap-2 surface-elevated rounded-2xl px-3.5 py-3 mb-1.5 text-sm">
+      <div className="flex items-center gap-2 surface-elevated rounded-[var(--radius-btn)] px-3.5 py-3 mb-1.5 text-sm">
         <Search size={16} strokeWidth={2} className="text-text2 flex-shrink-0" />
         <input
           value={query}
@@ -76,13 +76,13 @@ export function GuideList({
         const open = openId === g.id;
         return (
           <Reveal key={g.id} delayMs={80 + i * 60}>
-            <div ref={(el) => { cardRefs.current[g.id] = el; }} className="surface-elevated rounded-2xl overflow-hidden">
+            <div ref={(el) => { cardRefs.current[g.id] = el; }} className="surface-elevated rounded-[var(--radius-card)] overflow-hidden">
               <button
                 onClick={() => setOpenId(open ? null : g.id)}
                 aria-expanded={open}
                 className="icon-chip-accent-row flex items-center gap-3 p-3.5 w-full text-left transition-transform duration-150 active:scale-[0.98]"
               >
-                <div className="icon-chip-accent firma-icon w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0">
+                <div className="icon-chip-accent firma-icon w-11 h-11 rounded-[var(--radius-btn)] flex items-center justify-center flex-shrink-0">
                   <Icon size={20} strokeWidth={2} />
                 </div>
                 <div className="flex-1 min-w-0">

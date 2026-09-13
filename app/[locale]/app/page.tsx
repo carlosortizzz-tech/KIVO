@@ -170,7 +170,7 @@ export default async function RadarPage() {
 
       {nextConcert && (
         <Reveal delayMs={60}>
-          <div className="feature-card rounded-2xl p-4 mb-4" style={{ boxShadow: 'var(--glow)' }}>
+          <div className="feature-card rounded-[var(--radius-card)] p-4 mb-4" style={{ boxShadow: 'var(--glow)' }}>
             <div className="flex items-start justify-between gap-2 mb-2">
               <div className="text-xs font-bold uppercase tracking-wide text-accent2">{t('radar.nextConcert')}</div>
               <AddToCalendar event={{
@@ -230,7 +230,7 @@ export default async function RadarPage() {
               <p className="text-[11px] text-text2 leading-relaxed mb-3">{t('radar.notASeller')}</p>
               <Link
                 href={{ pathname: '/app/guide', query: { platform: nextEvent.platform } }}
-                className="block text-center bg-accent-btn text-white font-bold text-[13px] rounded-xl py-2.5 w-full mt-3"
+                className="block text-center bg-accent-btn text-white font-bold text-[13px] rounded-[var(--radius-btn)] py-2.5 w-full mt-3"
                 style={{ boxShadow: 'var(--glow)' }}
               >
                 {t('radar.viewGuide')}
@@ -245,23 +245,25 @@ export default async function RadarPage() {
       </Reveal>
 
       {restEvents.length === 0 && !nextEvent && (
-        <div className="flex flex-col items-center text-center gap-3 py-14 px-4">
-          <div className="icon-chip-accent firma-icon w-14 h-14 rounded-full flex items-center justify-center">
-            <CalendarDays size={24} color="var(--accent2)" strokeWidth={1.8} />
+        <Reveal delayMs={200}>
+          <div className="flex flex-col items-center text-center gap-3 py-14 px-4">
+            <div className="icon-chip-accent firma-icon w-14 h-14 rounded-full flex items-center justify-center">
+              <CalendarDays size={24} color="var(--accent2)" strokeWidth={1.8} />
+            </div>
+            <div className="text-sm font-bold">{t('radar.noEvents')}</div>
+            <Link href="/app/guide" className="text-[13px] font-bold text-accent2 underline underline-offset-2">
+              {t('radar.noEventsCta')}
+            </Link>
           </div>
-          <div className="text-sm font-bold">{t('radar.noEvents')}</div>
-          <Link href="/app/guide" className="text-[13px] font-bold text-accent2 underline underline-offset-2">
-            {t('radar.noEventsCta')}
-          </Link>
-        </div>
+        </Reveal>
       )}
       {restEvents.length > 0 && (
         <Reveal delayMs={240}>
           <CollapsibleSection title={t('radar.upcomingEventsTitle')} icon={<CalendarDays size={16} strokeWidth={2} />} count={restEvents.length} defaultOpen>
             <div className="flex flex-col gap-2.5">
               {restEvents.map((ev, i) => (
-                <div key={ev.id} className="flex gap-3 items-start bg-sunken rounded-xl p-3.5">
-                  <div className="icon-chip-accent firma-icon w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-[10px] font-extrabold text-center leading-tight">
+                <div key={ev.id} className="flex gap-3 items-start bg-sunken rounded-[var(--radius-card)] p-3.5">
+                  <div className="icon-chip-accent firma-icon w-10 h-10 rounded-[var(--radius-btn)] flex items-center justify-center flex-shrink-0 text-[10px] font-extrabold text-center leading-tight">
                     {new Date(ev.starts_at).toLocaleDateString(locale, { weekday: 'short' }).toUpperCase().slice(0, 3)}
                     <br />{new Date(ev.starts_at).getDate()}
                   </div>
@@ -280,8 +282,8 @@ export default async function RadarPage() {
       )}
 
       <Reveal delayMs={300}>
-        <div className="flex items-center gap-3 surface-elevated rounded-2xl p-3.5 mt-4">
-          <div className="icon-chip-accent firma-icon w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0">
+        <div className="flex items-center gap-3 surface-elevated rounded-[var(--radius-card)] p-3.5 mt-4">
+          <div className="icon-chip-accent firma-icon w-11 h-11 rounded-[var(--radius-btn)] flex items-center justify-center flex-shrink-0">
             <Flame size={18} strokeWidth={2} />
           </div>
           <div className="font-display text-xl font-extrabold text-accent2">{streak}</div>
@@ -296,9 +298,9 @@ export default async function RadarPage() {
       </Reveal>
 
       <Reveal delayMs={360}>
-        <div className="surface-elevated rounded-2xl p-3.5 mt-4">
+        <div className="surface-elevated rounded-[var(--radius-card)] p-3.5 mt-4">
           <div className="flex items-center gap-3 mb-3">
-            <div className="icon-chip-accent firma-icon w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0">
+            <div className="icon-chip-accent firma-icon w-9 h-9 rounded-[var(--radius-btn)] flex items-center justify-center flex-shrink-0">
               <Disc3 size={16} strokeWidth={2} />
             </div>
             <div>

@@ -126,12 +126,16 @@ export default async function CommunityPage() {
 
   const feed = (
     <>
-      <div className="flex items-center gap-2.5 bg-success/[0.08] border border-success/25 rounded-2xl px-3.5 py-3 mb-4 text-xs text-text2">
-        <ShieldCheck size={16} color="var(--success)" strokeWidth={2} />
-        {t('moderated')}
-      </div>
+      <Reveal>
+        <div className="flex items-center gap-2.5 bg-success/[0.08] border border-success/25 rounded-[var(--radius-card)] px-3.5 py-3 mb-4 text-xs text-text2">
+          <ShieldCheck size={16} color="var(--success)" strokeWidth={2} />
+          {t('moderated')}
+        </div>
+      </Reveal>
 
-      <ComposePost />
+      <Reveal delayMs={30}>
+        <ComposePost />
+      </Reveal>
 
       {posts && posts.length > 0 ? (
         <div className="flex flex-col gap-3">
@@ -139,7 +143,7 @@ export default async function CommunityPage() {
             const isOwn = currentUser?.id === p.user_id;
             return (
             <Reveal key={p.id} delayMs={i * 50}>
-              <div className={isOwn ? 'feature-card rounded-2xl p-3.5' : 'surface-elevated rounded-2xl p-3.5'}>
+              <div className={isOwn ? 'feature-card rounded-[var(--radius-card)] p-3.5' : 'surface-elevated rounded-[var(--radius-card)] p-3.5'}>
                 <div className="flex items-center gap-2 mb-2">
                   <div className="icon-chip-accent firma-icon w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0">
                     {(postAuthorNameById.get(p.user_id) ?? '?')[0]?.toUpperCase()}
@@ -160,22 +164,30 @@ export default async function CommunityPage() {
           })}
         </div>
       ) : (
-        <div className="flex flex-col items-center text-center gap-3 py-14 px-4">
-          <div className="icon-chip-accent firma-icon w-14 h-14 rounded-full flex items-center justify-center">
-            <MessageCircle size={24} color="var(--accent2)" strokeWidth={1.8} />
+        <Reveal delayMs={60}>
+          <div className="flex flex-col items-center text-center gap-3 py-14 px-4">
+            <div className="icon-chip-accent firma-icon w-14 h-14 rounded-full flex items-center justify-center">
+              <MessageCircle size={24} color="var(--accent2)" strokeWidth={1.8} />
+            </div>
+            <div className="text-sm font-bold">{t('emptyTitle')}</div>
+            <p className="text-[13px] text-text2 max-w-[26ch]">{t('emptyBody')}</p>
           </div>
-          <div className="text-sm font-bold">{t('emptyTitle')}</div>
-          <p className="text-[13px] text-text2 max-w-[26ch]">{t('emptyBody')}</p>
-        </div>
+        </Reveal>
       )}
 
-      {(posts?.length ?? 0) < LOW_VOLUME_THRESHOLD && <CommunityPrompts />}
+      {(posts?.length ?? 0) < LOW_VOLUME_THRESHOLD && (
+        <Reveal delayMs={90}>
+          <CommunityPrompts />
+        </Reveal>
+      )}
     </>
   );
 
   const experiencesTab = (
     <>
-      <ExperienceComposer />
+      <Reveal delayMs={30}>
+        <ExperienceComposer />
+      </Reveal>
       {experiences.length > 0 ? (
         <div className="flex flex-col gap-3">
           {experiences.map((exp, i) => (
@@ -185,13 +197,15 @@ export default async function CommunityPage() {
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center text-center gap-3 py-14 px-4">
-          <div className="icon-chip-accent firma-icon w-14 h-14 rounded-full flex items-center justify-center">
-            <Camera size={24} color="var(--accent2)" strokeWidth={1.8} />
+        <Reveal delayMs={60}>
+          <div className="flex flex-col items-center text-center gap-3 py-14 px-4">
+            <div className="icon-chip-accent firma-icon w-14 h-14 rounded-full flex items-center justify-center">
+              <Camera size={24} color="var(--accent2)" strokeWidth={1.8} />
+            </div>
+            <div className="text-sm font-bold">{t('experiences.emptyTitle')}</div>
+            <p className="text-[13px] text-text2 max-w-[26ch]">{t('experiences.emptyBody')}</p>
           </div>
-          <div className="text-sm font-bold">{t('experiences.emptyTitle')}</div>
-          <p className="text-[13px] text-text2 max-w-[26ch]">{t('experiences.emptyBody')}</p>
-        </div>
+        </Reveal>
       )}
     </>
   );

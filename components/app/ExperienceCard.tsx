@@ -92,7 +92,7 @@ export function ExperienceCard({ data }: { data: ExperienceCardData }) {
   if (blocked) return null; // feedback inmediato — el router.refresh() ya lo confirma del lado del servidor
 
   return (
-    <div className="bg-surface border border-border rounded-2xl overflow-hidden">
+    <div className="bg-surface border border-border rounded-[var(--radius-card)] overflow-hidden">
       {data.repostedByName && (
         <div className="flex items-center gap-1.5 px-3.5 pt-3 text-[11px] text-text2">
           <Repeat2 size={12} strokeWidth={2} />
@@ -110,7 +110,7 @@ export function ExperienceCard({ data }: { data: ExperienceCardData }) {
               <MoreVertical size={16} strokeWidth={2} />
             </button>
             {menuOpen && (
-              <div className="absolute right-0 top-full mt-1 bg-surface border border-border rounded-xl overflow-hidden z-10 min-w-[160px]" style={{ boxShadow: '0 8px 24px rgba(0,0,0,0.4)' }}>
+              <div className="absolute right-0 top-full mt-1 bg-surface border border-border rounded-[var(--radius-btn)] overflow-hidden z-10 min-w-[160px]" style={{ boxShadow: '0 8px 24px rgba(0,0,0,0.4)' }}>
                 <button onClick={handleReport} disabled={reported} className="flex items-center gap-2 w-full text-left px-3.5 py-2.5 text-xs text-text2 disabled:opacity-50">
                   <Flag size={14} strokeWidth={2} />
                   {reported ? t('reported') : t('report')}
@@ -158,7 +158,7 @@ export function ExperienceCard({ data }: { data: ExperienceCardData }) {
               onChange={(e) => setReplyText(e.target.value)}
               placeholder={t('replyPlaceholder')}
               maxLength={500}
-              className="flex-1 bg-sunken border border-border rounded-xl px-3 py-2 text-[12px]"
+              className="flex-1 bg-sunken border border-border rounded-[var(--radius-btn)] px-3 py-2 text-[12px]"
             />
             <button type="submit" disabled={!replyText.trim() || busy} className="text-accent2 font-bold text-[12px] disabled:opacity-50">
               {t('send')}

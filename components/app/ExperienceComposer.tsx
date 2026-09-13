@@ -66,17 +66,17 @@ export function ExperienceComposer() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-surface border border-border rounded-2xl p-3.5 mb-4 flex flex-col gap-3">
+    <form onSubmit={handleSubmit} className="bg-surface border border-border rounded-[var(--radius-card)] p-3.5 mb-4 flex flex-col gap-3">
       <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={onPickFile} className="hidden" id="experience-photo" />
       {preview ? (
-        <label htmlFor="experience-photo" className="block relative w-full aspect-[4/3] rounded-xl overflow-hidden cursor-pointer">
+        <label htmlFor="experience-photo" className="block relative w-full aspect-[4/3] rounded-[var(--radius-btn)] overflow-hidden cursor-pointer">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={preview} alt="" className="w-full h-full object-cover" />
         </label>
       ) : (
         <label
           htmlFor="experience-photo"
-          className="flex flex-col items-center justify-center gap-2 border border-dashed border-border rounded-xl py-8 text-text2 cursor-pointer"
+          className="flex flex-col items-center justify-center gap-2 border border-dashed border-border rounded-[var(--radius-btn)] py-8 text-text2 cursor-pointer"
         >
           <Camera size={22} strokeWidth={2} />
           <span className="text-[13px] font-semibold">{t('addPhoto')}</span>
@@ -88,13 +88,13 @@ export function ExperienceComposer() {
         placeholder={t('captionPlaceholder')}
         maxLength={500}
         rows={2}
-        className="w-full bg-sunken border border-border rounded-xl px-3 py-2.5 text-sm resize-none"
+        className="w-full bg-sunken border border-border rounded-[var(--radius-btn)] px-3 py-2.5 text-sm resize-none"
       />
       {errorMsg && <p className="text-[12px] text-warn">{errorMsg}</p>}
       <button
         type="submit"
         disabled={!file || status === 'sending'}
-        className="bg-accent-btn text-white font-bold text-[13px] rounded-xl py-2.5 disabled:opacity-50"
+        className="bg-accent-btn text-white font-bold text-[13px] rounded-[var(--radius-btn)] py-2.5 disabled:opacity-50"
         style={{ boxShadow: 'var(--glow)' }}
       >
         {status === 'sending' ? t('sharing') : t('share')}

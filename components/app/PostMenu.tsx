@@ -65,7 +65,7 @@ export function PostMenu({ postId }: { postId: string }) {
       </button>
       {open && (
         <div
-          className="absolute right-0 top-full mt-1 bg-surface border border-border rounded-xl overflow-hidden z-10 min-w-[160px]"
+          className="absolute right-0 top-full mt-1 bg-surface border border-border rounded-[var(--radius-btn)] overflow-hidden z-10 min-w-[160px]"
           style={{ boxShadow: '0 8px 24px rgba(0,0,0,0.4)' }}
         >
           {confirming ? (

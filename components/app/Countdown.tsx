@@ -56,15 +56,15 @@ export function Countdown({ target }: { target: string }) {
 
   return (
     <div className="flex gap-2 mb-4" suppressHydrationWarning>
-      <div className="flex-1 bg-white/5 rounded-xl p-2.5 text-center">
+      <div className="flex-1 bg-white/5 rounded-[var(--radius-btn)] p-2.5 text-center">
         <div className="font-display text-[32px] font-extrabold tabular-nums leading-none transition-opacity duration-300">{pad(shown.d)}</div>
         <div className="text-[9px] text-text2 uppercase mt-1">días</div>
       </div>
-      <div className="flex-1 bg-white/5 rounded-xl p-2.5 text-center">
+      <div className="flex-1 bg-white/5 rounded-[var(--radius-btn)] p-2.5 text-center">
         <div className="font-display text-[32px] font-extrabold tabular-nums leading-none transition-opacity duration-300">{pad(shown.h)}</div>
         <div className="text-[9px] text-text2 uppercase mt-1">hrs</div>
       </div>
-      <div className="flex-1 bg-white/5 rounded-xl p-2.5 text-center">
+      <div className="flex-1 bg-white/5 rounded-[var(--radius-btn)] p-2.5 text-center">
         <div className="font-display text-[32px] font-extrabold tabular-nums leading-none transition-opacity duration-300">{pad(shown.m)}</div>
         <div className="text-[9px] text-text2 uppercase mt-1">min</div>
       </div>

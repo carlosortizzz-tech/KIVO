@@ -22,13 +22,13 @@ export function CollapsibleSection({
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className="surface-elevated rounded-2xl overflow-hidden mb-2.5">
+    <div className="surface-elevated rounded-[var(--radius-card)] overflow-hidden mb-2.5">
       <button
         onClick={() => setOpen(!open)}
         aria-expanded={open}
         className="flex items-center gap-2.5 p-3.5 w-full text-left transition-transform duration-150 active:scale-[0.98]"
       >
-        <div className="icon-chip-accent firma-icon w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0">
+        <div className="icon-chip-accent firma-icon w-9 h-9 rounded-[var(--radius-btn)] flex items-center justify-center flex-shrink-0">
           {icon}
         </div>
         <div className="flex-1 text-sm font-bold">

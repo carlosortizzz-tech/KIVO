@@ -23,13 +23,13 @@ export function CommunityTabs({ feed, experiences }: { feed: ReactNode; experien
       <div className="flex gap-2 mb-4">
         <button
           onClick={() => setTab('feed')}
-          className={`flex-1 text-[13px] font-bold rounded-xl py-2.5 border transition-transform duration-150 active:scale-[0.98] ${tab === 'feed' ? 'bg-accent-soft border-accent text-accent2' : 'bg-surface border-border text-text2'}`}
+          className={`flex-1 text-[13px] font-bold rounded-[var(--radius-btn)] py-2.5 border transition-transform duration-150 active:scale-[0.98] ${tab === 'feed' ? 'bg-accent-soft border-accent text-accent2' : 'bg-surface border-border text-text2'}`}
         >
           {t('tabFeed')}
         </button>
         <button
           onClick={() => setTab('experiences')}
-          className={`flex-1 text-[13px] font-bold rounded-xl py-2.5 border transition-transform duration-150 active:scale-[0.98] ${tab === 'experiences' ? 'bg-accent-soft border-accent text-accent2' : 'bg-surface border-border text-text2'}`}
+          className={`flex-1 text-[13px] font-bold rounded-[var(--radius-btn)] py-2.5 border transition-transform duration-150 active:scale-[0.98] ${tab === 'experiences' ? 'bg-accent-soft border-accent text-accent2' : 'bg-surface border-border text-text2'}`}
         >
           {t('tabExperiences')}
         </button>

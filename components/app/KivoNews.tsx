@@ -61,7 +61,7 @@ export async function KivoNews() {
                 href={n.source_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block bg-sunken rounded-xl p-3.5 transition-transform duration-150 active:scale-[0.98]"
+                className="block bg-sunken rounded-[var(--radius-card)] p-3.5 transition-transform duration-150 active:scale-[0.98]"
               >
                 <div className="text-sm font-bold mb-1">{n.headline}</div>
                 <p className="text-[13px] text-text2 leading-relaxed mb-2">{n.summary}</p>
@@ -84,7 +84,7 @@ export async function KivoNews() {
                 href={s.source_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block bg-sunken rounded-xl p-3.5 transition-transform duration-150 active:scale-[0.98]"
+                className="block bg-sunken rounded-[var(--radius-card)] p-3.5 transition-transform duration-150 active:scale-[0.98]"
               >
                 {s.event_at && (
                   <div className="text-[11px] font-bold text-accent2 mb-1 uppercase tracking-wide">

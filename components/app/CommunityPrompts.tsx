@@ -28,9 +28,9 @@ export function CommunityPrompts() {
             key={category}
             type="button"
             onClick={() => open(category, t(textKey))}
-            className="flex items-center gap-3 bg-sunken border border-border rounded-xl px-3.5 py-3 text-left transition-transform duration-150 active:scale-[0.98]"
+            className="flex items-center gap-3 bg-sunken border border-border rounded-[var(--radius-btn)] px-3.5 py-3 text-left transition-transform duration-150 active:scale-[0.98]"
           >
-            <div className="icon-chip-accent firma-icon w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0">
+            <div className="icon-chip-accent firma-icon w-9 h-9 rounded-[var(--radius-btn)] flex items-center justify-center flex-shrink-0">
               <Icon size={16} strokeWidth={2} />
             </div>
             <div className="flex-1 min-w-0">

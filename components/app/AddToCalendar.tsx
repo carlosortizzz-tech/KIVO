@@ -23,12 +23,12 @@ export function AddToCalendar({ event }: { event: CalendarEvent }) {
       <button
         onClick={() => setOpen((v) => !v)}
         aria-label={t('addToCalendar')}
-        className="flex items-center justify-center w-9 h-9 rounded-xl bg-surface border border-border text-text2 transition-transform duration-150 active:scale-90"
+        className="flex items-center justify-center w-9 h-9 rounded-[var(--radius-btn)] bg-surface border border-border text-text2 transition-transform duration-150 active:scale-90"
       >
         <CalendarPlus size={16} strokeWidth={2} />
       </button>
       {open && (
-        <div className="absolute right-0 top-11 z-20 bg-surface border border-border rounded-2xl overflow-hidden w-48 shadow-lg">
+        <div className="absolute right-0 top-11 z-20 bg-surface border border-border rounded-[var(--radius-btn)] overflow-hidden w-48 shadow-lg">
           <a
             href={googleCalendarUrl(event)}
             target="_blank"

@@ -67,7 +67,7 @@ export function ComposePost() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2.5 surface-elevated rounded-2xl px-3.5 py-3 mb-4 text-sm text-text2 w-full text-left"
+        className="flex items-center gap-2.5 surface-elevated rounded-[var(--radius-btn)] px-3.5 py-3 mb-4 text-sm text-text2 w-full text-left"
       >
         <div className="w-7 h-7 rounded-full bg-accent-btn flex-shrink-0" />
         {t('compose')}
@@ -80,7 +80,7 @@ export function ComposePost() {
           onClick={close}
         >
           <div
-            className={`bg-surface border border-border rounded-t-[24px] sm:rounded-[24px] p-5 w-full max-w-[420px] transition-transform duration-250 ease-out ${shown ? 'translate-y-0' : 'translate-y-4'}`}
+            className={`bg-surface border border-border rounded-t-[var(--radius-card)] sm:rounded-[var(--radius-card)] p-5 w-full max-w-[420px] transition-transform duration-250 ease-out ${shown ? 'translate-y-0' : 'translate-y-4'}`}
             onClick={(e) => e.stopPropagation()}
           >
             <form onSubmit={handleSubmit}>
@@ -112,7 +112,7 @@ export function ComposePost() {
                 required
                 rows={4}
                 autoFocus
-                className="w-full bg-sunken border border-border rounded-xl px-3.5 py-3 text-sm mb-4 outline-none focus:border-accent resize-none"
+                className="w-full bg-sunken border border-border rounded-[var(--radius-btn)] px-3.5 py-3 text-sm mb-4 outline-none focus:border-accent resize-none"
               />
 
               {error && <p className="text-xs text-danger mb-3 -mt-2">{t('composeError')}</p>}
@@ -120,7 +120,7 @@ export function ComposePost() {
               <button
                 type="submit"
                 disabled={busy || !body.trim()}
-                className="bg-accent-btn text-white font-bold text-[14px] rounded-2xl py-3.5 w-full disabled:opacity-50 transition-transform duration-150 active:scale-[0.97]"
+                className="bg-accent-btn text-white font-bold text-[14px] rounded-[var(--radius-btn)] py-3.5 w-full disabled:opacity-50 transition-transform duration-150 active:scale-[0.97]"
                 style={{ boxShadow: 'var(--glow)' }}
               >
                 {busy ? t('composeSending') : t('composeSubmit')}
