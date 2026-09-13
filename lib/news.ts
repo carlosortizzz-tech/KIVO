@@ -236,6 +236,17 @@ async function withoutAlreadyPublished<T extends { source_url: string }>(
 }
 
 export async function generateDailyNews(): Promise<{ inserted: number }> {
+  // Recurrencia de fechas anuales (álbumes, cumpleaños, FESTA/debut/día del fandom) — no depende
+  // de la IA, así que corre SIEMPRE aquí arriba, incluso si ANTHROPIC_API_KEY falta. Antes, estas
+  // fechas se cargaban a mano hasta un año fijo y se quedaban sin la siguiente ocurrencia hasta
+  // que alguien lo notara (hallazgo real: los cumpleaños de los 7 miembros solo tenían fila para
+  // 2026). Mantiene siempre 2 años de margen hacia adelante.
+  try {
+    await getAdmin().rpc('generate_recurring_events', { p_lookahead_years: 2 });
+  } catch (err) {
+    await logNewsFailure(`generate_recurring_events falló: ${err instanceof Error ? err.message : String(err)}`);
+  }
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     await logNewsFailure('ANTHROPIC_API_KEY no configurada');
