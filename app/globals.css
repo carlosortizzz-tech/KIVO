@@ -25,10 +25,44 @@
   --feature-border: rgba(180, 79, 245, 0.35);
 }
 
+/* Dispositivo ownable #2 (FICHA-ARTE.md): borde "photocard holográfica" — el objeto que
+   colecciona cada fan, elegido por el usuario entre 5 direcciones derivadas del mundo real
+   de un concierto de BTS tras el hallazgo del revisor-visual (identidad 1/20 en las 4
+   pantallas centrales). Reservado SOLO a .feature-card, la tarjeta héroe única por pantalla
+   — nunca a botones/íconos, para que no se diluya como el resto de la capa anti-IA.
+   Técnica: gradiente en el borde vía doble background (padding-box/border-box) + barrido de
+   brillo con `transform` (GPU, ver 41-CRAFT-DE-ANIMACION.md — solo transform/opacity). */
 .feature-card {
-  background: var(--feature-gradient);
-  border: 1px solid var(--feature-border);
+  position: relative;
+  overflow: hidden;
+  background:
+    var(--feature-gradient) padding-box,
+    linear-gradient(135deg, var(--accent) 0%, var(--accent2) 30%, var(--accent-btn) 55%, var(--accent2) 80%, var(--accent) 100%) border-box;
+  border: 1px solid transparent;
   box-shadow: var(--glow-soft);
+}
+.feature-card::after {
+  content: '';
+  position: absolute;
+  top: -20%;
+  left: -90%;
+  width: 90%;
+  height: 140%;
+  background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.1) 40%, rgba(227, 166, 255, 0.22) 50%, rgba(255, 255, 255, 0.1) 60%, transparent 100%);
+  filter: blur(18px);
+  transform: translateX(-20%);
+  animation: holo-sweep 6s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes holo-sweep {
+  0%, 100% { transform: translateX(-20%); }
+  50% { transform: translateX(190%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .feature-card::after {
+    animation: none;
+    opacity: 0.4;
+  }
 }
 
 /* Elevación NEUTRA (sin morado) — hallazgo del revisor-visual: pantallas tipo feed con varias
