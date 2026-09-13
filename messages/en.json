@@ -150,7 +150,8 @@
     "sending": "Sending…",
     "sentBody": "We sent a link to {email}. Open it from this phone.",
     "google": "Continue with Google",
-    "or": "or with your email"
+    "or": "or with your email",
+    "needHelp": "Didn't get access? Contact us"
   },
   "paywall": {
     "eyebrow": "Your personalized plan",
@@ -220,9 +221,11 @@
       "openLabel": "Contact support",
       "formTitle": "How can we help?",
       "catAccess": "I didn't get access",
+      "catAccess": "I didn't get access",
       "catPayment": "Payment issue",
       "catBug": "Report a bug",
       "catOther": "Other",
+      "emailPlaceholder": "you@email.com",
       "placeholder": "Tell us what happened, with as much detail as you can",
       "sla": "We reply within 24 business hours to your email.",
       "formError": "We couldn't send your message — check your connection and try again.",

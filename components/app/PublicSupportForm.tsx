@@ -2,25 +2,24 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { LifeBuoy, X } from 'lucide-react';
-import { submitSupportTicket, type InAppCategory } from '@/lib/support-actions';
+import { X } from 'lucide-react';
+import { submitPublicSupportTicket, type PublicCategory } from '@/lib/support-actions';
 
-// "No me llegó el acceso" no aplica aquí — para llegar a este formulario, el usuario ya está
-// DENTRO de la app con sesión iniciada, así que por definición sí tiene acceso (hallazgo real
-// del usuario probando el formulario: la categoría no tenía sentido en este contexto). Ese
-// caso vive en PublicSupportForm, fuera de la app, para quien todavía no puede entrar.
-const CATEGORIES = ['payment', 'bug', 'other'] as const satisfies readonly InAppCategory[];
+// Para gente que TODAVÍA NO puede entrar a KIVO — vive fuera de la app (login), sin sesión.
+// Contraparte de SupportForm (dentro de la app): ahí "no me llegó el acceso" no tenía sentido
+// porque para llegar a ese formulario ya hay que estar logueado (hallazgo real del usuario).
+const CATEGORIES = ['access', 'other'] as const satisfies readonly PublicCategory[];
 type Category = (typeof CATEGORIES)[number];
 const categoryKey: Record<Category, string> = {
-  payment: 'catPayment',
-  bug: 'catBug',
+  access: 'catAccess',
   other: 'catOther',
 };
 
-export function SupportForm({ supportEmail }: { supportEmail: string }) {
+export function PublicSupportForm({ triggerLabel, supportEmail }: { triggerLabel: string; supportEmail: string }) {
   const t = useTranslations('cuenta.support');
   const [open, setOpen] = useState(false);
-  const [category, setCategory] = useState<Category>('payment');
+  const [category, setCategory] = useState<Category>('access');
+  const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
@@ -39,11 +38,11 @@ export function SupportForm({ supportEmail }: { supportEmail: string }) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!message.trim() || busy) return;
+    if (!email.trim() || !message.trim() || busy) return;
     setBusy(true);
     setError(false);
     try {
-      await submitSupportTicket(category, message);
+      await submitPublicSupportTicket(email, category, message);
       setSent(true);
     } catch {
       setError(true);
@@ -57,8 +56,9 @@ export function SupportForm({ supportEmail }: { supportEmail: string }) {
     setShown(false);
     setSent(false);
     setError(false);
+    setEmail('');
     setMessage('');
-    setCategory('payment');
+    setCategory('access');
   }
 
   return (
@@ -66,12 +66,9 @@ export function SupportForm({ supportEmail }: { supportEmail: string }) {
       <button
         onClick={() => setOpen(true)}
         type="button"
-        className="flex items-center gap-3 surface-elevated rounded-[var(--radius-card)] px-4 py-3.5 w-full text-left transition-transform duration-150 active:scale-[0.98]"
+        className="text-[13px] font-bold text-accent2 underline underline-offset-2 text-center"
       >
-        <div className="icon-chip-accent firma-icon w-9 h-9 rounded-[var(--radius-btn)] flex items-center justify-center flex-shrink-0">
-          <LifeBuoy size={16} strokeWidth={2} />
-        </div>
-        <span className="flex-1 text-sm">{t('openLabel')}</span>
+        {triggerLabel}
       </button>
 
       {open && (
@@ -106,6 +103,16 @@ export function SupportForm({ supportEmail }: { supportEmail: string }) {
                   ))}
                 </div>
 
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={t('emailPlaceholder')}
+                  required
+                  autoFocus
+                  className="w-full bg-sunken border border-border rounded-[var(--radius-btn)] px-3.5 py-3 text-sm mb-3 outline-none focus:border-accent"
+                />
+
                 <textarea
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
@@ -113,7 +120,6 @@ export function SupportForm({ supportEmail }: { supportEmail: string }) {
                   maxLength={2000}
                   required
                   rows={4}
-                  autoFocus
                   className="w-full bg-sunken border border-border rounded-[var(--radius-btn)] px-3.5 py-3 text-sm mb-3 outline-none focus:border-accent resize-none"
                 />
                 <p className="text-[11px] text-text2 mb-4">{t('sla')}</p>
@@ -122,7 +128,7 @@ export function SupportForm({ supportEmail }: { supportEmail: string }) {
 
                 <button
                   type="submit"
-                  disabled={busy || !message.trim()}
+                  disabled={busy || !email.trim() || !message.trim()}
                   className="bg-accent-btn text-white font-bold text-[14px] rounded-[var(--radius-btn)] py-3.5 w-full disabled:opacity-50 transition-transform duration-150 active:scale-[0.97]"
                   style={{ boxShadow: 'var(--glow)' }}
                 >

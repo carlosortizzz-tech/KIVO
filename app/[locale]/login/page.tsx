@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
+import { PublicSupportForm } from '@/components/app/PublicSupportForm';
 
 export default function LoginPage() {
   const t = useTranslations('login');
@@ -39,7 +40,7 @@ export default function LoginPage() {
           <button
             onClick={handleGoogle}
             type="button"
-            className="flex items-center justify-center gap-2.5 bg-surface border border-border rounded-2xl py-4 px-5 font-bold text-[15px] transition-transform duration-150 active:scale-[0.98]"
+            className="flex items-center justify-center gap-2.5 bg-surface border border-border rounded-[var(--radius-card)] py-4 px-5 font-bold text-[15px] transition-transform duration-150 active:scale-[0.98]"
           >
             {t('google')}
           </button>
@@ -50,9 +51,9 @@ export default function LoginPage() {
             <input
               type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
               placeholder={t('placeholder')}
-              className="bg-surface border border-border rounded-2xl px-4 py-4 text-[15px] outline-none focus:border-accent"
+              className="bg-surface border border-border rounded-[var(--radius-card)] px-4 py-4 text-[15px] outline-none focus:border-accent"
             />
-            <button type="submit" disabled={loading} className="bg-accent-btn text-white font-bold text-[15px] rounded-2xl py-4 disabled:opacity-50 transition-transform duration-150 active:scale-[0.97]" style={{ boxShadow: 'var(--glow)' }}>
+            <button type="submit" disabled={loading} className="bg-accent-btn text-white font-bold text-[15px] rounded-[var(--radius-card)] py-4 disabled:opacity-50 transition-transform duration-150 active:scale-[0.97]" style={{ boxShadow: 'var(--glow)' }}>
               {loading ? t('sending') : t('sendMagicLink')}
             </button>
           </form>
@@ -60,6 +61,7 @@ export default function LoginPage() {
       ) : (
         <p className="text-sm text-text2 text-center">{t('sentBody', { email })}</p>
       )}
+      <PublicSupportForm triggerLabel={t('needHelp')} supportEmail="soporte@kivoapp.app" />
     </div>
   );
 }

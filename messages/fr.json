@@ -150,7 +150,8 @@
     "sending": "Envoi…",
     "sentBody": "On a envoyé un lien à {email}. Ouvre-le depuis ce téléphone.",
     "google": "Continuer avec Google",
-    "or": "ou avec ton e-mail"
+    "or": "ou avec ton e-mail",
+    "needHelp": "Tu n'as pas reçu l'accès ? Contacte-nous"
   },
   "paywall": {
     "eyebrow": "Ton plan personnalisé",
@@ -220,9 +221,11 @@
       "openLabel": "Contacter le support",
       "formTitle": "Comment pouvons-nous t'aider ?",
       "catAccess": "Je n'ai pas reçu l'accès",
+      "catAccess": "Je n'ai pas reçu l'accès",
       "catPayment": "Problème de paiement",
       "catBug": "Signaler un bug",
       "catOther": "Autre",
+      "emailPlaceholder": "toi@email.com",
       "placeholder": "Raconte-nous ce qui s'est passé, avec le plus de détails possible",
       "sla": "On te répond en moins de 24 heures ouvrées à ton email.",
       "formError": "On n'a pas pu envoyer ton message — vérifie ta connexion et réessaie.",

@@ -150,7 +150,8 @@
     "sending": "Enviando…",
     "sentBody": "Te mandamos un enlace a {email}. Ábrelo desde este celular.",
     "google": "Continuar con Google",
-    "or": "o con tu correo"
+    "or": "o con tu correo",
+    "needHelp": "¿No te llegó el acceso? Contáctanos"
   },
   "paywall": {
     "eyebrow": "Tu plan personalizado",
@@ -220,9 +221,11 @@
       "openLabel": "Contactar soporte",
       "formTitle": "¿En qué te ayudamos?",
       "catAccess": "No me llegó el acceso",
+      "catAccess": "No me llegó el acceso",
       "catPayment": "Problema con un pago",
       "catBug": "Reporte de un error",
       "catOther": "Otro",
+      "emailPlaceholder": "tu@correo.com",
       "placeholder": "Cuéntanos qué pasó, con el detalle que puedas",
       "sla": "Respondemos en menos de 24 horas hábiles a tu correo.",
       "formError": "No pudimos enviar tu mensaje — revisa tu conexión e inténtalo de nuevo.",
