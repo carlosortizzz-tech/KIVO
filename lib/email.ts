@@ -184,6 +184,55 @@ export async function sendLiveNowEmail(email: string, name: string, title: strin
   if (error) await logEmailFailure('live_now', email, `${error.name}: ${error.message}`);
 }
 
+const SUPPORT_EMAIL = 'soporte@kivoapp.app';
+const SUPPORT_CATEGORY_LABEL: Record<string, string> = {
+  access: 'No me llegó el acceso',
+  payment: 'Problema con un pago',
+  bug: 'Reporte de un error',
+  other: 'Otro',
+};
+
+// Aviso a soporte (59-SOPORTE-CLIENTE.md, canal mínimo viable: formulario in-app → email a mí).
+// Si Resend falla, el ticket YA quedó guardado en support_tickets — solo se pierde el aviso
+// instantáneo, no el ticket en sí (mismo patrón que el resto de este archivo).
+export async function sendSupportTicketNotification(userEmail: string, category: string, message: string) {
+  const resend = getResend();
+  if (!resend) { await logEmailFailure('support_ticket_notify', SUPPORT_EMAIL, 'RESEND_API_KEY no configurada'); return; }
+  const { error } = await resend.emails.send({
+    from: FROM,
+    to: SUPPORT_EMAIL,
+    replyTo: userEmail,
+    subject: `Nuevo ticket de soporte: ${SUPPORT_CATEGORY_LABEL[category] ?? category}`,
+    html: emailShell(`
+      <h1>Nuevo ticket de soporte</h1>
+      <p><b>De:</b> ${userEmail}</p>
+      <p><b>Categoría:</b> ${SUPPORT_CATEGORY_LABEL[category] ?? category}</p>
+      <p><b>Mensaje:</b></p>
+      <p style="white-space:pre-wrap">${message}</p>
+      <p style="font-size:12px;color:#666">Responde directamente a este correo — el reply-to ya apunta al usuario.</p>
+    `),
+  });
+  if (error) await logEmailFailure('support_ticket_notify', SUPPORT_EMAIL, `${error.name}: ${error.message}`);
+}
+
+// Confirmación al usuario ("lo recibimos" instantáneo, SLA prometido — 59-SOPORTE-CLIENTE.md).
+export async function sendSupportTicketConfirmation(email: string) {
+  const resend = getResend();
+  if (!resend) { await logEmailFailure('support_ticket_confirm', email, 'RESEND_API_KEY no configurada'); return; }
+  const { error } = await resend.emails.send({
+    from: FROM,
+    to: email,
+    subject: 'Recibimos tu mensaje — KIVO Soporte',
+    html: emailShell(`
+      <h1>Ya lo tenemos 💜</h1>
+      <p>Recibimos tu mensaje y te respondemos en menos de 24 horas hábiles a este mismo correo.</p>
+      <p>Si es algo urgente relacionado con tu acceso o un pago, cuéntanos también el email con el que compraste en Hotmart si es distinto a este — así lo resolvemos más rápido.</p>
+      <p><b>Equipo KIVO</b></p>
+    `),
+  });
+  if (error) await logEmailFailure('support_ticket_confirm', email, `${error.name}: ${error.message}`);
+}
+
 function emailShell(bodyHtml: string): string {
   return `<!doctype html><html lang="es"><head><meta charset="utf-8"></head><body style="font-family:sans-serif;color:#111">${bodyHtml}</body></html>`;
 }

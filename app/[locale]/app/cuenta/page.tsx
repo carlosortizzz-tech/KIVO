@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { Link } from '@/i18n/navigation';
 import { ChevronRight, ShieldCheck, FileText, RotateCcw, IdCard } from 'lucide-react';
 import { LogoutButton } from '@/components/app/LogoutButton';
-import { ContactSupportButton } from '@/components/app/ContactSupportButton';
+import { SupportForm } from '@/components/app/SupportForm';
 import { Reveal } from '@/components/app/Reveal';
 import { LevelBar } from '@/components/app/LevelBar';
 import { progresoDeNivel } from '@/lib/gamification';
@@ -152,7 +152,7 @@ export default async function CuentaPage() {
               <ChevronRight size={16} strokeWidth={2} className="text-text2" />
             </Link>
           ))}
-          <ContactSupportButton label={t('contactLink')} copiedLabel={t('contactCopied')} />
+          <SupportForm supportEmail="soporte@kivoapp.app" />
         </div>
 
         <LogoutButton label={t('logout')} />
