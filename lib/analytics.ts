@@ -37,6 +37,18 @@ export async function track(evento: string, props: Record<string, unknown> = {})
   posthogInstance?.capture(evento, props);
 }
 
+// Devuelve la identidad anónima actual de PostHog en ESTA pestaña — se usa para "coser" el
+// funnel a través del salto de registro por enlace mágico (ver 36-ANALITICA-Y-EVENTOS y el
+// hallazgo real de esta sesión: con `persistence:'memory'`, cualquier recarga de página —
+// incluida la que hace /auth/callback al redirigir tras el enlace — borra la identidad anónima
+// en memoria y arranca una nueva, así que `onboarding_completado` y `paywall_visto` quedaban
+// bajo 2 personas distintas en PostHog aunque fueran el mismo usuario real).
+export async function getDistinctId(): Promise<string | null> {
+  if (!initialized) return null;
+  await readyPromise;
+  return posthogInstance?.get_distinct_id() ?? null;
+}
+
 export async function identifyUser(userId: string, plan: string, source: string) {
   if (!initialized) return;
   await readyPromise;

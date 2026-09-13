@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Rss, BookOpen, MessagesSquare, ShieldCheck, Check, ArrowLeft } from 'lucide-react';
 import { useRouter } from '@/i18n/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { track } from '@/lib/analytics';
+import { track, identifyUser } from '@/lib/analytics';
 import { Reveal } from '@/components/app/Reveal';
 
 const HOTMART_CHECKOUT_URLS: Record<'mensual' | 'anual', string | undefined> = {
@@ -41,7 +41,14 @@ export default function PaywallPage() {
   useEffect(() => {
     createClient()
       .auth.getUser()
-      .then(({ data }) => setUserEmail(data.user?.email ?? null));
+      .then(({ data }) => {
+        setUserEmail(data.user?.email ?? null);
+        // Esta pestaña llegó tras redirigir desde /auth/callback — con `persistence:'memory'`
+        // de PostHog, esa redirección ya le dio una identidad anónima NUEVA (sin relación con
+        // la del onboarding). Identificarla aquí la funde con la cuenta real de una vez —
+        // complementa el alias server-side de /auth/callback (ver lib/analytics.ts).
+        if (data.user) identifyUser(data.user.id, 'free', 'directo');
+      });
   }, []);
 
   useEffect(() => {

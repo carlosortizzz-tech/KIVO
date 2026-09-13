@@ -6,6 +6,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 import { Reveal } from '@/components/app/Reveal';
 import { Link } from '@/i18n/navigation';
+import { getDistinctId } from '@/lib/analytics';
 
 export default function CrearCuentaPage() {
   const t = useTranslations('crearCuenta');
@@ -27,10 +28,18 @@ export default function CrearCuentaPage() {
     setLoading(true);
     setError(null);
     const supabase = createClient();
+    // Cose el funnel de PostHog a través del salto del enlace mágico (36-ANALITICA-Y-EVENTOS):
+    // el click en el correo casi siempre recarga la página (a veces hasta en otro navegador si
+    // el cliente de correo abre el link en su propio visor), lo que borra la identidad anónima
+    // en memoria de PostHog. Se manda como querystring para recuperarla en /auth/callback y
+    // "coserla" a la cuenta real vía alias server-side, antes de que se pierda.
+    const phid = await getDistinctId();
+    const redirectUrl = new URL(`${window.location.origin}/auth/callback`);
+    if (phid) redirectUrl.searchParams.set('phid', phid);
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: redirectUrl.toString(),
         // El idioma con el que alguien se registra queda atado a su cuenta (handle_new_user lo
         // lee de acá) — así vuelve a KIVO en el mismo idioma sin importar desde qué dispositivo.
         data: { locale },
