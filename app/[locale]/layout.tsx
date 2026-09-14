@@ -53,6 +53,15 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} className={`${bricolage.variable} ${onest.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-bg text-text antialiased">
+        {/* Red de seguridad mientras Sentry carga diferido (ver instrumentation-client.ts): sin
+            costo de bundle (es un script plano, no una librería), guarda cualquier error que
+            ocurra ANTES de que Sentry esté listo para que no se pierda — Sentry los recoge apenas
+            termina de inicializar. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.__kivoEarlyErrors=[];window.addEventListener('error',function(e){window.__kivoEarlyErrors.push({message:e.message,stack:e.error&&e.error.stack,filename:e.filename,lineno:e.lineno})});window.addEventListener('unhandledrejection',function(e){var r=e.reason;window.__kivoEarlyErrors.push({message:'Unhandled rejection: '+(r&&r.message?r.message:String(r)),stack:r&&r.stack})});`,
+          }}
+        />
         <NextIntlClientProvider>
           <AnalyticsInit />
           {children}
