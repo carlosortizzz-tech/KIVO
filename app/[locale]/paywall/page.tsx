@@ -6,6 +6,7 @@ import { Rss, BookOpen, MessagesSquare, ShieldCheck, Check, ArrowLeft } from 'lu
 import { useRouter } from '@/i18n/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { track, identifyUser } from '@/lib/analytics';
+import { getAttribution } from '@/lib/attribution';
 import { Reveal } from '@/components/app/Reveal';
 
 const HOTMART_CHECKOUT_URLS: Record<'mensual' | 'anual', string | undefined> = {
@@ -47,7 +48,7 @@ export default function PaywallPage() {
         // de PostHog, esa redirección ya le dio una identidad anónima NUEVA (sin relación con
         // la del onboarding). Identificarla aquí la funde con la cuenta real de una vez —
         // complementa el alias server-side de /auth/callback (ver lib/analytics.ts).
-        if (data.user) identifyUser(data.user.id, 'free', 'directo');
+        if (data.user) identifyUser(data.user.id, 'free', getAttribution());
       });
   }, []);
 
@@ -98,6 +99,10 @@ export default function PaywallPage() {
     }
     const url = new URL(checkoutUrl);
     if (userEmail) url.searchParams.set('email', userEmail);
+    // La etiqueta viaja hasta el checkout (36-ANALITICA-Y-EVENTOS) — hoy el webhook de Hotmart
+    // todavía no la lee de vuelta (profiles.source ya queda fijado desde el registro, que es la
+    // fuente principal), pero queda disponible en el link por si se conecta esa punta más adelante.
+    url.searchParams.set('src', getAttribution());
     window.location.href = url.toString();
   }
 

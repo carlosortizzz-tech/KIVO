@@ -4,9 +4,9 @@ import { useEffect } from 'react';
 import { identifyUser, track } from '@/lib/analytics';
 
 // Se monta en el layout de /app (usuario ya logueado) — cose la identidad y cuenta el día activo.
-export function AnalyticsSession({ userId, plan, diasDesdeAlta }: { userId: string; plan: string; diasDesdeAlta: number }) {
+export function AnalyticsSession({ userId, plan, diasDesdeAlta, source }: { userId: string; plan: string; diasDesdeAlta: number; source: string }) {
   useEffect(() => {
-    identifyUser(userId, plan, 'directo');
+    identifyUser(userId, plan, source);
 
     // sesion_iniciada: una vez por día activo — base de las curvas D1/D7/D30.
     const hoy = new Date().toISOString().slice(0, 10);

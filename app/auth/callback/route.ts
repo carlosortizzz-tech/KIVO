@@ -7,6 +7,7 @@ export async function GET(request: Request) {
   const code = searchParams.get('code');
   const next = searchParams.get('next') ?? '/paywall';
   const phid = searchParams.get('phid');
+  const source = searchParams.get('source');
 
   if (code) {
     const supabase = await createClient();
@@ -28,9 +29,15 @@ export async function GET(request: Request) {
       // cookie de next-intl en cada login para que KIVO siempre hable el idioma del registro,
       // sin importar desde qué dispositivo o navegador entre el usuario.
       if (data.user) {
-        const { data: profile } = await supabase.from('profiles').select('locale').eq('id', data.user.id).single();
+        const { data: profile } = await supabase.from('profiles').select('locale, source').eq('id', data.user.id).single();
         if (profile?.locale) {
           response.cookies.set('NEXT_LOCALE', profile.locale, { path: '/', maxAge: 60 * 60 * 24 * 365 });
+        }
+        // Atribución por canal (Google OAuth no tiene un campo `data` como el OTP — viaja acá por
+        // la URL, ver crear-cuenta/page.tsx). Primer toque gana: solo se escribe si el perfil
+        // todavía no tiene source (un re-login no debe pisar de dónde vino realmente el usuario).
+        if (source && !profile?.source) {
+          await supabase.from('profiles').update({ source }).eq('id', data.user.id);
         }
       }
       return response;

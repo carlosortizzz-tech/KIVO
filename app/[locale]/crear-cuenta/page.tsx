@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Reveal } from '@/components/app/Reveal';
 import { Link } from '@/i18n/navigation';
 import { getDistinctId } from '@/lib/analytics';
+import { getAttribution } from '@/lib/attribution';
 
 export default function CrearCuentaPage() {
   const t = useTranslations('crearCuenta');
@@ -42,7 +43,9 @@ export default function CrearCuentaPage() {
         emailRedirectTo: redirectUrl.toString(),
         // El idioma con el que alguien se registra queda atado a su cuenta (handle_new_user lo
         // lee de acá) — así vuelve a KIVO en el mismo idioma sin importar desde qué dispositivo.
-        data: { locale },
+        // `source`: de qué link vino (guardado por lib/attribution.ts al entrar) — handle_new_user
+        // lo escribe en profiles.source, primer toque, para siempre (36-ANALITICA-Y-EVENTOS).
+        data: { locale, source: getAttribution() },
       },
     });
     setLoading(false);
@@ -59,9 +62,13 @@ export default function CrearCuentaPage() {
       return;
     }
     const supabase = createClient();
+    // Google no tiene un campo `data` como el OTP — la atribución viaja por la URL de retorno,
+    // igual que `phid` (ver handleSubmit), y /auth/callback la escribe en profiles.source.
+    const redirectUrl = new URL(`${window.location.origin}/auth/callback`);
+    redirectUrl.searchParams.set('source', getAttribution());
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: { redirectTo: redirectUrl.toString() },
     });
     if (error) setError(t('error'));
   }

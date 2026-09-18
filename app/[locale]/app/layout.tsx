@@ -15,16 +15,20 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const isAdmin = isAdminEmail(user?.email);
 
   let diasDesdeAlta = 0;
+  let source = 'directo';
   if (user) {
-    const { data: profile } = await supabase.from('profiles').select('created_at').eq('id', user.id).maybeSingle();
+    const { data: profile } = await supabase.from('profiles').select('created_at, source').eq('id', user.id).maybeSingle();
     if (profile?.created_at) {
       diasDesdeAlta = Math.max(0, Math.floor((Date.now() - new Date(profile.created_at).getTime()) / 86400000));
     }
+    // Fuente de verdad server-side (36-ANALITICA-Y-EVENTOS): profiles.source, no localStorage,
+    // que ya pudo borrarse o venir de otro dispositivo para cuando el usuario llega aquí.
+    if (profile?.source) source = profile.source;
   }
 
   return (
     <div className="max-w-[480px] mx-auto w-full min-h-dvh flex flex-col">
-      {user && <AnalyticsSession userId={user.id} plan={plan} diasDesdeAlta={diasDesdeAlta} />}
+      {user && <AnalyticsSession userId={user.id} plan={plan} diasDesdeAlta={diasDesdeAlta} source={source} />}
       <header className="flex items-center justify-between px-5 py-5">
         <div className="relative inline-block font-display font-extrabold text-lg">
           <span className="relative z-10">KIVO</span>
