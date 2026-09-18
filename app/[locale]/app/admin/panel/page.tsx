@@ -31,7 +31,7 @@ export default async function AdminPanelPage() {
 
   const { data: profiles } = await admin
     .from('profiles')
-    .select('id, email, display_name, plan, status, created_at, trial_ends_at, last_active_date')
+    .select('id, email, display_name, plan, status, created_at, trial_ends_at, last_active_date, source')
     .order('created_at', { ascending: false });
 
   // Debilidad real señalada en el análisis de mercado (2026-08-29): sin API oficial de
@@ -114,6 +114,18 @@ export default async function AdminPanelPage() {
   const nuevosEsteMes = rows.filter((r) => new Date(r.created_at) >= startOfMonth).length;
   const mrrEstimado = (activos * PRECIO_REFERENCIA_USD).toFixed(2);
 
+  // De dónde vienen tus usuarios (36-ANALITICA-Y-EVENTOS): primer toque ganado en el registro,
+  // guardado en profiles.source. 'directo' agrupa a quienes llegaron sin ?src=/?utm_source= en el link.
+  const bySource = new Map<string, { total: number; pro: number }>();
+  for (const r of rows) {
+    const key = r.source || 'directo';
+    const entry = bySource.get(key) ?? { total: 0, pro: 0 };
+    entry.total += 1;
+    if (r.status === 'active') entry.pro += 1;
+    bySource.set(key, entry);
+  }
+  const sourceBreakdown = [...bySource.entries()].sort((a, b) => b[1].total - a[1].total);
+
   const logs = recentLogs ?? [];
   const fallosRecientes = logs.filter((l) => ['error', 'unauthorized', 'illegal'].includes(l.result)).length;
   const ultimoEvento = logs[0]?.received_at ?? null;
@@ -190,6 +202,20 @@ export default async function AdminPanelPage() {
           {pastDue > 0 && <span>· {pastDue} con pago fallido</span>}
         </div>
       )}
+
+      <div className="text-sm font-bold mb-2">De dónde vienen tus usuarios</div>
+      <div className="flex flex-col gap-1.5 mb-5">
+        {sourceBreakdown.length === 0 && <div className="text-xs text-text2">Todavía no hay usuarios registrados.</div>}
+        {sourceBreakdown.map(([source, { total, pro }]) => (
+          <div key={source} className="flex items-center justify-between text-xs bg-surface border border-border rounded-xl px-3 py-2">
+            <span className="font-semibold text-text">{source}</span>
+            <span className="text-text2">{total} usuario{total === 1 ? '' : 's'}{pro > 0 && ` · ${pro} Pro`}</span>
+          </div>
+        ))}
+      </div>
+      <div className="text-xs text-text2 mb-5 -mt-3">
+        &quot;directo&quot; agrupa a quien llegó sin un link con etiqueta (?src=...). Solo cuenta el registro, no clics.
+      </div>
 
       <div className="text-xs text-text2 mb-4">
         Este ingreso es un estimado (usa ${PRECIO_REFERENCIA_USD}/mes por cada Pro activo) — Hotmart no manda el monto exacto de cada cobro a KIVO. Los números exactos están en tu panel de Hotmart.
