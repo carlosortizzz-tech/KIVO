@@ -184,7 +184,13 @@
     "cta": "Démarrer mon plan gratuit →",
     "checkoutNotReady": "Le paiement n'est pas encore disponible — reviens dans quelques heures.",
     "noChargeToday": "Aucun prélèvement aujourd'hui · annule quand tu veux",
-    "skip": "Pas maintenant, continuer sans Pro"
+    "skip": "Pas maintenant, continuer sans Pro",
+    "confirmingTitle": "Confirmation de ton achat…",
+    "confirmingSubtitle": "Cela ne devrait prendre que quelques secondes.",
+    "slowTitle": "Ton paiement est peut-être encore en cours",
+    "slowSubtitle": "Parfois la confirmation prend quelques minutes — on t'envoie un e-mail dès que c'est prêt.",
+    "slowContactCta": "J'ai déjà payé et ce n'est pas activé",
+    "slowBack": "Retour"
   },
   "legal": {
     "back": "← Retour à l'accueil",
