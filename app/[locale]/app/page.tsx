@@ -26,6 +26,12 @@ function pickLocale(locale: string, es: string, en: string | null, fr: string | 
   return byLocale ?? es;
 }
 
+// Este componente corre en el servidor (hora UTC de Vercel), no en el celular del usuario —
+// sin anclar la zona horaria, un evento cerca de medianoche UTC se le puede mostrar al usuario
+// en el día equivocado. Como la mayoría de la audiencia es LATAM, se ancla a Bogotá (UTC-5, sin
+// horario de verano) en vez de dejar que caiga en la zona del servidor.
+const RADAR_TZ = 'America/Bogota';
+
 // Estos 3 tipos son fechas que se REPITEN cada año sobre algo que ya ocurrió (el álbum ya
 // salió, el cumpleaños ya nació) — el kicker debe decir "Aniversario", nunca "Próxima X",
 // que insinúa un lanzamiento o evento todavía sin ocurrir.
@@ -193,7 +199,7 @@ export default async function RadarPage() {
               <div className="text-[11px] text-text2 mb-3">
                 {t('radar.additionalDates', {
                   dates: sameVenueDates
-                    .map((d) => new Date(d.starts_at).toLocaleDateString(locale, { day: 'numeric', month: 'short' }))
+                    .map((d) => new Date(d.starts_at).toLocaleDateString(locale, { day: 'numeric', month: 'short', timeZone: RADAR_TZ }))
                     .join(' · '),
                 })}
               </div>
@@ -264,8 +270,8 @@ export default async function RadarPage() {
               {restEvents.map((ev, i) => (
                 <div key={ev.id} className="flex gap-3 items-start bg-sunken rounded-[var(--radius-card)] p-3.5">
                   <div className="icon-chip-accent firma-icon w-10 h-10 rounded-[var(--radius-btn)] flex items-center justify-center flex-shrink-0 text-[10px] font-extrabold text-center leading-tight">
-                    {new Date(ev.starts_at).toLocaleDateString(locale, { weekday: 'short' }).toUpperCase().slice(0, 3)}
-                    <br />{new Date(ev.starts_at).getDate()}
+                    {new Date(ev.starts_at).toLocaleDateString(locale, { weekday: 'short', timeZone: RADAR_TZ }).toUpperCase().slice(0, 3)}
+                    <br />{new Date(ev.starts_at).toLocaleDateString('en-US', { day: 'numeric', timeZone: RADAR_TZ })}
                   </div>
                   <div className="flex-1">
                     <div className="text-[13px] font-bold mb-0.5">{ev.title}</div>
