@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Check, Rss } from 'lucide-react';
 import { useRouter } from '@/i18n/navigation';
@@ -55,6 +55,29 @@ export default function OnboardingPage() {
   }, []);
 
   const progressMap: Record<number, number> = { 0: 0, 1: 1, 2: 2, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6, 8: 6 };
+
+  // onboarding_abandonado (36-ANALITICA-Y-EVENTOS.md): si sale sin terminar (después de arrancar,
+  // antes del paso 8 = completado), se manda UNA vez con el paso donde se quedó. `stepRef` evita
+  // el valor viejo que quedaría atrapado en el closure del listener/cleanup; `firedRef` evita
+  // mandarlo 2 veces si `pagehide` y el cleanup de desmontaje se disparan ambos.
+  const stepRef = useRef(step);
+  stepRef.current = step;
+  const firedRef = useRef(false);
+  useEffect(() => {
+    function reportAbandono() {
+      if (firedRef.current) return;
+      if (stepRef.current > 0 && stepRef.current < 8) {
+        firedRef.current = true;
+        track('onboarding_abandonado', { paso: progressMap[stepRef.current] });
+      }
+    }
+    window.addEventListener('pagehide', reportAbandono);
+    return () => {
+      window.removeEventListener('pagehide', reportAbandono);
+      reportAbandono();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function saveAnswer(key: keyof Answers, value: string) {
     const next = { ...answers, [key]: value };

@@ -154,7 +154,9 @@ export default function PaywallPage() {
       if (profile && profile.plan === 'pro' && (profile.status === 'active' || profile.status === 'trialing')) {
         if (pollRef.current) clearInterval(pollRef.current);
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
-        track('plan_actualizado', { plan_elegido: plan });
+        // `plan_actualizado` ya se manda server-side desde el webhook de Hotmart
+        // (app/api/webhooks/hotmart/route.ts) — mandarlo también aquí lo contaba 2 veces en
+        // PostHog (36-ANALITICA-Y-EVENTOS.md § captura server-side).
         router.push('/app');
       }
     }, CONFIRM_POLL_MS);
