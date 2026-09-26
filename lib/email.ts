@@ -63,7 +63,6 @@ export async function sendWelcomeEmail(email: string, name: string) {
       4. Confirma tocando "Instalar" o "Agregar"</p>
       <p><b>Menos tiempo buscando. Más tiempo disfrutando.</b></p>
       <p>Nos alegra tenerte con nosotros. 💜</p>
-      <p><b>Equipo KIVO</b><br><i>Nunca más te pierdas una preventa de BTS.</i></p>
       <p style="font-size:12px;color:#666">Este enlace te deja entrar sin contraseña. Si caduca, entra en kivoapp.app/login con este mismo correo. ¿Dudas? Responde a este email y te ayudamos.</p>
     `),
   });
@@ -223,7 +222,7 @@ export async function sendSupportTicketNotification(userEmail: string, category:
       <p><b>Mensaje:</b></p>
       <p style="white-space:pre-wrap">${message}</p>
       <p style="font-size:12px;color:#666">Responde directamente a este correo — el reply-to ya apunta al usuario.</p>
-    `),
+    `, { signature: false }),
   });
   if (error) await logEmailFailure('support_ticket_notify', SUPPORT_EMAIL, `${error.name}: ${error.message}`);
 }
@@ -240,14 +239,23 @@ export async function sendSupportTicketConfirmation(email: string) {
       <h1>Ya lo tenemos 💜</h1>
       <p>Recibimos tu mensaje y te respondemos en menos de 24 horas hábiles a este mismo correo.</p>
       <p>Si es algo urgente relacionado con tu acceso o un pago, cuéntanos también el email con el que compraste en Hotmart si es distinto a este — así lo resolvemos más rápido.</p>
-      <p><b>Equipo KIVO</b></p>
     `),
   });
   if (error) await logEmailFailure('support_ticket_confirm', email, `${error.name}: ${error.message}`);
 }
 
-function emailShell(bodyHtml: string): string {
-  return `<!doctype html><html lang="es"><head><meta charset="utf-8"></head><body style="font-family:sans-serif;color:#111">${bodyHtml}</body></html>`;
+// Firma que va al final de todo correo dirigido al usuario (no en el aviso interno a soporte@,
+// que no la necesita) — un solo lugar, así queda igual en los 8 correos transaccionales.
+const EMAIL_SIGNATURE = `
+  <p style="margin-top:32px">Con cariño,<br><b>Equipo KIVO 💜</b></p>
+  <img src="${APP_URL}/email-signature-logo.png" alt="KIVO" width="90" style="display:block;margin:12px 0">
+  <p style="margin:0"><b>soporte@kivoapp.app</b> · <a href="${APP_URL}" style="color:#7C3AED">kivoapp.app</a></p>
+  <p style="margin:4px 0 0;font-weight:bold">Hecho por fans, para fans — nunca te pierdas un momento con BTS.</p>
+`;
+
+function emailShell(bodyHtml: string, opts: { signature?: boolean } = {}): string {
+  const signature = opts.signature === false ? '' : EMAIL_SIGNATURE;
+  return `<!doctype html><html lang="es"><head><meta charset="utf-8"></head><body style="font-family:sans-serif;color:#111">${bodyHtml}${signature}</body></html>`;
 }
 
 async function logEmailFailure(kind: string, email: string, detail: string) {
