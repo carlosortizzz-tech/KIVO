@@ -1,10 +1,12 @@
 import { redirect } from 'next/navigation';
+import Image from 'next/image';
 import { getTranslations, getLocale } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { Link } from '@/i18n/navigation';
 import { ChevronRight, ShieldCheck, FileText, RotateCcw, IdCard } from 'lucide-react';
 import { LogoutButton } from '@/components/app/LogoutButton';
 import { SupportForm } from '@/components/app/SupportForm';
+import { EditProfileModal } from '@/components/app/EditProfileModal';
 import { Reveal } from '@/components/app/Reveal';
 import { LevelBar } from '@/components/app/LevelBar';
 import { progresoDeNivel } from '@/lib/gamification';
@@ -18,7 +20,7 @@ export default async function CuentaPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('plan, created_at, status, trial_ends_at, plan_amount, plan_currency, streak_count, xp_total, grace_period_ends_at')
+    .select('plan, created_at, status, trial_ends_at, plan_amount, plan_currency, streak_count, xp_total, grace_period_ends_at, display_name, avatar_url')
     .eq('id', user.id)
     .maybeSingle();
 
@@ -55,6 +57,7 @@ export default async function CuentaPage() {
   const chargeDate = profile?.trial_ends_at
     ? new Date(profile.trial_ends_at).toLocaleDateString(locale, { day: 'numeric', month: 'long' })
     : '';
+  const displayName = profile?.display_name || user.email?.split('@')[0] || 'Fan';
 
   const links = [
     { href: '/app/cuenta/cancelar', label: t('cancelLink'), Icon: RotateCcw },
@@ -69,7 +72,20 @@ export default async function CuentaPage() {
         <h1 className="font-display text-2xl font-extrabold mb-4 tracking-tight">{t('title')}</h1>
 
         <div className="surface-elevated rounded-2xl p-4 mb-5">
-          <div className="text-sm font-bold mb-1">{user.email}</div>
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-11 h-11 rounded-full bg-accent-btn flex items-center justify-center font-display text-lg font-extrabold overflow-hidden flex-shrink-0" style={{ boxShadow: 'var(--glow)' }}>
+              {profile?.avatar_url ? (
+                <Image src={profile.avatar_url} alt={displayName} width={44} height={44} className="w-full h-full object-cover" />
+              ) : (
+                displayName[0]?.toUpperCase()
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-bold truncate">{displayName}</div>
+              <div className="text-xs text-text2 truncate">{user.email}</div>
+            </div>
+            <EditProfileModal userId={user.id} initialName={profile?.display_name ?? ''} initialAvatarUrl={profile?.avatar_url ?? null} />
+          </div>
           <div className="flex items-center gap-2">
             <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${isPro ? 'bg-accent/15 text-accent2' : 'bg-border text-text2'}`}>
               {isPro ? t('planPro') : t('planFree')}
