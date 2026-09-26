@@ -48,6 +48,19 @@ export async function sendWelcomeEmail(email: string, name: string) {
       <p>Tu Radar ya está listo.</p>
       <p><a href="${accessLink}" style="background:#7C3AED;color:#fff;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:600;display:inline-block">Ingresa a KIVO →</a></p>
       <p>Entra, revisa tu próximo evento y explora todo lo que ya armamos para ti.</p>
+      <h2 style="margin-top:28px">📲 Instala KIVO en tu celular</h2>
+      <p>Así queda como una app más, con su ícono, sin ocupar espacio de tienda:</p>
+      <p><b>En iPhone:</b><br>
+      1. Abre kivoapp.app (Safari o Chrome)<br>
+      2. Toca el ícono de compartir 🔼<br>
+      3. Desliza y toca "Agregar a inicio"<br>
+      4. Si sugiere un nombre largo, bórralo y escribe solo "KIVO"<br>
+      5. Toca "Agregar"</p>
+      <p><b>En Android (Chrome):</b><br>
+      1. Abre kivoapp.app en Chrome<br>
+      2. Toca los tres puntos ⋮<br>
+      3. Toca "Agregar a pantalla de inicio" o "Instalar app"<br>
+      4. Confirma tocando "Instalar" o "Agregar"</p>
       <p><b>Menos tiempo buscando. Más tiempo disfrutando.</b></p>
       <p>Nos alegra tenerte con nosotros. 💜</p>
       <p><b>Equipo KIVO</b><br><i>Nunca más te pierdas una preventa de BTS.</i></p>
