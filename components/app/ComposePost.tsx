@@ -16,6 +16,9 @@ export function ComposePost() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
   const [shown, setShown] = useState(false);
+  // Los chips de "ideas para publicar" solo sugieren texto — va como placeholder (gris, se
+  // reemplaza solo al escribir), nunca como contenido real que el usuario tendría que borrar.
+  const [promptPlaceholder, setPromptPlaceholder] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -33,7 +36,8 @@ export function ComposePost() {
     function onPrompt(e: Event) {
       const detail = (e as CustomEvent<{ category: (typeof CATEGORIES)[number]; text: string }>).detail;
       setCategory(detail.category);
-      setBody(detail.text);
+      setBody('');
+      setPromptPlaceholder(detail.text);
       setOpen(true);
     }
     window.addEventListener('kivo:composePrompt', onPrompt);
@@ -49,6 +53,7 @@ export function ComposePost() {
       await submitForumPost(category, body);
       setBody('');
       setOpen(false);
+      setPromptPlaceholder(null);
       router.refresh();
     } catch {
       setError(true);
@@ -61,6 +66,7 @@ export function ComposePost() {
     setOpen(false);
     setError(false);
     setShown(false);
+    setPromptPlaceholder(null);
   }
 
   return (
@@ -107,7 +113,7 @@ export function ComposePost() {
               <textarea
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
-                placeholder={t('composePlaceholder')}
+                placeholder={promptPlaceholder ?? t('composePlaceholder')}
                 maxLength={500}
                 required
                 rows={4}
