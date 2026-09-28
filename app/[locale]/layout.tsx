@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Onest } from "next/font/google";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -34,8 +34,20 @@ export async function generateMetadata({
   return {
     title: t("title"),
     description: t("description"),
+    // El <link rel="manifest"> lo agrega Next solo a partir de app/manifest.ts.
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: "black-translucent",
+      title: "KIVO",
+    },
   };
 }
+
+// Color de la barra del sistema al abrir KIVO instalada: va en `viewport` (en `metadata` Next lo
+// ignora). Debe ser un valor literal, no un token CSS — es el mismo fondo de app/manifest.ts.
+export const viewport: Viewport = {
+  themeColor: "#0B0710",
+};
 
 export default async function LocaleLayout({
   children,

@@ -15,6 +15,9 @@ export const config = {
     // "icon" (app/icon.tsx, generado con next/og) no tiene extensión en su URL — sin excluirlo
     // acá, el middleware de next-intl lo trata como una página y lo redirige, rompiendo el
     // favicon en producción (encontrado al verificar el ícono nuevo el 2026-08-28).
-    '/((?!_next/static|_next/image|favicon.ico|icon|apple-icon|api|auth|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    // "manifest.webmanifest" (app/manifest.ts) tampoco es una página: sin excluirlo, el middleware
+    // lo redirigía a /login y "Agregar a pantalla de inicio" no encontraba nombre ni íconos
+    // (encontrado en producción el 2026-09-27).
+    '/((?!_next/static|_next/image|favicon.ico|icon|apple-icon|manifest.webmanifest|api|auth|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };
