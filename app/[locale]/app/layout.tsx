@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { BottomNav } from '@/components/app/BottomNav';
 import { getUserPlan } from '@/lib/plan';
@@ -17,7 +18,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   let diasDesdeAlta = 0;
   let source = 'directo';
   if (user) {
-    const { data: profile } = await supabase.from('profiles').select('created_at, source').eq('id', user.id).maybeSingle();
+    const { data: profile } = await supabase.from('profiles').select('created_at, source, terms_accepted_at').eq('id', user.id).maybeSingle();
+    // Sin constancia de la autorización de datos (Ley 1581) no se usa la app: cubre también a
+    // quien ya tenía la sesión abierta de antes, que no pasa por lib/auth-finalize.ts.
+    if (profile && !profile.terms_accepted_at) redirect('/aceptar?next=%2Fapp');
     if (profile?.created_at) {
       diasDesdeAlta = Math.max(0, Math.floor((Date.now() - new Date(profile.created_at).getTime()) / 86400000));
     }

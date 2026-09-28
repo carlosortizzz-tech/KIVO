@@ -69,7 +69,9 @@ export default function CrearCuentaPage() {
         // `locale`: KIVO vuelve en el idioma del registro desde cualquier dispositivo.
         // `source`: de qué link vino (lib/attribution.ts) — handle_new_user lo escribe en
         // profiles.source, primer toque, para siempre (36-ANALITICA-Y-EVENTOS).
-        data: { locale, source: getAttribution(), phid: phid ?? undefined, onboarding: readOnboardingAnswers() },
+        // `terms_accepted`: la casilla de arriba (obligatoria para llegar aquí) — lib/auth-finalize.ts
+        // la registra como constancia en profiles.terms_accepted_at al entrar (Ley 1581).
+        data: { locale, source: getAttribution(), phid: phid ?? undefined, onboarding: readOnboardingAnswers(), terms_accepted: true },
       },
     });
     setLoading(false);
@@ -95,6 +97,8 @@ export default function CrearCuentaPage() {
     const redirectUrl = new URL(`${window.location.origin}/auth/callback`);
     redirectUrl.searchParams.set('source', getAttribution());
     if (phid) redirectUrl.searchParams.set('phid', phid);
+    // La casilla ya se marcó (el botón está bloqueado sin ella): /auth/callback lo registra.
+    redirectUrl.searchParams.set('terms', '1');
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: redirectUrl.toString() },

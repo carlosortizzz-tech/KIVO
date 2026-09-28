@@ -4,6 +4,7 @@ import { useState, useSyncExternalStore } from 'react';
 import { useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 import { PublicSupportForm } from '@/components/app/PublicSupportForm';
+import { Link } from '@/i18n/navigation';
 import { useIsInAppBrowser } from '@/lib/in-app-browser';
 
 const subscribeNever = () => () => {};
@@ -37,12 +38,20 @@ export default function LoginPage() {
       // Funciona con la plantilla de correo vieja (PKCE, canje en /auth/callback) y con la nueva
       // (token_hash → /auth/confirm recibe esto como `next` y desenvuelve el /app interno). Un solo
       // parámetro a propósito: la plantilla nueva pega este valor tal cual y un "&" lo partiría.
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=/app` },
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=/app`,
+        // /login solo ENTRA a cuentas existentes: crear cuenta exige la casilla de autorización de
+        // datos (Ley 1581), que vive en /crear-cuenta. Antes /login creaba cuentas sin mostrarla.
+        shouldCreateUser: false,
+      },
     });
     setLoading(false);
-    // Antes se mostraba "te mandamos un enlace" aunque el envío fallara (ej. límite de correos
-    // por minuto de Supabase) — la persona esperaba un correo que nunca iba a llegar.
-    if (error) {
+    // Correo sin cuenta (`otp_disabled`): se muestra el MISMO mensaje que si existiera — decir
+    // "esa cuenta no existe" revelaría qué correos están registrados (26-AUTH-MODERNO). El mensaje
+    // enviado es neutro y debajo siempre está "¿Aún no tienes cuenta?".
+    // Otros errores sí se muestran: antes se decía "te mandamos un enlace" aunque el envío fallara
+    // (ej. límite de correos por minuto) y la persona esperaba un correo que nunca iba a llegar.
+    if (error && error.code !== 'otp_disabled') {
       setError(t('error'));
       return;
     }
@@ -96,6 +105,10 @@ export default function LoginPage() {
       ) : (
         <p className="text-sm text-text2 text-center">{t('sentBody', { email })}</p>
       )}
+      <p className="text-sm text-text2 text-center">
+        {t('noAccount')}{' '}
+        <Link href="/onboarding" className="font-bold text-accent2 underline underline-offset-2">{t('createAccount')}</Link>
+      </p>
       <PublicSupportForm triggerLabel={t('needHelp')} supportEmail="soporte@kivoapp.app" />
     </div>
   );

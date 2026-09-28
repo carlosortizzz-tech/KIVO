@@ -53,17 +53,22 @@ export function safeNextPath(raw: string | null, origin: string, depth = 0): str
 // aterrizaba en /app sin ver nunca el paywall (2026-09-27). Se decide con estado guardado en el
 // servidor (profiles.paywall_seen_at), no con la edad de la cuenta: quien vuelve días después
 // también cuenta.
+//
+// Antes de cualquier destino, la cuenta tiene que tener constancia de haber aceptado el tratamiento
+// de datos (Ley 1581): si no la tiene, pasa primero por /aceptar y de ahí sigue al destino.
 export function resolvePostAuthPath({
   requestedPath,
   plan,
   paywallSeenAt,
+  termsAccepted,
 }: {
   requestedPath: string | null;
   plan: string | null;
   paywallSeenAt: string | null;
+  termsAccepted: boolean;
 }): string {
-  if (plan !== 'pro' && !paywallSeenAt) return '/paywall';
-  return requestedPath ?? '/app';
+  const destination = plan !== 'pro' && !paywallSeenAt ? '/paywall' : requestedPath ?? '/app';
+  return termsAccepted ? destination : `/aceptar?next=${encodeURIComponent(destination)}`;
 }
 
 // `phid` llega por URL o por metadata que el propio cliente escribe — se limita a un formato corto

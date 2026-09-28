@@ -15,7 +15,15 @@ import { resolvePostAuthPath, sanitizePhid } from '@/lib/auth-redirect';
 export async function finalizeAuth(
   supabase: SupabaseClient,
   user: User,
-  opts: { origin: string; requestedPath: string | null; phid: string | null; source: string | null; status?: 303 | 307 }
+  opts: {
+    origin: string;
+    requestedPath: string | null;
+    phid: string | null;
+    source: string | null;
+    // Google desde /crear-cuenta, donde la casilla ya se marcó (OAuth no lleva metadata).
+    termsAccepted?: boolean;
+    status?: 303 | 307;
+  }
 ): Promise<NextResponse> {
   // Identidad anónima del onboarding: por URL (Google) o guardada en la cuenta al registrarse por
   // correo (crear-cuenta/page.tsx) — esta última sobrevive aunque el enlace se abra en otro
@@ -39,14 +47,25 @@ export async function finalizeAuth(
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('locale, plan, paywall_seen_at')
+    .select('locale, plan, paywall_seen_at, terms_accepted_at')
     .eq('id', user.id)
     .maybeSingle();
+
+  // Constancia de la autorización de datos (Ley 1581). Si la persona marcó la casilla en
+  // /crear-cuenta (correo: viaja en la metadata al crear la cuenta; Google: por la URL), se registra
+  // aquí. Si no hay constancia, resolvePostAuthPath la manda primero a /aceptar.
+  let termsAccepted = Boolean(profile?.terms_accepted_at);
+  if (!termsAccepted && (opts.termsAccepted || user.user_metadata?.terms_accepted === true)) {
+    const { error } = await supabase.rpc('accept_terms', { p_source: 'crear_cuenta' });
+    if (error) console.error('accept_terms failed', error.message);
+    else termsAccepted = true;
+  }
 
   const path = resolvePostAuthPath({
     requestedPath: opts.requestedPath,
     plan: profile?.plan ?? null,
     paywallSeenAt: profile?.paywall_seen_at ?? null,
+    termsAccepted,
   });
   const response = NextResponse.redirect(`${opts.origin}${path}`, opts.status ?? 307);
 

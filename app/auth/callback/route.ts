@@ -21,6 +21,7 @@ export async function GET(request: Request) {
         requestedPath: safeNextPath(searchParams.get('next'), origin),
         phid: searchParams.get('phid'),
         source: searchParams.get('source'),
+        termsAccepted: searchParams.get('terms') === '1',
       });
     }
   }

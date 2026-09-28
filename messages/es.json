@@ -149,13 +149,15 @@
     "placeholder": "tu@correo.com",
     "sendMagicLink": "Enviar enlace mágico →",
     "sending": "Enviando…",
-    "sentBody": "Te mandamos un enlace a {email}. Ábrelo desde este celular.",
+    "sentBody": "Si {email} tiene una cuenta en KIVO, te llegó un enlace para entrar. Ábrelo desde este celular.",
     "google": "Continuar con Google",
     "or": "o con tu correo",
     "needHelp": "¿No te llegó el acceso? Contáctanos",
     "inAppNotice": "Estás navegando dentro de una app (como Instagram o TikTok), y ahí Google no permite iniciar sesión. Usa tu correo: te llega un enlace y sigues desde tu navegador.",
     "linkError": "Ese enlace ya no funciona (puede haber vencido o ya se usó). Escribe tu correo abajo y te mandamos uno nuevo en segundos.",
-    "error": "No pudimos enviar el enlace. Espera un minuto e intenta de nuevo."
+    "error": "No pudimos enviar el enlace. Espera un minuto e intenta de nuevo.",
+    "noAccount": "¿Aún no tienes cuenta?",
+    "createAccount": "Créala gratis"
   },
   "paywall": {
     "eyebrow": "Tu plan personalizado",
@@ -436,5 +438,13 @@
     "body": "Confirma que eres tú y seguimos donde lo dejaste.",
     "cta": "Entrar a KIVO",
     "sending": "Entrando…"
+  },
+  "aceptar": {
+    "title": "Un último paso",
+    "body": "Para usar KIVO necesitamos tu autorización para tratar tus datos. Solo te lo pedimos una vez.",
+    "cta": "Aceptar y continuar",
+    "saving": "Guardando…",
+    "error": "No pudimos guardar tu respuesta. Revisa tu conexión e intenta de nuevo.",
+    "logout": "Salir"
   }
 }
