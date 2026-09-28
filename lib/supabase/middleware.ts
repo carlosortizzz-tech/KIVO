@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { routing } from '@/i18n/routing';
 
-const PUBLIC_PATHS = ['/', '/onboarding', '/crear-cuenta', '/paywall', '/login', '/auth', '/terminos', '/privacidad', '/reembolso'];
+const PUBLIC_PATHS = ['/', '/onboarding', '/crear-cuenta', '/paywall', '/login', '/confirmar', '/auth', '/terminos', '/privacidad', '/reembolso'];
 
 function stripLocale(pathname: string): string {
   for (const locale of routing.locales) {

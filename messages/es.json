@@ -141,7 +141,8 @@
     "consent": "Autorizo el tratamiento de mis datos según la <privacy>Política de Privacidad</privacy> y acepto los <terms>Términos</terms>.",
     "consentRequired": "Marca la casilla para continuar — es obligatorio autorizar el tratamiento de tus datos.",
     "sentTitle": "Revisa tu correo",
-    "sentBody": "Te mandamos un enlace a {email}. Ábrelo desde el mismo celular para entrar directo a tu Radar."
+    "sentBody": "Te mandamos un enlace a {email}. Ábrelo desde el mismo celular para entrar directo a tu Radar.",
+    "inAppNotice": "Estás navegando dentro de una app (como Instagram o TikTok), y ahí Google no permite iniciar sesión. Usa tu correo: te llega un enlace y sigues desde tu navegador."
   },
   "login": {
     "title": "Entra a tu cuenta",
@@ -151,7 +152,10 @@
     "sentBody": "Te mandamos un enlace a {email}. Ábrelo desde este celular.",
     "google": "Continuar con Google",
     "or": "o con tu correo",
-    "needHelp": "¿No te llegó el acceso? Contáctanos"
+    "needHelp": "¿No te llegó el acceso? Contáctanos",
+    "inAppNotice": "Estás navegando dentro de una app (como Instagram o TikTok), y ahí Google no permite iniciar sesión. Usa tu correo: te llega un enlace y sigues desde tu navegador.",
+    "linkError": "Ese enlace ya no funciona (puede haber vencido o ya se usó). Escribe tu correo abajo y te mandamos uno nuevo en segundos.",
+    "error": "No pudimos enviar el enlace. Espera un minuto e intenta de nuevo."
   },
   "paywall": {
     "eyebrow": "Tu plan personalizado",
@@ -426,5 +430,11 @@
       "rule3": "Si el precio \"parece muy bueno para ser cierto\", repórtalo antes de pagar.",
       "disputeNote": "¿Administras algo marcado aquí y crees que es un error? Escríbenos a soporte@kivoapp.app y lo revisamos en menos de 48 horas."
     }
+  },
+  "confirmar": {
+    "title": "Un toque y entras",
+    "body": "Confirma que eres tú y seguimos donde lo dejaste.",
+    "cta": "Entrar a KIVO",
+    "sending": "Entrando…"
   }
 }

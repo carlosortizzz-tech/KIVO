@@ -61,19 +61,34 @@ export default function PaywallPage() {
   const userIdRef = useRef<string | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const metaOnboardingRef = useRef<string | null>(null);
+  const migratingRef = useRef(false);
 
   useEffect(() => {
-    createClient()
-      .auth.getUser()
-      .then(({ data }) => {
-        setUserEmail(data.user?.email ?? null);
-        userIdRef.current = data.user?.id ?? null;
-        // Esta pestaña llegó tras redirigir desde /auth/callback — con `persistence:'memory'`
-        // de PostHog, esa redirección ya le dio una identidad anónima NUEVA (sin relación con
-        // la del onboarding). Identificarla aquí la funde con la cuenta real de una vez —
-        // complementa el alias server-side de /auth/callback (ver lib/analytics.ts).
-        if (data.user) identifyUser(data.user.id, 'free', getAttribution());
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      setUserEmail(data.user?.email ?? null);
+      userIdRef.current = data.user?.id ?? null;
+      if (!data.user) return;
+      // Esta pestaña llegó tras redirigir desde /auth/confirm o /auth/callback — con
+      // `persistence:'memory'` de PostHog, esa redirección ya le dio una identidad anónima NUEVA
+      // (sin relación con la del onboarding). Identificarla aquí la funde con la cuenta real de
+      // una vez — complementa el alias server-side de lib/auth-finalize.ts.
+      identifyUser(data.user.id, 'free', getAttribution());
+      // Estado del funnel en el servidor: desde ahora, los próximos inicios de sesión van directo
+      // a /app (lib/auth-redirect.ts). Si falla, lo peor es volver a ver el paywall una vez más.
+      supabase.rpc('mark_paywall_seen').then(({ error }) => {
+        if (error) console.error('mark_paywall_seen failed', error.message);
       });
+      // Respaldo de las respuestas del onboarding guardadas en la cuenta al registrarse
+      // (crear-cuenta/page.tsx): el enlace del correo casi siempre abre en OTRO navegador que
+      // el del onboarding, donde este localStorage está vacío.
+      const saved = data.user.user_metadata?.onboarding;
+      if (saved && typeof saved === 'object') {
+        metaOnboardingRef.current = JSON.stringify({ v: 1, respuestas: saved });
+        tryMigrate();
+      }
+    });
   }, []);
 
   // El botón se ATTACHea al SDK de Hotmart (abre el checkout embebido al hacer clic) cada vez
@@ -100,8 +115,12 @@ export default function PaywallPage() {
   }, []);
 
   function tryMigrate() {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
+    // Primero lo de este navegador; si no hay (enlace abierto en otro navegador), lo guardado en
+    // la cuenta. `migratingRef` evita mandar dos migraciones a la vez (el montaje y la llegada
+    // del usuario pueden dispararla casi juntas).
+    const raw = localStorage.getItem(STORAGE_KEY) ?? metaOnboardingRef.current;
+    if (!raw || migratingRef.current) return;
+    migratingRef.current = true;
     try {
       const parsed = JSON.parse(raw);
       setAnswers(parsed.respuestas ?? {});
@@ -112,15 +131,27 @@ export default function PaywallPage() {
       headers: { 'Content-Type': 'application/json' },
       body: raw,
     })
-      .then((res) => {
+      .then(async (res) => {
         if (res.ok) {
           localStorage.removeItem(STORAGE_KEY);
           setMigrateFailed(false);
+          // Ya aplicado (el endpoint solo responde OK si TODAS sus escrituras funcionaron): se borra
+          // la copia de la cuenta para no volver a migrar en cada visita. Vale también si esta
+          // migración salió de localStorage — son las mismas respuestas. Si el borrado falla, la
+          // copia queda y se reintenta en la próxima visita (la migración es idempotente).
+          if (metaOnboardingRef.current) {
+            metaOnboardingRef.current = null;
+            const { error } = await createClient().auth.updateUser({ data: { onboarding: null } });
+            if (error) console.error('clear onboarding metadata failed', error.message);
+          }
         } else {
           setMigrateFailed(true);
         }
       })
-      .catch(() => setMigrateFailed(true));
+      .catch(() => setMigrateFailed(true))
+      .finally(() => {
+        migratingRef.current = false;
+      });
   }
 
   useEffect(() => {

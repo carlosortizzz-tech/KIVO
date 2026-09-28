@@ -8,6 +8,28 @@ import { Reveal } from '@/components/app/Reveal';
 import { Link } from '@/i18n/navigation';
 import { getDistinctId } from '@/lib/analytics';
 import { getAttribution } from '@/lib/attribution';
+import { useIsInAppBrowser } from '@/lib/in-app-browser';
+
+const ONBOARDING_STORAGE_KEY = 'kivo_onboarding_state';
+const ONBOARDING_KEYS = ['antiguedad', 'dolor', 'plataforma', 'aviso'] as const;
+
+// Las respuestas del onboarding viven en localStorage de ESTE navegador — si el enlace del correo
+// se abre en otro (lo normal viniendo de Instagram), el paywall no las encontraría. Viajan también
+// en la cuenta (user_metadata.onboarding) y el paywall las usa como respaldo.
+function readOnboardingAnswers(): Record<string, string> | undefined {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(ONBOARDING_STORAGE_KEY) ?? 'null');
+    const respuestas = parsed?.v === 1 ? parsed.respuestas : null;
+    if (!respuestas) return undefined;
+    const clean: Record<string, string> = {};
+    for (const key of ONBOARDING_KEYS) {
+      if (typeof respuestas[key] === 'string') clean[key] = respuestas[key];
+    }
+    return Object.keys(clean).length ? clean : undefined;
+  } catch {
+    return undefined; // localStorage bloqueado o JSON corrupto: se registra igual, sin respuestas
+  }
+}
 
 export default function CrearCuentaPage() {
   const t = useTranslations('crearCuenta');
@@ -16,6 +38,7 @@ export default function CrearCuentaPage() {
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const inApp = useIsInAppBrowser();
   // Ley 1581 de Colombia (y equivalentes LATAM, ver docs/sistema/47): autorización previa EXPRESA
   // vía checkbox NO premarcado — no basta con "al continuar aceptas" implícito en el botón.
   const [consent, setConsent] = useState(false);
@@ -30,22 +53,23 @@ export default function CrearCuentaPage() {
     setError(null);
     const supabase = createClient();
     // Cose el funnel de PostHog a través del salto del enlace mágico (36-ANALITICA-Y-EVENTOS):
-    // el click en el correo casi siempre recarga la página (a veces hasta en otro navegador si
-    // el cliente de correo abre el link en su propio visor), lo que borra la identidad anónima
-    // en memoria de PostHog. Se manda como querystring para recuperarla en /auth/callback y
-    // "coserla" a la cuenta real vía alias server-side, antes de que se pierda.
+    // el click en el correo recarga la página (casi siempre en OTRO navegador), lo que borra la
+    // identidad anónima en memoria de PostHog. Viaja guardada en la cuenta y /auth/confirm la
+    // "cose" a la cuenta real vía alias server-side (lib/auth-finalize.ts).
     const phid = await getDistinctId();
-    const redirectUrl = new URL(`${window.location.origin}/auth/callback`);
-    if (phid) redirectUrl.searchParams.set('phid', phid);
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: redirectUrl.toString(),
-        // El idioma con el que alguien se registra queda atado a su cuenta (handle_new_user lo
-        // lee de acá) — así vuelve a KIVO en el mismo idioma sin importar desde qué dispositivo.
-        // `source`: de qué link vino (guardado por lib/attribution.ts al entrar) — handle_new_user
-        // lo escribe en profiles.source, primer toque, para siempre (36-ANALITICA-Y-EVENTOS).
-        data: { locale, source: getAttribution() },
+        // Sigue apuntando a /auth/callback para funcionar con la plantilla de correo vieja (PKCE) y
+        // con la nueva (token_hash → /auth/confirm, que lo recibe como `next={{ .RedirectTo }}`).
+        // Sin parámetros a propósito: la plantilla nueva pega este valor tal cual en `next=`, y un
+        // "&" lo partiría. El destino (paywall) lo decide lib/auth-redirect.ts.
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        // Solo se guarda al CREAR la cuenta (Supabase ignora `data` si el correo ya existía).
+        // `locale`: KIVO vuelve en el idioma del registro desde cualquier dispositivo.
+        // `source`: de qué link vino (lib/attribution.ts) — handle_new_user lo escribe en
+        // profiles.source, primer toque, para siempre (36-ANALITICA-Y-EVENTOS).
+        data: { locale, source: getAttribution(), phid: phid ?? undefined, onboarding: readOnboardingAnswers() },
       },
     });
     setLoading(false);
@@ -62,10 +86,15 @@ export default function CrearCuentaPage() {
       return;
     }
     const supabase = createClient();
-    // Google no tiene un campo `data` como el OTP — la atribución viaja por la URL de retorno,
-    // igual que `phid` (ver handleSubmit), y /auth/callback la escribe en profiles.source.
+    // Google no tiene un campo `data` como el OTP — la atribución y la identidad anónima de
+    // PostHog viajan por la URL de retorno y /auth/callback las aplica (lib/auth-finalize.ts).
+    // Sin `phid` aquí, el onboarding y el paywall de quien entraba con Google quedaban como 2
+    // personas distintas en el funnel. Google vuelve al MISMO navegador, así que las respuestas
+    // del onboarding siguen en localStorage y no hace falta mandarlas.
+    const phid = await getDistinctId();
     const redirectUrl = new URL(`${window.location.origin}/auth/callback`);
     redirectUrl.searchParams.set('source', getAttribution());
+    if (phid) redirectUrl.searchParams.set('phid', phid);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: redirectUrl.toString() },
@@ -104,18 +133,26 @@ export default function CrearCuentaPage() {
             </label>
             {error && <p className="text-xs text-danger text-center -mt-2">{error}</p>}
 
-            <button
-              onClick={handleGoogle}
-              type="button"
-              disabled={!consent}
-              className="flex items-center justify-center gap-2.5 bg-surface border border-border rounded-2xl py-4 px-5 font-bold text-[15px] transition-transform duration-150 active:scale-[0.98] disabled:opacity-50"
-            >
-              {t('google')}
-            </button>
+            {inApp ? (
+              <p className="text-xs text-text2 text-center leading-relaxed bg-surface border border-border rounded-2xl px-4 py-3">
+                {t('inAppNotice')}
+              </p>
+            ) : (
+              <>
+                <button
+                  onClick={handleGoogle}
+                  type="button"
+                  disabled={!consent}
+                  className="flex items-center justify-center gap-2.5 bg-surface border border-border rounded-2xl py-4 px-5 font-bold text-[15px] transition-transform duration-150 active:scale-[0.98] disabled:opacity-50"
+                >
+                  {t('google')}
+                </button>
 
-            <div className="flex items-center gap-3 text-text2 text-xs">
-              <span className="flex-1 h-px bg-border" /> {t('or')} <span className="flex-1 h-px bg-border" />
-            </div>
+                <div className="flex items-center gap-3 text-text2 text-xs">
+                  <span className="flex-1 h-px bg-border" /> {t('or')} <span className="flex-1 h-px bg-border" />
+                </div>
+              </>
+            )}
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-2.5">
               <input

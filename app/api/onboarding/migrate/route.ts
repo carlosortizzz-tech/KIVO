@@ -27,22 +27,31 @@ export async function POST(request: Request) {
 
   // Suscribe al usuario al próximo evento real como su primer recordatorio,
   // channel según su preferencia de aviso (instante -> push, resto -> email como default seguro).
-  const { data: nextEvent } = await supabase
+  // Cada escritura se revisa: el paywall borra la copia de respaldo de las respuestas cuando esto
+  // responde OK, así que un OK con escrituras fallidas las perdía para siempre.
+  const failed = (step: string, message: string) => {
+    console.error(`onboarding migrate: ${step} failed`, message);
+    return NextResponse.json({ error: 'No se pudo guardar' }, { status: 500 });
+  };
+
+  const { data: nextEvent, error: eventError } = await supabase
     .from('events')
     .select('id, starts_at')
     .gte('starts_at', new Date().toISOString())
     .order('starts_at', { ascending: true })
     .limit(1)
     .maybeSingle();
+  if (eventError) return failed('next event', eventError.message);
 
   if (nextEvent) {
     const channel = parsed.data.respuestas.aviso === 'instante' ? 'push' : 'email';
-    await supabase
+    const { error: reminderError } = await supabase
       .from('event_reminders')
       .upsert(
         { user_id: user.id, event_id: nextEvent.id, notify_at: nextEvent.starts_at, channel },
         { onConflict: 'user_id,event_id' }
       );
+    if (reminderError) return failed('reminder', reminderError.message);
   }
 
   // Gamificación (24): primer logro real, desbloqueado en el onboarding — refuerza la respuesta
@@ -50,7 +59,8 @@ export async function POST(request: Request) {
   // atómica e idempotente — el cliente ya NO puede insertar en user_badges directo (hallazgo de
   // seguridad del 2026-08-30: permitía auto-otorgarse cualquier insignia sin haberla cumplido).
   if (parsed.data.respuestas.antiguedad === 'og') {
-    await supabase.rpc('grant_og_army_badge');
+    const { error: badgeError } = await supabase.rpc('grant_og_army_badge');
+    if (badgeError) return failed('og badge', badgeError.message);
   }
 
   return NextResponse.json({ success: true });

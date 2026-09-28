@@ -17,17 +17,19 @@ function getAdmin() {
 }
 
 async function generateAccessLink(email: string): Promise<string> {
-  // Sin options.redirectTo, Supabase manda al usuario al Site URL configurado (kivoapp.app raíz)
-  // con un ?code= que NADIE consume ahí — la sesión nunca se crea porque exchangeCodeForSession
-  // solo se llama en /auth/callback. Bug real encontrado en producción (2026-08-28): el usuario
-  // reportó que el link del correo lo devolvía al login. Con redirectTo explícito al callback,
-  // el intercambio de sesión sí ocurre.
-  const { data } = await getAdmin().auth.admin.generateLink({
-    type: 'magiclink',
-    email,
-    options: { redirectTo: `${APP_URL}/auth/callback` },
-  });
-  return data?.properties?.action_link || `${APP_URL}/login`;
+  // El `action_link` de generateLink (admin) NO sirve para entrar: los enlaces generados por admin
+  // van por el flujo implícito, que devuelve la sesión en el fragmento (#access_token=…) — el
+  // servidor nunca lo ve y /auth/callback no encuentra `?code=`, así que la persona que ACABA DE
+  // PAGAR caía en /login (revisión adversarial 2026-09-28). Se arma el enlace con el token_hash
+  // hacia /auth/confirm, el mismo camino del correo de registro: funciona en cualquier navegador.
+  const { data } = await getAdmin().auth.admin.generateLink({ type: 'magiclink', email });
+  const tokenHash = data?.properties?.hashed_token;
+  if (!tokenHash) return `${APP_URL}/login`;
+  const url = new URL('/auth/confirm', APP_URL);
+  url.searchParams.set('token_hash', tokenHash);
+  url.searchParams.set('type', 'email');
+  url.searchParams.set('next', '/app');
+  return url.toString();
 }
 
 // Los 3 emails transaccionales de la venta. Si RESEND_API_KEY todavía no está configurada, o si
