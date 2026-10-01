@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import { isAdminEmail } from '@/lib/admin';
-import { sendWelcomeEmail, sendTrialEndingEmail, sendCancellationEmail, sendPaymentFailedEmail, sendGracePeriodEndedEmail } from '@/lib/email';
+import { sendWelcomeEmail, sendTrialEndingEmail, sendCancellationEmail, sendPaymentFailedEmail, sendGracePeriodEndedEmail, sendFeedbackRequestEmail } from '@/lib/email';
 
 // Utilidad de admin para probar el copy real de los correos transaccionales sin tener que
 // forzar una compra/cancelación real. Mismo guard que "Live ahora" — solo el dueño.
 // GET además de POST: así se puede disparar solo con abrir un link en el navegador (logueado
 // como admin), sin necesidad de devtools/consola — el dueño de KIVO no es técnico.
-async function handle(to: string | null, type: string | null) {
+async function handle(to: string | null, type: string | null, name: string | null) {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user || !isAdminEmail(user.email)) {
@@ -33,6 +33,9 @@ async function handle(to: string | null, type: string | null) {
     case 'grace_period_ended':
       await sendGracePeriodEndedEmail(to, 'Fan');
       break;
+    case 'feedback_request':
+      await sendFeedbackRequestEmail(to, name);
+      break;
     default:
       await sendWelcomeEmail(to, 'Fan');
   }
@@ -41,11 +44,11 @@ async function handle(to: string | null, type: string | null) {
 }
 
 export async function POST(req: NextRequest) {
-  const { to, type } = await req.json().catch(() => ({ to: null, type: null }));
-  return handle(to, type);
+  const { to, type, name } = await req.json().catch(() => ({ to: null, type: null, name: null }));
+  return handle(to, type, name ?? null);
 }
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  return handle(searchParams.get('to'), searchParams.get('type'));
+  return handle(searchParams.get('to'), searchParams.get('type'), searchParams.get('name'));
 }

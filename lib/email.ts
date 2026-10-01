@@ -71,6 +71,27 @@ export async function sendWelcomeEmail(email: string, name: string) {
   if (error) await logEmailFailure('welcome', email, `${error.name}: ${error.message}`);
 }
 
+// Campaña puntual de feedback a los primeros usuarios reales (2026-10-01, pedido del dueño) —
+// mismo patrón que los demás correos: FROM, emailShell y EMAIL_SIGNATURE compartidos.
+export async function sendFeedbackRequestEmail(email: string, name: string | null) {
+  const resend = getResend();
+  if (!resend) { await logEmailFailure('feedback_request', email, 'RESEND_API_KEY no configurada'); return; }
+  const greeting = name ? `Hola ${name},` : 'Hola 👋';
+  const { error } = await resend.emails.send({
+    from: FROM,
+    to: email,
+    subject: '¿Cómo te ha parecido KIVO? 💜',
+    html: emailShell(`
+      <h1>${greeting}</h1>
+      <p>Soy del equipo de KIVO — quería escribirte personalmente para darte la bienvenida y agradecerte por probar la app 💜</p>
+      <p>Nos encantaría saber: <b>¿cómo te ha parecido KIVO hasta ahora?</b> ¿Hay algo que te haya gustado, algo que te confundió, o algo que sientas que le falta?</p>
+      <p>Tu opinión nos sirve muchísimo — estamos construyendo esto para fans de BTS como tú, y tu respuesta nos ayuda a mejorar.</p>
+      <p>Responde directo a este correo, lo leemos nosotros mismos (no un bot) 💜</p>
+    `),
+  });
+  if (error) await logEmailFailure('feedback_request', email, `${error.name}: ${error.message}`);
+}
+
 export async function sendCancellationEmail(email: string, name: string) {
   const resend = getResend();
   if (!resend) { await logEmailFailure('cancellation', email, 'RESEND_API_KEY no configurada'); return; }
