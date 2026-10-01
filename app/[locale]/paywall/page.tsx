@@ -162,6 +162,12 @@ export default function PaywallPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale]);
 
+  function cancelCheckoutWait() {
+    if (pollRef.current) clearInterval(pollRef.current);
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setCheckoutState('idle');
+  }
+
   function handleStart() {
     track('paywall_click', { plan_elegido: plan });
     if (!HOTMART_OFFERS[plan]) {
@@ -242,7 +248,8 @@ export default function PaywallPage() {
               </span>
               <span className="text-left"><span className="block text-sm font-bold">{t('annual')}</span><span className="text-xs text-text2">{t('annualNote')}</span></span>
             </span>
-            <span className="text-right"><span className="block font-display text-2xl font-extrabold tabular-nums">$1.67</span><span className="text-[11px] text-text2">{t('perMonth')}</span></span>
+            {/* "US" explícito: "$1.67" a secas se lee como pesos/soles en LATAM (crítica de expertos 2026-09-30). */}
+            <span className="text-right"><span className="block font-display text-2xl font-extrabold tabular-nums"><span className="text-xs font-bold mr-0.5 align-top">US</span>$1.67</span><span className="text-[11px] text-text2">{t('perMonth')}</span></span>
           </button>
           <button
             onClick={() => setPlan('mensual')}
@@ -255,7 +262,7 @@ export default function PaywallPage() {
               </span>
               <span className="text-left"><span className="block text-sm font-bold">{t('monthly')}</span><span className="text-xs text-text2">{t('monthlyNote')}</span></span>
             </span>
-            <span className="text-right"><span className="block font-display text-2xl font-extrabold tabular-nums">$2.99</span><span className="text-[11px] text-text2">{t('perMonth')}</span></span>
+            <span className="text-right"><span className="block font-display text-2xl font-extrabold tabular-nums"><span className="text-xs font-bold mr-0.5 align-top">US</span>$2.99</span><span className="text-[11px] text-text2">{t('perMonth')}</span></span>
           </button>
         </div>
 
@@ -297,10 +304,17 @@ export default function PaywallPage() {
       <div className="fixed bottom-0 left-0 right-0 px-5 pb-5 pt-6" style={{ background: 'linear-gradient(180deg, transparent, var(--bg) 30%)' }}>
         <div className="max-w-[420px] mx-auto flex flex-col gap-2">
           {checkoutState === 'confirming' && (
-            <div className="flex flex-col items-center gap-2 py-2 text-center">
+            // Fondo sólido: sin él, el spinner quedaba encima del texto de la lista de beneficios.
+            <div role="status" aria-live="polite" className="flex flex-col items-center gap-2 py-3 text-center bg-bg rounded-2xl">
               <Loader2 size={22} strokeWidth={2} className="animate-spin text-accent2" />
               <div className="text-sm font-bold">{t('confirmingTitle')}</div>
               <div className="text-xs text-text2">{t('confirmingSubtitle')}</div>
+              {/* El estado "confirmando" empieza al TOCAR el botón (el SDK de Hotmart no avisa si se
+                  pagó): quien cierra el checkout sin pagar necesita una salida inmediata, no 90 s de
+                  "Confirmando tu compra…" sin poder volver (crítica de expertos 2026-09-30). */}
+              <button onClick={cancelCheckoutWait} className="text-center text-[12px] text-text2 underline mt-1">
+                {t('confirmingBack')}
+              </button>
             </div>
           )}
           {checkoutState === 'slow' && (
@@ -326,7 +340,11 @@ export default function PaywallPage() {
               <button id="kivo-checkout-cta" onClick={handleStart} className="bg-accent-btn text-white font-bold text-[15px] rounded-[14px] py-4 transition-transform duration-150 active:scale-[0.97]" style={{ boxShadow: 'var(--glow)' }}>
                 {t('cta')}
               </button>
-              <div className="text-center text-[11px] text-text2">{t('noChargeToday')}</div>
+              {/* Aviso ANTES de que Hotmart pida la tarjeta: el copy previo prometía "gratis" y el
+                  checkout la pedía sin aviso. Monto y fecha reales según el plan elegido. */}
+              <div className="text-center text-[11px] text-text2 leading-relaxed">
+                {t('noChargeToday', { date: chargeDate || '…', amount: plan === 'anual' ? '19.99' : '2.99' })}
+              </div>
               <button onClick={() => router.push('/app')} className="text-center text-[13px] text-text2 underline">{t('skip')}</button>
             </>
           )}
