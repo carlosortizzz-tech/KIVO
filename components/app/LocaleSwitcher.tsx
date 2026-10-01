@@ -17,7 +17,9 @@ const LABELS: Record<string, string> = { es: 'ES', en: 'EN', fr: 'FR', ko: '한�
 // tienen ese header.
 export function LocaleSwitcher() {
   const pathname = usePathname();
-  if (pathname.startsWith('/app')) return null;
+  // /paywall: su barra fija inferior (CTA + aviso + "Ahora no") ocupa justo esa esquina y el globo
+  // se encimaba sobre "Ahora no" (revisor-visual 2026-09-30). El idioma ya se eligió antes.
+  if (pathname.startsWith('/app') || pathname === '/paywall') return null;
   return <LocaleSwitcherButton className="fixed right-4 bottom-4 z-40" />;
 }
 

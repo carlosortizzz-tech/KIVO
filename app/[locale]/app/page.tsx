@@ -3,6 +3,7 @@ import { getTranslations, getLocale } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { Countdown } from '@/components/app/Countdown';
 import { AddToCalendar } from '@/components/app/AddToCalendar';
+import { ReminderButton } from '@/components/app/ReminderButton';
 import { WeekStrip } from '@/components/app/WeekStrip';
 import { BadgeUnlockedModal } from '@/components/app/BadgeUnlockedModal';
 import { StreakFrozenBanner } from '@/components/app/StreakFrozenBanner';
@@ -115,7 +116,8 @@ export default async function RadarPage() {
   // El "próximo evento" genérico ignora conciertos — esos ya tienen su propia tarjeta arriba.
   const nextEvent = events?.find((ev) => ev.type !== 'concierto');
   // Solo las 3 próximas en la lista de abajo — el resto se navega desde la tira de semana.
-  const restEvents = (events?.filter((ev) => ev.id !== nextEvent?.id) ?? []).slice(0, 3);
+  // Sin el concierto de la tarjeta héroe: aparecía dos veces seguidas (revisor-visual 2026-09-30).
+  const restEvents = (events?.filter((ev) => ev.id !== nextEvent?.id && ev.id !== nextConcert?.id) ?? []).slice(0, 3);
 
   // Todas las fechas de concierto (sin límite de ventana) para marcar la estrella al navegar
   // semanas hacia adelante o atrás en la tira de días. Se manda el ISO completo — el día
@@ -152,13 +154,43 @@ export default async function RadarPage() {
   // rojo de presión. Solo se muestra mientras status='trialing'.
   const { data: { user } } = await supabase.auth.getUser();
   let trialDay: number | null = null;
+  // Avisos (modelo de cobro del 02C): el plan gratis tiene 1 aviso activo de regalo, Pro avisa de
+  // todo. Cada tarjeta necesita saber el plan y si SU evento ya tiene aviso.
+  let plan: 'free' | 'pro' = 'free';
+  const activeReminderIds = new Set<string>();
+  let giftEventTitle: string | null = null;
+  // Con fecha: varias fechas de una misma ciudad comparten título ("Bogotá" 2 y 3 de oct) y la
+  // hoja de "mover mi aviso gratis" quedaba ambigua (QA 2026-09-30).
+  const withDate = (title: string, startsAt: string) =>
+    `${title} (${new Date(startsAt).toLocaleDateString(locale, { day: 'numeric', month: 'short', timeZone: RADAR_TZ })})`;
   if (user) {
-    const { data: profile } = await supabase.from('profiles').select('status, trial_ends_at').eq('id', user.id).maybeSingle();
+    const nowIso = new Date().toISOString();
+    const [{ data: profile }, { data: reminderRows }] = await Promise.all([
+      supabase.from('profiles').select('status, trial_ends_at, plan').eq('id', user.id).maybeSingle(),
+      supabase
+        .from('event_reminders')
+        .select('event_id, events!inner(title, title_en, title_fr, title_ko, starts_at)')
+        .eq('user_id', user.id)
+        .gte('events.starts_at', nowIso),
+    ]);
     if (profile?.status === 'trialing' && profile.trial_ends_at) {
       const daysLeft = Math.ceil((new Date(profile.trial_ends_at).getTime() - Date.now()) / 86400000);
       trialDay = Math.min(7, Math.max(1, 7 - Math.max(0, daysLeft - 1)));
     }
+    plan = profile?.plan === 'pro' ? 'pro' : 'free';
+    for (const row of reminderRows ?? []) {
+      activeReminderIds.add(row.event_id);
+      const ev = Array.isArray(row.events) ? row.events[0] : row.events;
+      if (ev && !giftEventTitle) giftEventTitle = withDate(pickLocale(locale, ev.title, ev.title_en, ev.title_fr, ev.title_ko), ev.starts_at);
+    }
   }
+  const reminderProps = (eventId: string, eventTitle: string, startsAt: string) => ({
+    eventId,
+    eventTitle: withDate(eventTitle, startsAt),
+    plan,
+    isActive: activeReminderIds.has(eventId),
+    giftEventTitle: activeReminderIds.has(eventId) ? null : giftEventTitle,
+  });
 
   return (
     <div>
@@ -205,6 +237,9 @@ export default async function RadarPage() {
               </div>
             )}
             <Countdown target={nextConcert.starts_at} />
+            <div className="mt-3">
+              <ReminderButton {...reminderProps(nextConcert.id, nextConcert.title, nextConcert.starts_at)} />
+            </div>
           </div>
         </Reveal>
       )}
@@ -230,6 +265,9 @@ export default async function RadarPage() {
                 }} />
               </div>
               <Countdown target={nextEvent.starts_at} />
+              <div className="mt-3">
+                <ReminderButton {...reminderProps(nextEvent.id, nextEvent.title, nextEvent.starts_at)} />
+              </div>
               {nextEvent.description && (
                 <p className="text-[13px] text-text2 leading-relaxed mt-3 mb-1">{nextEvent.description}</p>
               )}
@@ -276,6 +314,9 @@ export default async function RadarPage() {
                   <div className="flex-1">
                     <div className="text-[13px] font-bold mb-0.5">{ev.title}</div>
                     <div className="text-xs text-text2">{t(`radar.${typeKeys[ev.type] ?? 'typePreventa'}` as never)}{ev.platform ? ` · ${ev.platform}` : ''}</div>
+                    <div className="mt-2">
+                      <ReminderButton {...reminderProps(ev.id, ev.title, ev.starts_at)} compact />
+                    </div>
                   </div>
                   <div className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-success/10 text-success whitespace-nowrap">
                     {relatives[i]}

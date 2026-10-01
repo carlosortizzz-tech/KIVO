@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Script from 'next/script';
 import { useLocale, useTranslations } from 'next-intl';
-import { Rss, BookOpen, MessagesSquare, ShieldCheck, Check, ArrowLeft, Loader2 } from 'lucide-react';
+import { BellRing, BookOpen, MessagesSquare, ShieldCheck, Check, ArrowLeft, Loader2 } from 'lucide-react';
 import { useRouter } from '@/i18n/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { track, identifyUser } from '@/lib/analytics';
@@ -63,6 +63,26 @@ export default function PaywallPage() {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const metaOnboardingRef = useRef<string | null>(null);
   const migratingRef = useRef(false);
+  // Si llega desde "Avisarme" en el Radar (ya usó su aviso gratis), el titular nombra ESE evento:
+  // es el momento de mayor intención del modelo de cobro (02C).
+  const [eventTitle, setEventTitle] = useState<string | null>(null);
+
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get('evento');
+    if (!id || !/^[0-9a-f-]{36}$/i.test(id)) return;
+    createClient()
+      .from('events')
+      .select('title, title_en, title_fr, title_ko, starts_at')
+      .eq('id', id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!data) return;
+        const localized = { en: data.title_en, fr: data.title_fr, ko: data.title_ko }[locale as 'en' | 'fr' | 'ko'];
+        // Con fecha: una misma ciudad tiene varias fechas con el mismo título (Bogotá 2 y 3 de oct).
+        const date = new Date(data.starts_at).toLocaleDateString(locale, { day: 'numeric', month: 'short', timeZone: 'America/Bogota' });
+        setEventTitle(`${localized || data.title} (${date})`);
+      });
+  }, [locale]);
 
   useEffect(() => {
     const supabase = createClient();
@@ -218,7 +238,7 @@ export default function PaywallPage() {
     <div className="max-w-[420px] mx-auto w-full pb-40 px-5">
       <Script src="https://checkout.hotmart.com/lib/hotmart-checkout-elements.js" strategy="afterInteractive" onLoad={() => setScriptLoaded(true)} />
       <div className="flex items-center justify-between py-5">
-        <button onClick={() => router.back()} className="text-text2 p-1 transition-transform duration-150 active:scale-90" aria-label="Back">
+        <button onClick={() => router.back()} className="text-text2 min-w-11 min-h-11 -ml-3 flex items-center justify-center transition-transform duration-150 active:scale-90" aria-label={t('back')}>
           <ArrowLeft size={20} strokeWidth={2} />
         </button>
         <div className="font-display font-extrabold text-lg text-accent2" style={{ textShadow: '0 0 18px rgba(180,79,245,0.7)' }}>KIVO</div>
@@ -229,14 +249,20 @@ export default function PaywallPage() {
         <Reveal>
           <div className="text-center pb-5 pt-2">
             <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-2">{t('eyebrow')}</div>
-            <h1 className="font-display text-[23px] font-extrabold mb-2">{t('title')}</h1>
+            {/* Titular con el mecanismo (el aviso), no "comunidad"; si llega desde "Avisarme" en el
+                Radar, nombra el evento que quiere (crítica de expertos + revisor-visual 2026-09-30). */}
+            <h1 className="font-display text-[23px] font-extrabold mb-2">
+              {eventTitle ? t('titleEvent', { event: eventTitle }) : t('title')}
+            </h1>
             <p className="text-sm text-text2 max-w-[34ch] mx-auto">{t('subtitle')}</p>
           </div>
         </Reveal>
 
         <Reveal delayMs={60}>
-        <div className="flex flex-col gap-3 mb-5">
+        <div role="radiogroup" aria-label={t('planLabel')} className="flex flex-col gap-3 mb-5">
           <button
+            role="radio"
+            aria-checked={plan === 'anual'}
             onClick={() => setPlan('anual')}
             className={`rounded-[20px] p-4 flex items-center justify-between gap-3 relative border transition-transform duration-150 active:scale-[0.98] ${plan === 'anual' ? 'border-accent bg-accent-soft' : 'border-border bg-surface'}`}
             style={plan === 'anual' ? { boxShadow: 'var(--glow)' } : undefined}
@@ -252,6 +278,8 @@ export default function PaywallPage() {
             <span className="text-right"><span className="block font-display text-2xl font-extrabold tabular-nums"><span className="text-xs font-bold mr-0.5 align-top">US</span>$1.67</span><span className="text-[11px] text-text2">{t('perMonth')}</span></span>
           </button>
           <button
+            role="radio"
+            aria-checked={plan === 'mensual'}
             onClick={() => setPlan('mensual')}
             className={`rounded-[20px] p-4 flex items-center justify-between gap-3 border transition-transform duration-150 active:scale-[0.98] ${plan === 'mensual' ? 'border-accent bg-accent-soft' : 'border-border bg-surface'}`}
             style={plan === 'mensual' ? { boxShadow: 'var(--glow)' } : undefined}
@@ -269,14 +297,24 @@ export default function PaywallPage() {
         <div className="flex items-center justify-center gap-2 text-xs text-text2 mb-5 text-center">
           <span className="w-1.5 h-1.5 rounded-full bg-success" /> {t('trustLine')}
         </div>
-        </Reveal>
 
+        <ul className="flex flex-col gap-2.5 text-[13px] text-text2 mb-6">
+          {[t('trialCharge', { date: chargeDate || '…' }), t('cancelAnytime'), t('guarantee')].map((line) => (
+            <li key={line} className="flex items-start gap-2">
+              <Check size={14} strokeWidth={2.5} className="text-accent2 flex-shrink-0 mt-0.5" />
+              <span>{line}</span>
+            </li>
+          ))}
+        </ul>
+        </Reveal>
+        {/* Beneficios DESPUÉS de los planes: en la primera vista se decide el plan con su precio a la
+            vista (revisor-visual 2026-09-30); el CTA de la barra ya resume la compra ("Activar mis avisos"). */}
         <Reveal delayMs={120}>
         <div className="feature-card rounded-[20px] p-4 mb-5">
           {[
-            { Icon: ShieldCheck, title: t('safeTitle'), sub: t('safeDesc') },
-            { Icon: Rss, title: t('radarTitle'), sub: radarSub },
+            { Icon: BellRing, title: t('radarTitle'), sub: radarSub },
             { Icon: BookOpen, title: t('guideTitle'), sub: guideSub },
+            { Icon: ShieldCheck, title: t('safeTitle'), sub: t('safeDesc') },
             { Icon: MessagesSquare, title: t('communityTitle'), sub: t('communityDesc') },
           ].map(({ Icon, title, sub }, i) => (
             <div key={title} className={`flex items-center gap-3 py-2 ${i > 0 ? 'border-t border-border' : ''}`}>
@@ -292,13 +330,8 @@ export default function PaywallPage() {
             {t('migrateError')} <button type="button" onClick={tryMigrate} className="underline font-semibold">{t('migrateRetry')}</button>
           </p>
         )}
-
-        <div className="flex flex-col gap-2.5 text-[13px] text-text2 mb-6">
-          <div>✓ {t('trialCharge', { date: chargeDate || '…' })}</div>
-          <div>✓ {t('cancelAnytime')}</div>
-          <div>✓ {t('guarantee')}</div>
-        </div>
         </Reveal>
+
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 px-5 pb-5 pt-6" style={{ background: 'linear-gradient(180deg, transparent, var(--bg) 30%)' }}>

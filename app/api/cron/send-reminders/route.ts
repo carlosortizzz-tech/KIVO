@@ -49,14 +49,31 @@ export async function GET(req: NextRequest) {
     if (eventsErr || !events?.length) continue;
 
     for (const event of events) {
-      // Solo usuarios Pro reciben avisos proactivos — coherente con el gating de Guide/Community/Safe.
+      // Pro: avisos de TODOS los eventos. Gratis: solo del evento que activó como su aviso de
+      // regalo (event_reminders, 1 activo a la vez — ver activate_event_reminder en la base).
+      // Antes solo se mandaba a Pro y el recordatorio que el onboarding le creaba a un usuario
+      // gratis nunca llegaba.
       const { data: proUsers } = await admin
         .from('profiles')
         .select('id, email, display_name')
         .eq('plan', 'pro')
         .not('email', 'is', null);
 
-      for (const user of proUsers ?? []) {
+      const { data: reminderRows } = await admin
+        .from('event_reminders')
+        .select('user_id')
+        .eq('event_id', event.id);
+      const reminderUserIds = (reminderRows ?? []).map((r) => r.user_id);
+      const { data: freeUsers } = reminderUserIds.length
+        ? await admin
+            .from('profiles')
+            .select('id, email, display_name')
+            .in('id', reminderUserIds)
+            .neq('plan', 'pro')
+            .not('email', 'is', null)
+        : { data: [] };
+
+      for (const user of [...(proUsers ?? []), ...(freeUsers ?? [])]) {
         if (!user.email) continue;
         // Idempotencia: el insert falla si ya se mandó este evento+usuario+ventana (unique constraint).
         const { error: dupErr } = await admin
