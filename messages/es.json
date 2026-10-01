@@ -350,7 +350,11 @@
       "limitMove": "Mover mi aviso gratis a {event}",
       "limitClose": "Cerrar",
       "reminderActiveShort": "Aviso activo · 48 h y 1 h",
-      "reminderRemove": "Quitar"
+      "reminderRemove": "Quitar",
+      "freeNewsLabel": "Noticia",
+      "freeNewsSource": "Leer en {source}",
+      "freeNewsMorePro": "Más noticias en Guide →",
+      "freeNewsMoreFree": "Más noticias con Pro →"
     },
     "guide": {
       "eyebrow": "Guías",

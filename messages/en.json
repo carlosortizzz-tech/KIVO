@@ -350,7 +350,11 @@
       "limitMove": "Move my free reminder to {event}",
       "limitClose": "Close",
       "reminderActiveShort": "Reminder on · 48 h and 1 h",
-      "reminderRemove": "Remove"
+      "reminderRemove": "Remove",
+      "freeNewsLabel": "News",
+      "freeNewsSource": "Read on {source}",
+      "freeNewsMorePro": "More news in Guide →",
+      "freeNewsMoreFree": "More news with Pro →"
     },
     "guide": {
       "eyebrow": "Guides",

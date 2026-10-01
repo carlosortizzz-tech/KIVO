@@ -350,7 +350,11 @@
       "limitMove": "무료 알림을 {event}로 옮기기",
       "limitClose": "닫기",
       "reminderActiveShort": "알림 켜짐 · 48시간·1시간",
-      "reminderRemove": "끄기"
+      "reminderRemove": "끄기",
+      "freeNewsLabel": "뉴스",
+      "freeNewsSource": "{source}에서 읽기",
+      "freeNewsMorePro": "가이드에서 더 많은 뉴스 →",
+      "freeNewsMoreFree": "Pro로 더 많은 뉴스 →"
     },
     "guide": {
       "eyebrow": "가이드",

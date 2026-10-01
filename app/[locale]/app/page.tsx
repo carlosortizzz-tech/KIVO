@@ -1,4 +1,4 @@
-import { MapPin, Snowflake, CalendarDays, Bell, Flame, Disc3 } from 'lucide-react';
+import { MapPin, Snowflake, CalendarDays, Bell, Flame, Disc3, Newspaper, ExternalLink } from 'lucide-react';
 import { getTranslations, getLocale } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { Countdown } from '@/components/app/Countdown';
@@ -184,6 +184,24 @@ export default async function RadarPage() {
       if (ev && !giftEventTitle) giftEventTitle = withDate(pickLocale(locale, ev.title, ev.title_en, ev.title_fr, ev.title_ko), ev.starts_at);
     }
   }
+  // Prueba (30-sep): una noticia marcada a mano como gratis (news_items.is_free) se muestra en el
+  // Radar a todos — gancho hacia Pro, donde están todas las noticias (Guide). Solo si es reciente.
+  const { data: freeNewsRow } = await supabase
+    .from('news_items')
+    .select('headline, headline_en, headline_fr, headline_ko, summary, summary_en, summary_fr, summary_ko, source_url, source_name')
+    .eq('kind', 'news')
+    .eq('is_free', true)
+    .gte('created_at', new Date(Date.now() - 14 * 86400000).toISOString())
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const freeNews = freeNewsRow && {
+    headline: pickLocale(locale, freeNewsRow.headline, freeNewsRow.headline_en, freeNewsRow.headline_fr, freeNewsRow.headline_ko),
+    summary: pickLocale(locale, freeNewsRow.summary, freeNewsRow.summary_en, freeNewsRow.summary_fr, freeNewsRow.summary_ko),
+    url: freeNewsRow.source_url,
+    source: freeNewsRow.source_name,
+  };
+
   const reminderProps = (eventId: string, eventTitle: string, startsAt: string) => ({
     eventId,
     eventTitle: withDate(eventTitle, startsAt),
@@ -281,6 +299,33 @@ export default async function RadarPage() {
               </Link>
             </CollapsibleSection>
           </div>
+        </Reveal>
+      )}
+
+      {freeNews && (
+        <Reveal delayMs={150}>
+          <article className="surface-elevated rounded-[var(--radius-card)] p-4 mb-4">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-accent2 mb-2">
+              <Newspaper size={14} strokeWidth={2.2} />
+              {t('radar.freeNewsLabel')}
+            </div>
+            <h2 className="text-base font-bold leading-snug mb-1.5">{freeNews.headline}</h2>
+            <p className="text-[13px] text-text2 leading-relaxed mb-3">{freeNews.summary}</p>
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <a
+                href={freeNews.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 min-h-11 text-xs font-semibold text-text2 underline underline-offset-2"
+              >
+                {t('radar.freeNewsSource', { source: freeNews.source })}
+                <ExternalLink size={12} strokeWidth={2} />
+              </a>
+              <Link href="/app/guide" className="inline-flex items-center min-h-11 text-xs font-bold text-accent2">
+                {plan === 'pro' ? t('radar.freeNewsMorePro') : t('radar.freeNewsMoreFree')}
+              </Link>
+            </div>
+          </article>
         </Reveal>
       )}
 
