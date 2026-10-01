@@ -44,13 +44,10 @@ export async function POST(request: Request) {
   if (eventError) return failed('next event', eventError.message);
 
   if (nextEvent) {
-    const channel = parsed.data.respuestas.aviso === 'instante' ? 'push' : 'email';
-    const { error: reminderError } = await supabase
-      .from('event_reminders')
-      .upsert(
-        { user_id: user.id, event_id: nextEvent.id, notify_at: nextEvent.starts_at, channel },
-        { onConflict: 'user_id,event_id' }
-      );
+    // El aviso de regalo del plan gratis (1 activo a la vez; Pro: todos). Pasa por la función de
+    // la base de datos que aplica ese límite — los usuarios ya no pueden insertar avisos directo.
+    // 'free_limit' no es error: la persona ya tenía su aviso gratis en otro evento y lo conserva.
+    const { error: reminderError } = await supabase.rpc('activate_event_reminder', { p_event_id: nextEvent.id });
     if (reminderError) return failed('reminder', reminderError.message);
   }
 
