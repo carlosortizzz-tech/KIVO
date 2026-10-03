@@ -184,14 +184,12 @@ export default async function RadarPage() {
       if (ev && !giftEventTitle) giftEventTitle = withDate(pickLocale(locale, ev.title, ev.title_en, ev.title_fr, ev.title_ko), ev.starts_at);
     }
   }
-  // Prueba (30-sep): una noticia marcada a mano como gratis (news_items.is_free) se muestra en el
-  // Radar a todos — gancho hacia Pro, donde están todas las noticias (Guide). Solo si es reciente.
+  // La noticia gratis del Radar es SIEMPRE la primera de Guide (la más reciente, mismo orden que
+  // KivoNews) — gancho hacia Pro, donde están todas las noticias. Pedido del dueño, 2-oct.
   const { data: freeNewsRow } = await supabase
     .from('news_items')
     .select('headline, headline_en, headline_fr, headline_ko, summary, summary_en, summary_fr, summary_ko, source_url, source_name')
     .eq('kind', 'news')
-    .eq('is_free', true)
-    .gte('created_at', new Date(Date.now() - 14 * 86400000).toISOString())
     .order('created_at', { ascending: false })
     .limit(1)
     .maybeSingle();
