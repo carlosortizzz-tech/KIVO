@@ -190,6 +190,7 @@ export default async function RadarPage() {
     .from('news_items')
     .select('headline, headline_en, headline_fr, headline_ko, summary, summary_en, summary_fr, summary_ko, source_url, source_name')
     .eq('kind', 'news')
+    .eq('hide_from_radar', false)
     .order('created_at', { ascending: false })
     .limit(1)
     .maybeSingle();
