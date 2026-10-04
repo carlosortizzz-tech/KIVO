@@ -92,6 +92,27 @@ export async function sendFeedbackRequestEmail(email: string, name: string | nul
   if (error) await logEmailFailure('feedback_request', email, `${error.name}: ${error.message}`);
 }
 
+// Invitación puntual (4-oct, pedido del dueño) a compartir foto + relato de los conciertos de Bogotá:
+// los fans gratis no pueden publicar en Community (solo Pro), así que responden por correo y el
+// equipo publica con su permiso. Mismo patrón que sendFeedbackRequestEmail.
+export async function sendExperienceInviteEmail(email: string, name: string | null) {
+  const resend = getResend();
+  if (!resend) { await logEmailFailure('experience_invite', email, 'RESEND_API_KEY no configurada'); return; }
+  const greeting = name ? `Hola ${name},` : 'Hola 👋';
+  const { error } = await resend.emails.send({
+    from: FROM,
+    to: email,
+    subject: '¿Estuviste en El Campín? Cuéntanos tu experiencia 💜',
+    html: emailShell(`
+      <h1>${greeting}</h1>
+      <p>¡BTS ya pasó por Bogotá y queremos que la comunidad de KIVO viva esos momentos contigo! 💜</p>
+      <p>Si estuviste en El Campín (o viviste el ambiente afuera del estadio), responde a este correo con <b>una foto tuya y 2 o 3 líneas sobre cómo lo viviste</b>. Con tu permiso, la publicamos en la comunidad de KIVO.</p>
+      <p>Dinos cómo prefieres aparecer: con tu nombre, solo con tu inicial o de forma anónima. Si no quieres que se publique, no pasa nada.</p>
+    `),
+  });
+  if (error) await logEmailFailure('experience_invite', email, `${error.name}: ${error.message}`);
+}
+
 export async function sendCancellationEmail(email: string, name: string) {
   const resend = getResend();
   if (!resend) { await logEmailFailure('cancellation', email, 'RESEND_API_KEY no configurada'); return; }

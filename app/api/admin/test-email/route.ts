@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import { isAdminEmail } from '@/lib/admin';
-import { sendWelcomeEmail, sendTrialEndingEmail, sendCancellationEmail, sendPaymentFailedEmail, sendGracePeriodEndedEmail, sendFeedbackRequestEmail } from '@/lib/email';
+import { sendWelcomeEmail, sendTrialEndingEmail, sendCancellationEmail, sendPaymentFailedEmail, sendGracePeriodEndedEmail, sendFeedbackRequestEmail, sendExperienceInviteEmail } from '@/lib/email';
 
 // Utilidad de admin para probar el copy real de los correos transaccionales sin tener que
 // forzar una compra/cancelación real. Mismo guard que "Live ahora" — solo el dueño.
@@ -35,6 +35,9 @@ async function handle(to: string | null, type: string | null, name: string | nul
       break;
     case 'feedback_request':
       await sendFeedbackRequestEmail(to, name);
+      break;
+    case 'experience_invite':
+      await sendExperienceInviteEmail(to, name);
       break;
     default:
       await sendWelcomeEmail(to, 'Fan');
