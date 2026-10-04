@@ -124,8 +124,15 @@ export function ExperienceCard({ data }: { data: ExperienceCardData }) {
           </div>
         )}
       </div>
-      <div className="relative w-full aspect-[4/3]">
-        <Image src={data.photoUrl} alt={data.caption ?? ''} fill className="object-cover" sizes="480px" />
+      <div className="bg-sunken">
+        <Image
+          src={data.photoUrl}
+          alt={data.caption ?? ''}
+          width={0}
+          height={0}
+          sizes="480px"
+          className="block w-full h-auto max-h-[75dvh] object-contain"
+        />
       </div>
       {data.caption && <p className="text-[13px] leading-relaxed px-3.5 pt-3">{data.caption}</p>}
 
