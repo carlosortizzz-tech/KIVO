@@ -31,6 +31,7 @@ export async function GET(req: NextRequest) {
     .from('profiles')
     .select('id, email, display_name')
     .is('feedback_requested_at', null)
+    .is('email_opt_out_at', null)
     .lte('created_at', cutoff)
     .not('email', 'is', null);
 

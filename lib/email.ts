@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
+import { unsubscribeUrl } from '@/lib/unsubscribe';
 
 const FROM = 'KIVO <hola@kivoapp.app>';
 const APP_URL = 'https://kivoapp.app';
@@ -71,15 +72,41 @@ export async function sendWelcomeEmail(email: string, name: string) {
   if (error) await logEmailFailure('welcome', email, `${error.name}: ${error.message}`);
 }
 
+// Mensajes que NO son transaccionales (feedback, invitaciones, marketing): solo se mandan a quien
+// tiene cuenta y no pidió la baja, y siempre con enlace de baja. Sin enlace (p. ej. sin CRON_SECRET)
+// no se envía nada. Los correos de acceso, avisos pedidos y pagos NO pasan por aquí.
+// Dirección postal para el pie de los correos comerciales — vacía hasta que el dueño la defina.
+const POSTAL_ADDRESS = '';
+
+async function marketingContext(email: string): Promise<{ unsubscribe: string } | { skip: string }> {
+  const { data: profile } = await getAdmin()
+    .from('profiles')
+    .select('id, locale, email_opt_out_at')
+    .eq('email', email)
+    .maybeSingle();
+  if (!profile) return { skip: 'sin cuenta: no se envía un mensaje comercial sin enlace de baja' };
+  if (profile.email_opt_out_at) return { skip: 'la persona pidió la baja de mensajes' };
+  const url = unsubscribeUrl(profile.id, profile.locale ?? 'es');
+  if (!url) return { skip: 'CRON_SECRET no configurada: no se puede firmar el enlace de baja' };
+  return { unsubscribe: url };
+}
+
+function marketingHeaders(url: string) {
+  return { 'List-Unsubscribe': `<${url}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' };
+}
+
 // Campaña puntual de feedback a los primeros usuarios reales (2026-10-01, pedido del dueño) —
 // mismo patrón que los demás correos: FROM, emailShell y EMAIL_SIGNATURE compartidos.
 export async function sendFeedbackRequestEmail(email: string, name: string | null) {
   const resend = getResend();
   if (!resend) { await logEmailFailure('feedback_request', email, 'RESEND_API_KEY no configurada'); return; }
+  const ctx = await marketingContext(email);
+  if ('skip' in ctx) { await logEmailFailure('feedback_request', email, `omitido: ${ctx.skip}`); return; }
   const greeting = name ? `Hola ${name},` : 'Hola 👋';
   const { error } = await resend.emails.send({
     from: FROM,
     to: email,
+    headers: marketingHeaders(ctx.unsubscribe),
     subject: '¿Cómo te ha parecido KIVO? 💜',
     html: emailShell(`
       <h1>${greeting}</h1>
@@ -87,7 +114,7 @@ export async function sendFeedbackRequestEmail(email: string, name: string | nul
       <p>Nos encantaría saber: <b>¿cómo te ha parecido KIVO hasta ahora?</b> ¿Hay algo que te haya gustado, algo que te confundió, o algo que sientas que le falta?</p>
       <p>Tu opinión nos sirve muchísimo — estamos construyendo esto para fans de BTS como tú, y tu respuesta nos ayuda a mejorar.</p>
       <p>Responde directo a este correo, lo leemos nosotros mismos (no un bot) 💜</p>
-    `),
+    `, { unsubscribeUrl: ctx.unsubscribe }),
   });
   if (error) await logEmailFailure('feedback_request', email, `${error.name}: ${error.message}`);
 }
@@ -98,17 +125,20 @@ export async function sendFeedbackRequestEmail(email: string, name: string | nul
 export async function sendExperienceInviteEmail(email: string, name: string | null) {
   const resend = getResend();
   if (!resend) { await logEmailFailure('experience_invite', email, 'RESEND_API_KEY no configurada'); return; }
+  const ctx = await marketingContext(email);
+  if ('skip' in ctx) { await logEmailFailure('experience_invite', email, `omitido: ${ctx.skip}`); return; }
   const greeting = name ? `Hola ${name},` : 'Hola 👋';
   const { error } = await resend.emails.send({
     from: FROM,
     to: email,
+    headers: marketingHeaders(ctx.unsubscribe),
     subject: '¿Estuviste en El Campín? Cuéntanos tu experiencia 💜',
     html: emailShell(`
       <h1>${greeting}</h1>
       <p>¡BTS ya pasó por Bogotá y queremos que la comunidad de KIVO viva esos momentos contigo! 💜</p>
       <p>Si estuviste en El Campín (o viviste el ambiente afuera del estadio), responde a este correo con <b>una foto tuya y 2 o 3 líneas sobre cómo lo viviste</b>. Con tu permiso, la publicamos en la comunidad de KIVO.</p>
       <p>Dinos cómo prefieres aparecer: con tu nombre, solo con tu inicial o de forma anónima. Si no quieres que se publique, no pasa nada.</p>
-    `),
+    `, { unsubscribeUrl: ctx.unsubscribe }),
   });
   if (error) await logEmailFailure('experience_invite', email, `${error.name}: ${error.message}`);
 }
@@ -297,9 +327,12 @@ const EMAIL_SIGNATURE = `
   <p style="margin:4px 0 0;font-weight:bold">Hecho por fans, para fans — nunca te pierdas un momento con BTS.</p>
 `;
 
-function emailShell(bodyHtml: string, opts: { signature?: boolean } = {}): string {
+function emailShell(bodyHtml: string, opts: { signature?: boolean; unsubscribeUrl?: string } = {}): string {
   const signature = opts.signature === false ? '' : EMAIL_SIGNATURE;
-  return `<!doctype html><html lang="es"><head><meta charset="utf-8"></head><body style="font-family:sans-serif;color:#111">${bodyHtml}${signature}</body></html>`;
+  const footer = opts.unsubscribeUrl
+    ? `<p style="margin-top:28px;font-size:12px;color:#888;line-height:1.5">Recibes este correo porque tienes una cuenta en KIVO. Si no quieres recibir más mensajes como este, <a href="${opts.unsubscribeUrl}" style="color:#888">date de baja aquí</a>.${POSTAL_ADDRESS ? `<br>${POSTAL_ADDRESS}` : ''}</p>`
+    : '';
+  return `<!doctype html><html lang="es"><head><meta charset="utf-8"></head><body style="font-family:sans-serif;color:#111">${bodyHtml}${signature}${footer}</body></html>`;
 }
 
 async function logEmailFailure(kind: string, email: string, detail: string) {
