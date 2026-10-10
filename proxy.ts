@@ -6,8 +6,14 @@ import { updateSession } from '@/lib/supabase/middleware';
 const intlMiddleware = createIntlMiddleware(routing);
 
 export async function proxy(request: NextRequest) {
-  const intlResponse = intlMiddleware(request);
-  return await updateSession(request, intlResponse);
+  // Primero la sesión, después el idioma: si Supabase renueva la sesión y se creara una respuesta
+  // nueva DESPUÉS de next-intl, se perdería su reescritura de idioma y la página daría 404.
+  const { cookies, redirect } = await updateSession(request);
+  if (redirect) return redirect;
+
+  const response = intlMiddleware(request);
+  cookies.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
+  return response;
 }
 
 export const config = {

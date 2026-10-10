@@ -12,13 +12,19 @@ function stripLocale(pathname: string): string {
   return pathname;
 }
 
+type CookieToSet = { name: string; value: string; options?: Parameters<NextResponse['cookies']['set']>[2] };
+
 /**
- * Corre DESPUÉS del middleware de next-intl (que ya resolvió el locale y puede
- * haber reescrito la request). Reutiliza esa `response` para no pisar sus
- * headers/cookies de locale — solo le añade el refresco de sesión de Supabase.
+ * Corre ANTES del middleware de next-intl. Refresca la sesión de Supabase y devuelve las cookies
+ * renovadas para que proxy.ts se las pegue a la respuesta final de next-intl.
+ *
+ * Antes se corría después y, al renovar la sesión, se creaba un `NextResponse.next()` nuevo que
+ * pisaba la reescritura de idioma de next-intl: `/app/community` llegaba al servidor sin idioma,
+ * "app" se leía como locale inválido y salía 404 — solo con sesión vencida, y desaparecía al
+ * recargar. Aquí nunca se crea una respuesta que reemplace a la de next-intl.
  */
-export async function updateSession(request: NextRequest, baseResponse: NextResponse) {
-  let supabaseResponse = baseResponse;
+export async function updateSession(request: NextRequest): Promise<{ cookies: CookieToSet[]; redirect: NextResponse | null }> {
+  const cookies: CookieToSet[] = [];
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -29,11 +35,9 @@ export async function updateSession(request: NextRequest, baseResponse: NextResp
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
+          // En la request para que el resto del mismo pedido (next-intl y las páginas) vea la sesión nueva.
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          supabaseResponse = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          );
+          cookies.push(...cookiesToSet);
         },
       },
     }
@@ -54,8 +58,10 @@ export async function updateSession(request: NextRequest, baseResponse: NextResp
     const url = request.nextUrl.clone();
     const localeMatch = request.nextUrl.pathname.match(/^\/(en|fr|ko)(\/|$)/);
     url.pathname = localeMatch ? `/${localeMatch[1]}/login` : '/login';
-    return NextResponse.redirect(url);
+    const redirect = NextResponse.redirect(url);
+    cookies.forEach(({ name, value, options }) => redirect.cookies.set(name, value, options));
+    return { cookies, redirect };
   }
 
-  return supabaseResponse;
+  return { cookies, redirect: null };
 }
