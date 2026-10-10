@@ -139,6 +139,11 @@
     "error": "No pudimos enviar el enlace. Revisa tu correo e intenta de nuevo.",
     "legal": "No pedimos contraseña ni cobramos nada todavía.",
     "consent": "Autorizo el tratamiento de mis datos según la <privacy>Política de Privacidad</privacy> y acepto los <terms>Términos</terms>.",
+    "birthYearLabel": "Año de nacimiento",
+    "birthYearPlaceholder": "Selecciona tu año",
+    "birthYearRequired": "Selecciona tu año de nacimiento para continuar.",
+    "underage": "KIVO es para personas de 13 años o más, así que no podemos crear tu cuenta. Gracias por entender.",
+    "minorNote": "Si tienes menos de 18 años, necesitas el permiso de tu madre, padre o tutor para pagar una suscripción.",
     "consentRequired": "Marca la casilla para continuar — es obligatorio autorizar el tratamiento de tus datos.",
     "sentTitle": "Revisa tu correo",
     "sentBody": "Te mandamos un enlace a {email}. Ábrelo desde el mismo celular para entrar directo a tu Radar.",
@@ -468,6 +473,11 @@
     "cta": "Aceptar y continuar",
     "saving": "Guardando…",
     "error": "No pudimos guardar tu respuesta. Revisa tu conexión e intenta de nuevo.",
+    "bodyAge": "Para usar KIVO necesitamos confirmar tu edad. Solo te lo pedimos una vez.",
+    "bodyBoth": "Para usar KIVO necesitamos tu autorización para tratar tus datos y confirmar tu edad. Solo te lo pedimos una vez.",
+    "underageTitle": "No podemos mantener tu cuenta",
+    "underageBody": "KIVO es para personas de 13 años o más. Por eso eliminamos tu cuenta y tus datos. Gracias por entender.",
+    "underageCta": "Entendido",
     "logout": "Salir"
   }
 }

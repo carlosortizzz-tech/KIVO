@@ -22,6 +22,7 @@ export async function GET(request: Request) {
         phid: searchParams.get('phid'),
         source: searchParams.get('source'),
         termsAccepted: searchParams.get('terms') === '1',
+        birthYear: Number(searchParams.get('by')) || null,
       });
     }
   }

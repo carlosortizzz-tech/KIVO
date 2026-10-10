@@ -9,6 +9,7 @@ import { Link } from '@/i18n/navigation';
 import { getDistinctId } from '@/lib/analytics';
 import { getAttribution } from '@/lib/attribution';
 import { useIsInAppBrowser } from '@/lib/in-app-browser';
+import { ageFromBirthYear, birthYearOptions, MIN_AGE, MINOR_AGE } from '@/lib/age';
 
 const ONBOARDING_STORAGE_KEY = 'kivo_onboarding_state';
 const ONBOARDING_KEYS = ['antiguedad', 'dolor', 'plataforma', 'aviso'] as const;
@@ -42,6 +43,12 @@ export default function CrearCuentaPage() {
   // Ley 1581 de Colombia (y equivalentes LATAM, ver docs/sistema/47): autorización previa EXPRESA
   // vía checkbox NO premarcado — no basta con "al continuar aceptas" implícito en el botón.
   const [consent, setConsent] = useState(false);
+  // Control de edad (mínimo 13): solo el año de nacimiento. Quien declara menos de 13 no llega a
+  // crear la cuenta (y la base de datos también lo rechaza: handle_new_user).
+  const [birthYear, setBirthYear] = useState('');
+  const age = birthYear ? ageFromBirthYear(Number(birthYear)) : null;
+  const underage = age !== null && age < MIN_AGE;
+  const canContinue = consent && age !== null && !underage;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -49,6 +56,7 @@ export default function CrearCuentaPage() {
       setError(t('consentRequired'));
       return;
     }
+    if (!canContinue) return;
     setLoading(true);
     setError(null);
     const supabase = createClient();
@@ -71,7 +79,7 @@ export default function CrearCuentaPage() {
         // profiles.source, primer toque, para siempre (36-ANALITICA-Y-EVENTOS).
         // `terms_accepted`: la casilla de arriba (obligatoria para llegar aquí) — lib/auth-finalize.ts
         // la registra como constancia en profiles.terms_accepted_at al entrar (Ley 1581).
-        data: { locale, source: getAttribution(), phid: phid ?? undefined, onboarding: readOnboardingAnswers(), terms_accepted: true },
+        data: { locale, source: getAttribution(), phid: phid ?? undefined, onboarding: readOnboardingAnswers(), terms_accepted: true, birth_year: Number(birthYear) },
       },
     });
     setLoading(false);
@@ -87,6 +95,7 @@ export default function CrearCuentaPage() {
       setError(t('consentRequired'));
       return;
     }
+    if (!canContinue) return;
     const supabase = createClient();
     // Google no tiene un campo `data` como el OTP — la atribución y la identidad anónima de
     // PostHog viajan por la URL de retorno y /auth/callback las aplica (lib/auth-finalize.ts).
@@ -99,6 +108,8 @@ export default function CrearCuentaPage() {
     if (phid) redirectUrl.searchParams.set('phid', phid);
     // La casilla ya se marcó (el botón está bloqueado sin ella): /auth/callback lo registra.
     redirectUrl.searchParams.set('terms', '1');
+    // El año de nacimiento también viaja por la URL (OAuth no lleva metadata): /auth/callback lo guarda.
+    redirectUrl.searchParams.set('by', birthYear);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: redirectUrl.toString() },
@@ -120,6 +131,25 @@ export default function CrearCuentaPage() {
             <div className="text-xs font-bold uppercase tracking-wide text-accent2 text-center">{t('eyebrow')}</div>
             <h1 className="font-display text-2xl font-extrabold text-center">{t('title')}</h1>
             <p className="text-sm text-text2 text-center leading-relaxed">{t('body')}</p>
+
+            <div className="flex flex-col gap-2">
+              <label htmlFor="birth-year" className="text-xs font-bold text-text2">{t('birthYearLabel')}</label>
+              <select
+                id="birth-year"
+                value={birthYear}
+                onChange={(e) => { setBirthYear(e.target.value); setError(null); }}
+                className="bg-surface border border-border rounded-2xl px-4 py-4 text-[15px] text-text outline-none focus:border-accent"
+              >
+                <option value="">{t('birthYearPlaceholder')}</option>
+                {birthYearOptions().map((y) => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
+              {underage && <p role="alert" className="text-xs text-danger leading-relaxed">{t('underage')}</p>}
+              {age !== null && age >= MIN_AGE && age < MINOR_AGE && (
+                <p className="text-[11px] text-text2 leading-relaxed">{t('minorNote')}</p>
+              )}
+            </div>
 
             <label className="flex items-start gap-2.5 py-1 cursor-pointer">
               <input
@@ -146,7 +176,7 @@ export default function CrearCuentaPage() {
                 <button
                   onClick={handleGoogle}
                   type="button"
-                  disabled={!consent}
+                  disabled={!canContinue}
                   className="flex items-center justify-center gap-2.5 bg-surface border border-border rounded-2xl py-4 px-5 font-bold text-[15px] transition-transform duration-150 active:scale-[0.98] disabled:opacity-50"
                 >
                   {t('google')}
@@ -169,7 +199,7 @@ export default function CrearCuentaPage() {
               />
               <button
                 type="submit"
-                disabled={loading || !consent}
+                disabled={loading || !canContinue}
                 className="bg-accent-btn text-white font-bold text-[15px] rounded-2xl py-4 disabled:opacity-50 transition-transform duration-150 active:scale-[0.97]"
                 style={{ boxShadow: 'var(--glow)' }}
               >

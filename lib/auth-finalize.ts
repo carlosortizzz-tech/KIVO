@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import type { SupabaseClient, User } from '@supabase/supabase-js';
 import { getPostHogServer } from '@/lib/posthog-server';
 import { resolvePostAuthPath, sanitizePhid } from '@/lib/auth-redirect';
+import { ageFromBirthYear, isValidBirthYear, MIN_AGE } from '@/lib/age';
 
 /**
  * Lo que pasa después de un inicio de sesión EXITOSO (Google, enlace del correo nuevo o enlace
@@ -22,6 +23,8 @@ export async function finalizeAuth(
     source: string | null;
     // Google desde /crear-cuenta, donde la casilla ya se marcó (OAuth no lleva metadata).
     termsAccepted?: boolean;
+    // Año de nacimiento declarado en /crear-cuenta antes de ir a Google (OAuth no lleva metadata).
+    birthYear?: number | null;
     status?: 303 | 307;
   }
 ): Promise<NextResponse> {
@@ -47,7 +50,7 @@ export async function finalizeAuth(
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('locale, plan, paywall_seen_at, terms_accepted_at')
+    .select('locale, plan, paywall_seen_at, terms_accepted_at, birth_year')
     .eq('id', user.id)
     .maybeSingle();
 
@@ -61,11 +64,21 @@ export async function finalizeAuth(
     else termsAccepted = true;
   }
 
+  // Edad (mínimo 13): el registro por correo la guarda al crear la cuenta (metadata -> handle_new_user);
+  // Google la trae por la URL. Si falta (cuentas anteriores, compras de Hotmart), /aceptar la pide.
+  let ageConfirmed = profile?.birth_year != null;
+  if (!ageConfirmed && isValidBirthYear(opts.birthYear) && ageFromBirthYear(opts.birthYear) >= MIN_AGE) {
+    const { error } = await supabase.rpc('set_birth_year', { p_year: opts.birthYear });
+    if (error) console.error('set_birth_year failed', error.message);
+    else ageConfirmed = true;
+  }
+
   const path = resolvePostAuthPath({
     requestedPath: opts.requestedPath,
     plan: profile?.plan ?? null,
     paywallSeenAt: profile?.paywall_seen_at ?? null,
-    termsAccepted,
+    // "Aceptación completa": autorización de datos Y edad confirmada; si falta alguna, va a /aceptar.
+    termsAccepted: termsAccepted && ageConfirmed,
   });
   const response = NextResponse.redirect(`${opts.origin}${path}`, opts.status ?? 307);
 
