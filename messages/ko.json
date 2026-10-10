@@ -317,6 +317,8 @@
       "streakSub": "KIVO 연속 사용 일수",
       "latestReleaseTitle": "최신 발매",
       "latestReleaseAlbum": "ARIRANG 앨범",
+      "instagramPlay": "인스타그램 게시물 보기",
+      "instagramNote": "불러올 때 Instagram이 IP 주소 같은 브라우저 정보를 받을 수 있습니다.",
       "freezesAvailable": "사용 가능한 프리즈 {count}개",
       "freezeUsedTitle": "연속 기록 보호됨",
       "freezeUsedBody": "프리즈를 사용해서 {streak}일 연속 기록이 끊기지 않았어요. 남은 프리즈: {count}개.",

@@ -317,6 +317,8 @@
       "streakSub": "jours consécutifs sur KIVO",
       "latestReleaseTitle": "Dernière sortie",
       "latestReleaseAlbum": "Album ARIRANG",
+      "instagramPlay": "Voir la publication Instagram",
+      "instagramNote": "Au chargement, Instagram peut recevoir des données de ton navigateur, comme ton adresse IP.",
       "freezesAvailable": "{count, plural, =0 {Aucun gel} one {1 gel disponible} other {# gels disponibles}}",
       "freezeUsedTitle": "Série sauvée",
       "freezeUsedBody": "On a utilisé un gel pour que ta série de {streak} jours ne soit pas rompue. Gels restants : {count}.",

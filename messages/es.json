@@ -317,6 +317,8 @@
       "streakSub": "días seguidos en KIVO",
       "latestReleaseTitle": "Último lanzamiento",
       "latestReleaseAlbum": "Álbum ARIRANG",
+      "instagramPlay": "Ver publicación de Instagram",
+      "instagramNote": "Al cargarla, Instagram puede recibir datos de tu navegador, como tu dirección IP.",
       "freezesAvailable": "{count, plural, =0 {Sin congeladores} one {1 congelador disponible} other {# congeladores disponibles}}",
       "freezeUsedTitle": "Racha salvada",
       "freezeUsedBody": "Usamos un congelador para que tu racha de {streak} días no se rompiera. Congeladores restantes: {count}.",
