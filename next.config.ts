@@ -4,7 +4,44 @@ import { withSentryConfig } from "@sentry/nextjs";
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
+// Política de contenido (CSP) en modo SOLO REPORTAR: el navegador anota en consola lo que bloquearía,
+// pero no bloquea nada. Se pasa a modo estricto cuando una revisión de las pantallas reales no
+// muestre violaciones. Los servicios de la lista son los que la app usa hoy (Supabase, PostHog,
+// Sentry, Hotmart, Instagram, YouTube, Spotify, Google). 'unsafe-inline' hace falta mientras Next
+// inyecte scripts/estilos en línea sin nonce.
+const SUPABASE_HOST = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'https://invalid.supabase.co').host;
+const cspReportOnly = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' https://checkout.hotmart.com https://*.hotmart.com https://www.instagram.com https://us-assets.i.posthog.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  `img-src 'self' data: blob: https://i.ytimg.com https://i.scdn.co https://${SUPABASE_HOST} https://lh3.googleusercontent.com https://*.cdninstagram.com https://*.fbcdn.net https://*.hotmart.com`,
+  "font-src 'self' data: https://fonts.gstatic.com",
+  `connect-src 'self' https://${SUPABASE_HOST} wss://${SUPABASE_HOST} https://us.i.posthog.com https://us-assets.i.posthog.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.hotmart.com`,
+  "frame-src https://www.instagram.com https://*.hotmart.com https://www.youtube.com https://www.youtube-nocookie.com",
+  "frame-ancestors 'none'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "form-action 'self'",
+].join('; ');
+
 const nextConfig: NextConfig = {
+  // No anunciar la tecnología ("x-powered-by: Next.js") a quien escanea el sitio.
+  poweredByHeader: false,
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          // Nadie puede incrustar KIVO en otra web (clickjacking).
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()' },
+          { key: 'Content-Security-Policy-Report-Only', value: cspReportOnly },
+        ],
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'i.ytimg.com' },
