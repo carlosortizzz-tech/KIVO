@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { deleteAccount } from '@/lib/account-actions';
+import { createClient } from '@/lib/supabase/client';
 import { resetAnalytics } from '@/lib/analytics';
 
 // Dos casillas (no premarcadas) antes de poder borrar: entender que no se deshace y, si hay una
@@ -25,6 +26,7 @@ export function DeleteAccountForm({ hasPaidPlan }: { hasPaidPlan: boolean }) {
     if (res.status === 'ok') {
       resetAnalytics();
       setDone(true);
+      await createClient().auth.signOut({ scope: 'local' });
       return;
     }
     setDeleting(false);

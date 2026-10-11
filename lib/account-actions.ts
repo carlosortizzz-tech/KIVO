@@ -61,6 +61,8 @@ export async function deleteAccount(): Promise<DeleteAccountResult> {
     return { status: 'error' };
   }
 
-  await supabase.auth.signOut();
+  // No se cierra la sesión aquí: cambiar las cookies en el servidor hace que Next recargue la
+  // pantalla y mande a /login antes de mostrar el aviso de "cuenta eliminada". La sesión local se
+  // limpia desde el cliente (DeleteAccountForm).
   return { status: 'ok' };
 }
