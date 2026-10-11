@@ -172,6 +172,7 @@ export default async function CuentaPage() {
         </div>
 
         <LogoutButton label={t('logout')} />
+        <Link href="/app/cuenta/eliminar" className="block text-center text-xs text-text2 underline py-4">{t('deleteLink')}</Link>
       </Reveal>
     </div>
   );
