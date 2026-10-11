@@ -186,14 +186,10 @@ export default async function RadarPage() {
   }
   // La noticia gratis del Radar es SIEMPRE la primera de Guide (la más reciente, mismo orden que
   // KivoNews) — gancho hacia Pro, donde están todas las noticias. Pedido del dueño, 2-oct.
-  const { data: freeNewsRow } = await supabase
-    .from('news_items')
-    .select('headline, headline_en, headline_fr, headline_ko, summary, summary_en, summary_fr, summary_ko, source_url, source_name')
-    .eq('kind', 'news')
-    .eq('hide_from_radar', false)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  // Pasa por radar_free_news() (función de la base de datos) y no por la tabla: news_items es solo
+  // Pro, y la función devuelve únicamente esta noticia — así una cuenta gratis no puede leer las demás.
+  const { data: freeNewsRows } = await supabase.rpc('radar_free_news');
+  const freeNewsRow = freeNewsRows?.[0] ?? null;
   const freeNews = freeNewsRow && {
     headline: pickLocale(locale, freeNewsRow.headline, freeNewsRow.headline_en, freeNewsRow.headline_fr, freeNewsRow.headline_ko),
     summary: pickLocale(locale, freeNewsRow.summary, freeNewsRow.summary_en, freeNewsRow.summary_fr, freeNewsRow.summary_ko),
