@@ -13,6 +13,17 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
     ],
   },
+  // Links cortos propios para Instagram (reemplazan a TinyURL). Cada uno lleva a la página de
+  // inicio con la misma etiqueta de seguimiento que tenía el TinyURL equivalente. Redirección
+  // temporal para poder cambiar el destino. Va en la configuración (no en el proxy de idiomas)
+  // porque Next la aplica antes de que next-intl toque la ruta.
+  async redirects() {
+    return [
+      { source: '/ig', destination: '/?utm_source=instagram&utm_medium=bio', permanent: false },
+      { source: '/guia', destination: '/?utm_source=instagram&utm_medium=manychat_guia', permanent: false },
+      { source: '/bts', destination: '/?utm_source=instagram&utm_medium=manychat_bts', permanent: false },
+    ];
+  },
 };
 
 export default withSentryConfig(withNextIntl(nextConfig), {
