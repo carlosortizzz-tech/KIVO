@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "KIVO — Tu compañero ARMY",
     short_name: "KIVO",
     description:
-      "Calendario de eventos, guías paso a paso y comunidad para no perderte ninguna apertura de tickets, comeback o membresía de BTS.",
+      "Calendario de eventos, noticias, guías paso a paso y comunidad para no perderte nada importante de BTS: conciertos, comebacks, lives y más.",
     start_url: "/",
     display: "standalone",
     background_color: "#0B0710",

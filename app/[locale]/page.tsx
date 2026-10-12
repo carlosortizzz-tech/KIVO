@@ -44,6 +44,7 @@ export default async function LandingPage({
   const faqs = [
     { q: t('faqQ1'), a: t('faqA1') },
     { q: t('faqQ2'), a: t('faqA2') },
+    { q: t('faqQ6'), a: t('faqA6') },
     { q: t('faqQ3'), a: t('faqA3') },
     { q: t('faqQ4'), a: t('faqA4') },
     { q: t('faqQ5'), a: t('faqA5') },
