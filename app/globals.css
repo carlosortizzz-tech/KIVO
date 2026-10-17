@@ -1,6 +1,11 @@
 @import "tailwindcss";
 
 :root {
+  /* Colores de MARCA de otras redes (no son de KIVO): solo para que sus logos se reconozcan */
+  --brand-instagram: linear-gradient(45deg, #F9CE34 0%, #EE2A7B 50%, #6228D7 100%);
+  --brand-tiktok: #000000;
+  --brand-facebook: #1877F2;
+  --brand-telegram: #229ED9;
   --bg: #0B0710;
   --surface: #17101F;
   --sunken: #0F0A17;

@@ -10,6 +10,7 @@ import { ComposePost } from '@/components/app/ComposePost';
 import { PostMenu } from '@/components/app/PostMenu';
 import { CommunityPrompts } from '@/components/app/CommunityPrompts';
 import { Reveal } from '@/components/app/Reveal';
+import { SocialCard } from '@/components/app/SocialLinks';
 import { CATEGORIES, categoryKey } from '@/lib/community-categories';
 
 // Debajo de este número de publicaciones reales, el feed se sentiría vacío — se rellena con
@@ -106,7 +107,14 @@ async function buildExperiencesFeed(): Promise<ExperienceCardData[]> {
 export default async function CommunityPage() {
   const t = await getTranslations('app.community');
   const plan = await getUserPlan();
-  if (plan !== 'pro') return <ProGate feature={t('eyebrow')} type="community" />;
+  if (plan !== 'pro') {
+    return (
+      <>
+        <ProGate feature={t('eyebrow')} type="community" />
+        <SocialCard />
+      </>
+    );
+  }
   const locale = await getLocale();
   const supabase = await createClient();
   const { data: posts } = await supabase
@@ -214,6 +222,9 @@ export default async function CommunityPage() {
     <div>
       <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-1">{t('eyebrow')}</div>
       <h1 className="font-display text-2xl font-extrabold mb-4 tracking-tight">{t('title')}</h1>
+      <Reveal>
+        <SocialCard />
+      </Reveal>
       <CommunityTabs feed={feed} experiences={experiencesTab} />
     </div>
   );

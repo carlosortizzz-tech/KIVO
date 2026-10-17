@@ -4,16 +4,24 @@ import { ExternalLink, Send } from 'lucide-react';
 type Network = 'instagram' | 'tiktok' | 'facebook' | 'telegram';
 
 // Redes oficiales de KIVO. Se abren en pestaña nueva y sin pasar datos de la persona.
-const NETWORKS: { key: Network; href: string; handle: string }[] = [
-  { key: 'instagram', href: 'https://www.instagram.com/kivoapp1/', handle: '@kivoapp1' },
-  { key: 'tiktok', href: 'https://www.tiktok.com/@kivoappp', handle: '@kivoappp' },
-  { key: 'facebook', href: 'https://www.facebook.com/kivoappp/', handle: 'kivoappp' },
-  { key: 'telegram', href: 'https://t.me/+7oC2OMWOtBA1ZmFh', handle: 'Kivoapp' },
+const NETWORKS: { key: Network; name: string; href: string; handle: string }[] = [
+  { key: 'instagram', name: 'Instagram', href: 'https://www.instagram.com/kivoapp1/', handle: '@kivoapp1' },
+  { key: 'tiktok', name: 'TikTok', href: 'https://www.tiktok.com/@kivoappp', handle: '@kivoappp' },
+  { key: 'facebook', name: 'Facebook', href: 'https://www.facebook.com/kivoappp/', handle: 'kivoappp' },
+  { key: 'telegram', name: 'Telegram', href: 'https://t.me/+7oC2OMWOtBA1ZmFh', handle: 'Kivoapp' },
 ];
 
-// lucide-react 1.x ya no trae logos de marcas: se dibujan aquí, en trazo, como el resto de íconos.
-function NetworkIcon({ network, size }: { network: Network; size: number }) {
-  const common = {
+// Colores de MARCA de cada red (no son colores de KIVO): se usan solo para que cada logo se
+// reconozca a simple vista. lucide-react 1.x ya no trae logos de marcas, por eso se dibujan aquí.
+const BRAND_BACKGROUND: Record<Network, string> = {
+  instagram: 'var(--brand-instagram)',
+  tiktok: 'var(--brand-tiktok)',
+  facebook: 'var(--brand-facebook)',
+  telegram: 'var(--brand-telegram)',
+};
+
+function Glyph({ network, size }: { network: Network; size: number }) {
+  const stroke = {
     width: size,
     height: size,
     viewBox: '0 0 24 24',
@@ -26,7 +34,7 @@ function NetworkIcon({ network, size }: { network: Network; size: number }) {
   };
   if (network === 'instagram') {
     return (
-      <svg {...common}>
+      <svg {...stroke}>
         <rect x="3" y="3" width="18" height="18" rx="5" />
         <circle cx="12" cy="12" r="4" />
         <circle cx="17.5" cy="6.5" r="0.6" fill="currentColor" />
@@ -35,7 +43,7 @@ function NetworkIcon({ network, size }: { network: Network; size: number }) {
   }
   if (network === 'tiktok') {
     return (
-      <svg {...common}>
+      <svg {...stroke}>
         <path d="M21 7.917v4.034a9.948 9.948 0 0 1 -5 -1.951v4.5a6.5 6.5 0 1 1 -8 -6.326v4.326a2.5 2.5 0 1 0 4 2v-11.5h4.083a6.005 6.005 0 0 0 4.917 4.917z" />
       </svg>
     );
@@ -44,13 +52,25 @@ function NetworkIcon({ network, size }: { network: Network; size: number }) {
     return <Send size={size} strokeWidth={2} aria-hidden />;
   }
   return (
-    <svg {...common}>
-      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M13.5 21v-8h2.7l.4-3.2h-3.1V7.8c0-.9.3-1.5 1.6-1.5h1.7V3.4c-.3 0-1.3-.1-2.4-.1-2.4 0-4 1.5-4 4.1v2.4H7.7V13h2.7v8h3.1z" />
     </svg>
   );
 }
 
-// Fila de íconos para el pie de la landing.
+// Logo de la red: cuadrado de color de marca con su símbolo en blanco.
+function BrandLogo({ network, box, glyph }: { network: Network; box: number; glyph: number }) {
+  return (
+    <span
+      className="flex items-center justify-center rounded-xl flex-shrink-0 text-white"
+      style={{ width: box, height: box, background: BRAND_BACKGROUND[network] }}
+    >
+      <Glyph network={network} size={glyph} />
+    </span>
+  );
+}
+
+// Fila de logos para el pie de la landing.
 export async function SocialIcons() {
   const t = await getTranslations('social');
   const label: Record<Network, string> = { instagram: t('instagram'), tiktok: t('tiktok'), facebook: t('facebook'), telegram: t('telegram') };
@@ -65,9 +85,9 @@ export async function SocialIcons() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label={label[n.key]}
-            className="w-11 h-11 rounded-full border border-border bg-surface text-text2 flex items-center justify-center transition-transform duration-150 active:scale-95"
+            className="block transition-transform duration-150 active:scale-95"
           >
-            <NetworkIcon network={n.key} size={20} />
+            <BrandLogo network={n.key} box={44} glyph={22} />
           </a>
         ))}
       </div>
@@ -75,7 +95,7 @@ export async function SocialIcons() {
   );
 }
 
-// Filas con nombre y usuario para la pantalla "Tu cuenta".
+// Filas con logo, nombre y usuario para la pantalla "Tu cuenta".
 export async function SocialRows() {
   const t = await getTranslations('social');
   const label: Record<Network, string> = { instagram: t('instagram'), tiktok: t('tiktok'), facebook: t('facebook'), telegram: t('telegram') };
@@ -92,9 +112,7 @@ export async function SocialRows() {
             rel="noopener noreferrer"
             className="flex items-center gap-3 surface-elevated rounded-2xl px-4 py-3.5 transition-transform duration-150 active:scale-[0.98]"
           >
-            <div className="icon-chip-accent firma-icon w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0">
-              <NetworkIcon network={n.key} size={16} />
-            </div>
+            <BrandLogo network={n.key} box={36} glyph={18} />
             <span className="flex-1 text-sm min-w-0 truncate">
               {label[n.key]} <span className="text-text2">· {n.handle}</span>
             </span>
@@ -103,5 +121,30 @@ export async function SocialRows() {
         ))}
       </div>
     </>
+  );
+}
+
+// Tarjeta para la pestaña Comunidad: 4 logos grandes con el nombre de la red debajo.
+export async function SocialCard() {
+  const t = await getTranslations('social');
+  return (
+    <div className="feature-card rounded-[var(--radius-card)] p-4 mb-4">
+      <div className="text-sm font-bold mb-0.5">{t('cardTitle')}</div>
+      <p className="text-xs text-text2 mb-3">{t('subtitle')}</p>
+      <div className="grid grid-cols-4 gap-2">
+        {NETWORKS.map((n) => (
+          <a
+            key={n.key}
+            href={n.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-col items-center gap-1.5 py-1 transition-transform duration-150 active:scale-95"
+          >
+            <BrandLogo network={n.key} box={48} glyph={24} />
+            <span className="text-xs text-text2">{n.name}</span>
+          </a>
+        ))}
+      </div>
+    </div>
   );
 }
