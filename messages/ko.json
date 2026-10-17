@@ -499,5 +499,13 @@
     "underageBody": "KIVO는 만 13세 이상을 위한 서비스여서 계정과 데이터를 삭제했습니다. 이해해 주셔서 감사합니다.",
     "underageCta": "확인",
     "logout": "로그아웃"
+  },
+  "social": {
+    "title": "SNS에서 팔로우하세요",
+    "sectionTitle": "커뮤니티",
+    "subtitle": "BTS 소식과 주요 일정을 피드에서 만나요.",
+    "instagram": "KIVO 인스타그램",
+    "tiktok": "KIVO 틱톡",
+    "facebook": "KIVO 페이스북"
   }
 }

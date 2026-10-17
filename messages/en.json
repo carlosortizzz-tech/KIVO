@@ -499,5 +499,13 @@
     "underageBody": "KIVO is for people aged 13 or older. That's why we deleted your account and your data. Thanks for understanding.",
     "underageCta": "Got it",
     "logout": "Log out"
+  },
+  "social": {
+    "title": "Follow us",
+    "sectionTitle": "Community",
+    "subtitle": "BTS news and key dates in your feed.",
+    "instagram": "KIVO on Instagram",
+    "tiktok": "KIVO on TikTok",
+    "facebook": "KIVO on Facebook"
   }
 }

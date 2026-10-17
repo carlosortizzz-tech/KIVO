@@ -9,6 +9,7 @@ import { SupportForm } from '@/components/app/SupportForm';
 import { EditProfileModal } from '@/components/app/EditProfileModal';
 import { Reveal } from '@/components/app/Reveal';
 import { LevelBar } from '@/components/app/LevelBar';
+import { SocialRows } from '@/components/app/SocialLinks';
 import { progresoDeNivel } from '@/lib/gamification';
 
 export default async function CuentaPage() {
@@ -154,6 +155,10 @@ export default async function CuentaPage() {
             </Reveal>
           ))}
         </div>
+      </Reveal>
+
+      <Reveal delayMs={210}>
+        <SocialRows />
       </Reveal>
 
       <Reveal delayMs={240}>

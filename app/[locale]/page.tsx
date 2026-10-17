@@ -1,3 +1,4 @@
+import { SocialIcons } from '@/components/app/SocialLinks';
 import { Calendar, Search, Globe2, ShieldAlert, UserRound, HeartHandshake } from 'lucide-react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
@@ -224,6 +225,7 @@ export default async function LandingPage({
           <Link href="/reembolso" className="text-text2">{t('refundLink')}</Link>
           <CopyEmailLink label={t('contactLink')} copiedLabel={t('contactCopiedShort')} className="text-text2" />
         </div>
+        <SocialIcons />
         <div className="text-xs text-text2">{t('copyright')}</div>
       </footer>
     </div>
