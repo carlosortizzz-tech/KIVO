@@ -14,7 +14,7 @@ export default async function PrivacidadPage() {
         <div className="font-display font-extrabold text-lg text-accent2" style={{ textShadow: '0 0 14px rgba(180,79,245,0.6)' }}>KIVO</div>
       </div>
       <h1 className="font-display text-xl font-extrabold mb-1.5">{t('privacyTitle')}</h1>
-      <p className="text-xs text-text2 mb-6">{t('updated')}</p>
+      <p className="text-xs text-text2 mb-6">{t('privacyUpdated')}</p>
       <LegalContent text={t('privacyContent')} />
     </div>
   );
