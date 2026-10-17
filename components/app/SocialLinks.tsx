@@ -1,13 +1,14 @@
 import { getTranslations } from 'next-intl/server';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, Send } from 'lucide-react';
 
-type Network = 'instagram' | 'tiktok' | 'facebook';
+type Network = 'instagram' | 'tiktok' | 'facebook' | 'telegram';
 
 // Redes oficiales de KIVO. Se abren en pestaña nueva y sin pasar datos de la persona.
 const NETWORKS: { key: Network; href: string; handle: string }[] = [
   { key: 'instagram', href: 'https://www.instagram.com/kivoapp1/', handle: '@kivoapp1' },
   { key: 'tiktok', href: 'https://www.tiktok.com/@kivoappp', handle: '@kivoappp' },
   { key: 'facebook', href: 'https://www.facebook.com/kivoappp/', handle: 'kivoappp' },
+  { key: 'telegram', href: 'https://t.me/+7oC2OMWOtBA1ZmFh', handle: 'Kivoapp' },
 ];
 
 // lucide-react 1.x ya no trae logos de marcas: se dibujan aquí, en trazo, como el resto de íconos.
@@ -39,6 +40,9 @@ function NetworkIcon({ network, size }: { network: Network; size: number }) {
       </svg>
     );
   }
+  if (network === 'telegram') {
+    return <Send size={size} strokeWidth={2} aria-hidden />;
+  }
   return (
     <svg {...common}>
       <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
@@ -49,7 +53,7 @@ function NetworkIcon({ network, size }: { network: Network; size: number }) {
 // Fila de íconos para el pie de la landing.
 export async function SocialIcons() {
   const t = await getTranslations('social');
-  const label: Record<Network, string> = { instagram: t('instagram'), tiktok: t('tiktok'), facebook: t('facebook') };
+  const label: Record<Network, string> = { instagram: t('instagram'), tiktok: t('tiktok'), facebook: t('facebook'), telegram: t('telegram') };
   return (
     <div className="mb-4">
       <div className="text-xs text-text2 mb-2.5">{t('title')}</div>
@@ -74,7 +78,7 @@ export async function SocialIcons() {
 // Filas con nombre y usuario para la pantalla "Tu cuenta".
 export async function SocialRows() {
   const t = await getTranslations('social');
-  const label: Record<Network, string> = { instagram: t('instagram'), tiktok: t('tiktok'), facebook: t('facebook') };
+  const label: Record<Network, string> = { instagram: t('instagram'), tiktok: t('tiktok'), facebook: t('facebook'), telegram: t('telegram') };
   return (
     <>
       <div className="text-xs font-bold uppercase tracking-wide text-text2 mb-1">{t('sectionTitle')}</div>
