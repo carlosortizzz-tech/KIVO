@@ -8,7 +8,7 @@ const NETWORKS: { key: Network; name: string; href: string; handle: string }[] =
   { key: 'instagram', name: 'Instagram', href: 'https://www.instagram.com/kivoapp1/', handle: '@kivoapp1' },
   { key: 'tiktok', name: 'TikTok', href: 'https://www.tiktok.com/@kivoappp', handle: '@kivoappp' },
   { key: 'facebook', name: 'Facebook', href: 'https://www.facebook.com/kivoappp/', handle: 'kivoappp' },
-  { key: 'telegram', name: 'Telegram', href: 'https://t.me/+7oC2OMWOtBA1ZmFh', handle: 'Kivoapp' },
+  { key: 'telegram', name: 'Telegram', href: 'https://t.me/kivoappp', handle: '@kivoappp' },
 ];
 
 // Colores de MARCA de cada red (no son colores de KIVO): se usan solo para que cada logo se
