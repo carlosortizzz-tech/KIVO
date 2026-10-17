@@ -7,7 +7,7 @@ type Network = 'instagram' | 'tiktok' | 'facebook';
 const NETWORKS: { key: Network; href: string; handle: string }[] = [
   { key: 'instagram', href: 'https://www.instagram.com/kivoapp1/', handle: '@kivoapp1' },
   { key: 'tiktok', href: 'https://www.tiktok.com/@kivoappp', handle: '@kivoappp' },
-  { key: 'facebook', href: 'https://www.facebook.com/profile.php?id=61593729886786', handle: 'Kivoapp' },
+  { key: 'facebook', href: 'https://www.facebook.com/kivoappp/', handle: 'kivoappp' },
 ];
 
 // lucide-react 1.x ya no trae logos de marcas: se dibujan aquí, en trazo, como el resto de íconos.
