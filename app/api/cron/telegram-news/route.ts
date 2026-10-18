@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import crypto from 'node:crypto';
+import { isValidCronAuth } from '@/lib/cron-auth';
 
 export const runtime = 'nodejs';
 
@@ -23,12 +23,6 @@ function getAdmin() {
   );
 }
 
-function safeEqual(a: string, b: string): boolean {
-  const ba = Buffer.from(a, 'utf8');
-  const bb = Buffer.from(b, 'utf8');
-  return ba.length === bb.length && crypto.timingSafeEqual(ba, bb);
-}
-
 function escapeHtml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
@@ -44,9 +38,7 @@ function safeHttpUrl(raw: string | null): string | null {
 }
 
 export async function GET(req: NextRequest) {
-  const cronSecret = process.env.CRON_SECRET;
-  const auth = req.headers.get('authorization');
-  if (!cronSecret || !auth || !safeEqual(auth, `Bearer ${cronSecret}`)) {
+  if (!isValidCronAuth(req.headers.get('authorization'))) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
 

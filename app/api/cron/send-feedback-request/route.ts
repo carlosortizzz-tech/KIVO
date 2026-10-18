@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { isValidCronAuth } from '@/lib/cron-auth';
 import { createClient } from '@supabase/supabase-js';
 import { sendFeedbackRequestEmail } from '@/lib/email';
 
@@ -18,9 +19,7 @@ function getAdmin() {
 }
 
 export async function GET(req: NextRequest) {
-  const cronSecret = process.env.CRON_SECRET;
-  const auth = req.headers.get('authorization');
-  if (!cronSecret || !auth || auth !== `Bearer ${cronSecret}`) {
+  if (!isValidCronAuth(req.headers.get('authorization'))) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
 

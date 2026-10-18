@@ -22,6 +22,7 @@ const cspReportOnly = [
   "base-uri 'self'",
   "object-src 'none'",
   "form-action 'self'",
+  "report-uri /api/csp-report",
 ].join('; ');
 
 const nextConfig: NextConfig = {

@@ -7,6 +7,15 @@ import { sendWelcomeEmail, sendTrialEndingEmail, sendCancellationEmail, sendPaym
 // forzar una compra/cancelación real. Mismo guard que "Live ahora" — solo el dueño.
 // GET además de POST: así se puede disparar solo con abrir un link en el navegador (logueado
 // como admin), sin necesidad de devtools/consola — el dueño de KIVO no es técnico.
+// Solo se puede probar hacia las cuentas del proyecto (regla del dueño: nunca correos personales ni de
+// terceros). Así, aunque alguien le hiciera abrir un enlace al admin con la sesión iniciada, no podría
+// mandar correos desde hola@kivoapp.app a personas ajenas.
+const ALLOWED_TEST_RECIPIENTS = new Set(['soporte@kivoapp.app', 'hola@kivoapp.app', 'kivoapp1@gmail.com']);
+function isAllowedRecipient(to: string): boolean {
+  const t = to.trim().toLowerCase();
+  return ALLOWED_TEST_RECIPIENTS.has(t) || /^kivoapp1\+[a-z0-9._-]+@gmail\.com$/.test(t);
+}
+
 async function handle(to: string | null, type: string | null, name: string | null) {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -15,6 +24,9 @@ async function handle(to: string | null, type: string | null, name: string | nul
   }
   if (!to) {
     return NextResponse.json({ error: 'falta "to"' }, { status: 400 });
+  }
+  if (!isAllowedRecipient(to)) {
+    return NextResponse.json({ error: 'destinatario no permitido (solo soporte@, hola@ o kivoapp1@)' }, { status: 403 });
   }
 
   switch (type) {

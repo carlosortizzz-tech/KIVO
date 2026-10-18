@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { isValidCronAuth } from '@/lib/cron-auth';
 import { createClient } from '@supabase/supabase-js';
 import { sendEventReminderEmail, sendTrialEndingEmail, sendGracePeriodEndedEmail } from '@/lib/email';
 
@@ -25,9 +26,7 @@ function getAdmin() {
 export async function GET(req: NextRequest) {
   // Vercel Cron manda automáticamente "Authorization: Bearer <CRON_SECRET>" cuando la env var
   // CRON_SECRET existe en el proyecto — así se verifica que la llamada viene del cron, no de un tercero.
-  const cronSecret = process.env.CRON_SECRET;
-  const auth = req.headers.get('authorization');
-  if (!cronSecret || !auth || auth !== `Bearer ${cronSecret}`) {
+  if (!isValidCronAuth(req.headers.get('authorization'))) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
 
