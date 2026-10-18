@@ -61,6 +61,8 @@ export async function POST(req: NextRequest) {
     .gte('received_at', since);
   if ((count ?? 0) >= MAX_ROWS_PER_HOUR) return ignored();
 
-  await admin.from('webhook_log').insert({ type: 'csp:violation', result: 'report', detail: `${directive} | ${blocked} | ${path}` });
+  // webhook_log.result solo admite: applied, duplicate, illegal, unauthorized, error, ignored.
+  const { error } = await admin.from('webhook_log').insert({ type: 'csp:violation', result: 'applied', detail: `${directive} | ${blocked} | ${path}` });
+  if (error) console.error('csp-report: no se pudo guardar el aviso', error.message);
   return ignored();
 }
