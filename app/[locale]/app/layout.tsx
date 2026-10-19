@@ -4,7 +4,8 @@ import { BottomNav } from '@/components/app/BottomNav';
 import { getUserPlan } from '@/lib/plan';
 import { isAdminEmail } from '@/lib/admin';
 import { Link } from '@/i18n/navigation';
-import { Radio, LayoutDashboard } from 'lucide-react';
+import { createClient as createAdminClient } from '@supabase/supabase-js';
+import { Radio, LayoutDashboard, Newspaper } from 'lucide-react';
 import { AnalyticsSession } from '@/components/app/AnalyticsSession';
 import { LocaleSwitcherInline } from '@/components/app/LocaleSwitcher';
 
@@ -14,6 +15,20 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const initial = (user?.email?.[0] ?? 'S').toUpperCase();
   const plan = await getUserPlan();
   const isAdmin = isAdminEmail(user?.email);
+
+  // Solo para administradores: cuántas noticias esperan aprobación (globito del icono de noticias).
+  let pendingDrafts = 0;
+  if (isAdmin) {
+    const { count } = await createAdminClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { persistSession: false } }
+    )
+      .from('news_drafts')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'pending');
+    pendingDrafts = count ?? 0;
+  }
 
   let diasDesdeAlta = 0;
   let source = 'directo';
@@ -46,6 +61,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <LocaleSwitcherInline />
           {isAdmin && (
             <>
+              <Link href="/app/admin/noticias" aria-label="Noticias por aprobar" className="relative w-9 h-9 rounded-full bg-surface border border-border flex items-center justify-center text-text2">
+                <Newspaper size={16} strokeWidth={2} />
+                {pendingDrafts > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full bg-accent-btn text-white text-xs font-bold leading-4 text-center">
+                    {pendingDrafts}
+                  </span>
+                )}
+              </Link>
               <Link href="/app/admin/panel" aria-label="Panel del negocio" className="w-9 h-9 rounded-full bg-surface border border-border flex items-center justify-center text-text2">
                 <LayoutDashboard size={16} strokeWidth={2} />
               </Link>

@@ -76,3 +76,98 @@ export async function resolveSafeReport(reportId: string, status: 'verified_scam
   const { error } = await admin.from('safe_reports').update({ status }).eq('id', reportId);
   if (error) throw new Error(error.message);
 }
+
+// Noticias por aprobar: la IA propone un borrador (news_drafts) y un administrador lo publica o lo
+// descarta desde el celular. Publicar copia el borrador a news_items; de ahí en adelante todo sigue
+// igual que con una noticia cargada a mano (Radar, Guide y publicación automática en Telegram).
+type DraftSource = { name: string; url: string };
+
+function hostOf(url: string): string | null {
+  try {
+    const u = new URL(url);
+    if (u.protocol !== 'https:' && u.protocol !== 'http:') return null;
+    return u.hostname.replace(/^www\./, '').toLowerCase();
+  } catch {
+    return null;
+  }
+}
+
+// Regla de KIVO: cada dato necesita 2 fuentes independientes. Aquí se exige lo que se puede
+// comprobar por código: 2 enlaces válidos de dominios distintos y el texto completo en los 4 idiomas.
+// Que las fuentes sean realmente independientes (y no una copia de la misma nota) lo juzga quien
+// aprueba, con los enlaces a la vista.
+function validateDraft(d: Record<string, unknown>): string | null {
+  const sources = Array.isArray(d.sources) ? (d.sources as DraftSource[]) : [];
+  const hosts = new Set(sources.map((s) => hostOf(s?.url)).filter((h): h is string => !!h));
+  if (hosts.size < 2) return 'Necesita al menos 2 fuentes de sitios distintos.';
+  for (const key of ['headline', 'summary', 'headline_en', 'summary_en', 'headline_fr', 'summary_fr', 'headline_ko', 'summary_ko']) {
+    const v = d[key];
+    if (typeof v !== 'string' || !v.trim()) return `Falta el texto en el campo ${key}.`;
+  }
+  return null;
+}
+
+export async function approveNewsDraft(draftId: string) {
+  const user = await requireAdmin();
+  const admin = getAdmin();
+
+  const { data: draft, error: readErr } = await admin.from('news_drafts').select('*').eq('id', draftId).maybeSingle();
+  if (readErr) throw new Error(readErr.message);
+  if (!draft || draft.status !== 'pending') throw new Error('Esta noticia ya fue decidida.');
+
+  const problem = validateDraft(draft);
+  if (problem) throw new Error(problem);
+
+  // Se reclama antes de publicar: si se toca dos veces el botón, solo una publica.
+  const { data: claimed, error: claimErr } = await admin
+    .from('news_drafts')
+    .update({ status: 'approved', decided_at: new Date().toISOString(), decided_by: user.email })
+    .eq('id', draftId)
+    .eq('status', 'pending')
+    .select('id');
+  if (claimErr) throw new Error(claimErr.message);
+  if (!claimed || claimed.length === 0) throw new Error('Esta noticia ya fue decidida.');
+
+  const first = (draft.sources as DraftSource[])[0];
+  const { data: item, error: insertErr } = await admin
+    .from('news_items')
+    .insert({
+      kind: 'news',
+      headline: draft.headline,
+      summary: draft.summary,
+      headline_en: draft.headline_en,
+      summary_en: draft.summary_en,
+      headline_fr: draft.headline_fr,
+      summary_fr: draft.summary_fr,
+      headline_ko: draft.headline_ko,
+      summary_ko: draft.summary_ko,
+      source_name: first.name,
+      source_url: first.url,
+    })
+    .select('id')
+    .single();
+  if (insertErr || !item) {
+    await admin.from('news_drafts').update({ status: 'pending', decided_at: null, decided_by: null }).eq('id', draftId);
+    throw new Error(insertErr?.message ?? 'No se pudo publicar.');
+  }
+
+  await admin.from('news_drafts').update({ news_item_id: item.id }).eq('id', draftId);
+  await admin.from('webhook_log').insert({
+    type: 'admin:news_approved',
+    result: 'applied',
+    detail: `draft_id=${draftId} news_id=${item.id} by=${user.email}`,
+  });
+}
+
+export async function rejectNewsDraft(draftId: string) {
+  const user = await requireAdmin();
+  const admin = getAdmin();
+  const { data, error } = await admin
+    .from('news_drafts')
+    .update({ status: 'rejected', decided_at: new Date().toISOString(), decided_by: user.email })
+    .eq('id', draftId)
+    .eq('status', 'pending')
+    .select('id');
+  if (error) throw new Error(error.message);
+  if (!data || data.length === 0) throw new Error('Esta noticia ya fue decidida.');
+}
