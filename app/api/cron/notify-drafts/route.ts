@@ -46,13 +46,13 @@ export async function GET(req: NextRequest) {
     .update({ notified_at: new Date().toISOString() })
     .eq('status', 'pending')
     .is('notified_at', null)
-    .select('id, headline')
-    .order('created_at', { ascending: true });
+    .select('id, headline, created_at');
   if (error) {
     console.error('notify-drafts: no se pudieron leer los borradores', error.message);
     return NextResponse.json({ ok: false, error: 'db error' }, { status: 500 });
   }
   if (!claimed || claimed.length === 0) return NextResponse.json({ ok: true, notified: 0 });
+  claimed.sort((a, b) => a.created_at.localeCompare(b.created_at));
 
   const listed = claimed.slice(0, MAX_LISTED).map((d) => `• ${escapeHtml(d.headline)}`);
   const more = claimed.length > MAX_LISTED ? `\n…y ${claimed.length - MAX_LISTED} más` : '';
