@@ -1,4 +1,4 @@
-import { MapPin, Snowflake, CalendarDays, Bell, Flame, Disc3, Newspaper, ExternalLink } from 'lucide-react';
+import { MapPin, Snowflake, CalendarDays, Bell, Flame, Disc3, Newspaper } from 'lucide-react';
 import { getTranslations, getLocale } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { Countdown } from '@/components/app/Countdown';
@@ -195,7 +195,6 @@ export default async function RadarPage() {
     id: freeNewsRow.id,
     headline: pickLocale(locale, freeNewsRow.headline, freeNewsRow.headline_en, freeNewsRow.headline_fr, freeNewsRow.headline_ko),
     summary: pickLocale(locale, freeNewsRow.summary, freeNewsRow.summary_en, freeNewsRow.summary_fr, freeNewsRow.summary_ko),
-    url: freeNewsRow.source_url,
     source: freeNewsRow.source_name,
   };
 
@@ -314,15 +313,9 @@ export default async function RadarPage() {
               </div>
             </div>
             <div className="flex items-center justify-between gap-3 flex-wrap">
-              <a
-                href={freeNews.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 min-h-11 text-xs font-semibold text-text2 underline underline-offset-2"
-              >
-                {t('radar.freeNewsSource', { source: freeNews.source })}
-                <ExternalLink size={12} strokeWidth={2} />
-              </a>
+              <span className="inline-flex items-center min-h-11 text-xs font-semibold text-text2">
+                {t('guide.newsSource', { name: freeNews.source })}
+              </span>
               <Link href="/app/guide" className="inline-flex items-center min-h-11 text-xs font-bold text-accent2">
                 {plan === 'pro' ? t('radar.freeNewsMorePro') : t('radar.freeNewsMoreFree')}
               </Link>

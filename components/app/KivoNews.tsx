@@ -57,23 +57,14 @@ export async function KivoNews() {
         <CollapsibleSection title={t('newsTitle')} icon={<Newspaper size={16} strokeWidth={2} />} count={news!.length}>
           <div className="flex flex-col gap-2.5">
             {news!.map((n) => (
-              <a
-                key={n.id}
-                href={n.source_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-start gap-3 bg-sunken rounded-[var(--radius-card)] p-3.5 transition-transform duration-150 active:scale-[0.98]"
-              >
+              <div key={n.id} className="flex items-start gap-3 bg-sunken rounded-[var(--radius-card)] p-3.5">
                 <NewsThumb id={n.id} />
                 <div className="min-w-0">
                   <div className="text-sm font-bold mb-1">{n.headline}</div>
                   <p className="text-[13px] text-text2 leading-relaxed mb-2">{n.summary}</p>
-                  <div className="flex items-center gap-1 text-[11px] text-accent2 font-semibold">
-                    {t('newsSource', { name: n.source_name })}
-                    <ExternalLink size={11} strokeWidth={2} />
-                  </div>
+                  <div className="text-[11px] text-text2 font-semibold">{t('newsSource', { name: n.source_name })}</div>
                 </div>
-              </a>
+              </div>
             ))}
           </div>
         </CollapsibleSection>
