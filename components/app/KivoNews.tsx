@@ -22,7 +22,7 @@ export async function KivoNews() {
 
   const { data: newsRows } = await supabase
     .from('news_items')
-    .select('id, headline, headline_en, headline_fr, headline_ko, summary, summary_en, summary_fr, summary_ko, source_url, source_name')
+    .select('id, headline, headline_en, headline_fr, headline_ko, summary, summary_en, summary_fr, summary_ko, source_url, source_name, image_url, image_credit')
     .eq('kind', 'news')
     .order('created_at', { ascending: false })
     .limit(5);
@@ -58,11 +58,14 @@ export async function KivoNews() {
           <div className="flex flex-col gap-2.5">
             {news!.map((n) => (
               <div key={n.id} className="flex items-start gap-3 bg-sunken rounded-[var(--radius-card)] p-3.5">
-                <NewsThumb id={n.id} />
+                <NewsThumb id={n.id} photoUrl={n.image_url} />
                 <div className="min-w-0">
                   <div className="text-sm font-bold mb-1">{n.headline}</div>
                   <p className="text-[13px] text-text2 leading-relaxed mb-2">{n.summary}</p>
-                  <div className="text-[11px] text-text2 font-semibold">{t('newsSource', { name: n.source_name })}</div>
+                  <div className="text-[11px] text-text2 font-semibold">
+                    {t('newsSource', { name: n.source_name })}
+                    {n.image_credit && ` · ${t('photoCredit', { credit: n.image_credit })}`}
+                  </div>
                 </div>
               </div>
             ))}

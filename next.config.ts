@@ -14,7 +14,7 @@ const cspReportOnly = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' https://checkout.hotmart.com https://*.hotmart.com https://www.instagram.com https://us-assets.i.posthog.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  `img-src 'self' data: blob: https://i.ytimg.com https://i.scdn.co https://${SUPABASE_HOST} https://lh3.googleusercontent.com https://*.cdninstagram.com https://*.fbcdn.net https://*.hotmart.com`,
+  `img-src 'self' data: blob: https://i.ytimg.com https://i.scdn.co https://${SUPABASE_HOST} https://lh3.googleusercontent.com https://*.cdninstagram.com https://*.fbcdn.net https://*.hotmart.com https://upload.wikimedia.org`,
   "font-src 'self' data: https://fonts.gstatic.com",
   `connect-src 'self' https://${SUPABASE_HOST} wss://${SUPABASE_HOST} https://us.i.posthog.com https://us-assets.i.posthog.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.hotmart.com`,
   "frame-src https://www.instagram.com https://*.hotmart.com https://www.youtube.com https://www.youtube-nocookie.com",

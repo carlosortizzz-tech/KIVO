@@ -103,11 +103,35 @@ function validateDraft(d: Record<string, unknown>): string | null {
   if (!['concierto', 'lanzamiento', 'gira', 'comunidad', 'oficial'].includes(String(d.category))) {
     return 'Falta la categoría (concierto, lanzamiento, gira, comunidad u oficial) para dibujar su imagen.';
   }
+  if (d.image_source_url && !(typeof d.image_credit === 'string' && d.image_credit.trim())) {
+    return 'La foto necesita su crédito (autor y licencia).';
+  }
   for (const key of ['headline', 'summary', 'headline_en', 'summary_en', 'headline_fr', 'summary_fr', 'headline_ko', 'summary_ko']) {
     const v = d[key];
     if (typeof v !== 'string' || !v.trim()) return `Falta el texto en el campo ${key}.`;
   }
   return null;
+}
+
+// Foto libre del lugar: solo se descarga de Wikimedia (https, sin redirecciones), máximo 1 MB y solo
+// JPG/PNG/WebP. Si algo falla, la noticia se publica igual con la ilustración en vez de la foto.
+async function downloadWikimediaPhoto(url: string | null): Promise<{ bytes: ArrayBuffer; type: string } | null> {
+  if (!url) return null;
+  try {
+    const u = new URL(url);
+    if (u.protocol !== 'https:' || !['upload.wikimedia.org', 'thumb.wikimedia.org'].includes(u.hostname)) return null;
+    const res = await fetch(u, {
+      redirect: 'error',
+      signal: AbortSignal.timeout(8000),
+      headers: { 'user-agent': 'KIVO/1.0 (soporte@kivoapp.app)' },
+    });
+    const type = (res.headers.get('content-type') ?? '').split(';')[0];
+    if (!res.ok || !['image/jpeg', 'image/png', 'image/webp'].includes(type)) return null;
+    const bytes = await res.arrayBuffer();
+    return bytes.byteLength > 0 && bytes.byteLength <= 1_000_000 ? { bytes, type } : null;
+  } catch {
+    return null;
+  }
 }
 
 export async function approveNewsDraft(draftId: string) {
@@ -120,6 +144,9 @@ export async function approveNewsDraft(draftId: string) {
 
   const problem = validateDraft(draft);
   if (problem) throw new Error(problem);
+
+  // La foto se descarga antes de reclamar el borrador, así un fallo de red no deja nada a medias.
+  const photo = await downloadWikimediaPhoto(draft.image_source_url);
 
   // Se reclama antes de publicar: si se toca dos veces el botón, solo una publica.
   const { data: claimed, error: claimErr } = await admin
@@ -157,10 +184,27 @@ export async function approveNewsDraft(draftId: string) {
   }
 
   await admin.from('news_drafts').update({ news_item_id: item.id }).eq('id', draftId);
+
+  // Copia la foto al almacenamiento de KIVO (los usuarios no le piden nada a Wikimedia) y guarda su crédito.
+  let photoResult = 'sin foto';
+  if (draft.image_source_url) {
+    photoResult = 'foto no disponible, se usa la ilustración';
+    if (photo) {
+      const ext = photo.type === 'image/png' ? 'png' : photo.type === 'image/webp' ? 'webp' : 'jpg';
+      const path = `${item.id}.${ext}`;
+      const { error: uploadErr } = await admin.storage.from('news-images').upload(path, photo.bytes, { contentType: photo.type, upsert: true });
+      if (!uploadErr) {
+        const { data: pub } = admin.storage.from('news-images').getPublicUrl(path);
+        await admin.from('news_items').update({ image_url: pub.publicUrl, image_credit: draft.image_credit }).eq('id', item.id);
+        photoResult = 'foto guardada';
+      }
+    }
+  }
+
   await admin.from('webhook_log').insert({
     type: 'admin:news_approved',
     result: 'applied',
-    detail: `draft_id=${draftId} news_id=${item.id} by=${user.email}`,
+    detail: `draft_id=${draftId} news_id=${item.id} by=${user.email} foto=${photoResult}`,
   });
 }
 

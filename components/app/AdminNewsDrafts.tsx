@@ -15,6 +15,8 @@ export type NewsDraftRow = {
   notes: string | null;
   category: string | null;
   place: string | null;
+  imageSourceUrl: string | null;
+  imageCredit: string | null;
   createdAt: string;
 };
 
@@ -75,7 +77,7 @@ export function AdminNewsDrafts({ drafts }: { drafts: NewsDraftRow[] }) {
               {new Date(d.createdAt).toLocaleString('es', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
             </div>
             <div className="flex items-start gap-3 mb-3">
-              <NewsThumb id={d.id} />
+              <NewsThumb id={d.id} photoUrl={d.imageSourceUrl} />
               <div className="min-w-0">
                 <div className="text-base font-bold leading-snug mb-1.5 break-words">{d.headline}</div>
                 <div className="flex flex-wrap gap-1.5">
@@ -104,6 +106,12 @@ export function AdminNewsDrafts({ drafts }: { drafts: NewsDraftRow[] }) {
                 </a>
               ))}
             </div>
+
+            {d.imageSourceUrl && (
+              <p className="text-xs text-text2 mb-3 break-words">
+                Foto del lugar (libre): {d.imageCredit ?? 'sin crédito'}. Si no corresponde al lugar de la noticia, descártala.
+              </p>
+            )}
 
             {d.notes && <p className="text-xs text-text2 mb-3 break-words">Nota de verificación: {d.notes}</p>}
 

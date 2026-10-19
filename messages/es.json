@@ -395,6 +395,7 @@
       "newsTitle": "Noticias de hoy",
       "scheduleTitle": "Próximos eventos",
       "newsSource": "Fuente: {name}",
+      "photoCredit": "Foto: {credit}",
       "videosTitle": "Últimos videos oficiales",
       "spotifyTitle": "Lo más escuchado ahora",
       "spotifyNote": "Puntaje de popularidad de Spotify — no es el conteo exacto de streams (ninguna app externa puede mostrar ese número real).",

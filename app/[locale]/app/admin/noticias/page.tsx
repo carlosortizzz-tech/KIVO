@@ -21,7 +21,7 @@ export default async function AdminNewsDraftsPage() {
 
   const { data } = await getAdmin()
     .from('news_drafts')
-    .select('id, headline, summary, headline_en, summary_en, headline_fr, summary_fr, headline_ko, summary_ko, sources, notes, category, place, created_at')
+    .select('id, headline, summary, headline_en, summary_en, headline_fr, summary_fr, headline_ko, summary_ko, sources, notes, category, place, image_source_url, image_credit, created_at')
     .eq('status', 'pending')
     .order('created_at', { ascending: true });
 
@@ -35,6 +35,8 @@ export default async function AdminNewsDraftsPage() {
     notes: d.notes,
     category: d.category,
     place: d.place,
+    imageSourceUrl: d.image_source_url,
+    imageCredit: d.image_credit,
     createdAt: d.created_at,
   }));
 

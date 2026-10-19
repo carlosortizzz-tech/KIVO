@@ -395,6 +395,7 @@
       "newsTitle": "Today's news",
       "scheduleTitle": "Upcoming events",
       "newsSource": "Source: {name}",
+      "photoCredit": "Photo: {credit}",
       "videosTitle": "Latest official videos",
       "spotifyTitle": "Trending right now",
       "spotifyNote": "Spotify's popularity score — not the exact stream count (no external app can show that real number).",
