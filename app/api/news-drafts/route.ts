@@ -37,6 +37,13 @@ function hostOf(url: string): string | null {
 const text = (v: unknown, min: number, max: number): string | null =>
   typeof v === 'string' && v.trim().length >= min && v.trim().length <= max ? v.trim() : null;
 
+// Comprobación de conexión: con la clave correcta responde {ok:true}; no lee ni escribe nada.
+export async function GET(req: NextRequest) {
+  if (!process.env.NEWS_INGEST_SECRET) return fail(503, 'not configured');
+  if (!isValidBearer(req.headers.get('authorization'), process.env.NEWS_INGEST_SECRET)) return fail(401, 'unauthorized');
+  return NextResponse.json({ ok: true });
+}
+
 export async function POST(req: NextRequest) {
   if (!process.env.NEWS_INGEST_SECRET) return fail(503, 'not configured');
   if (!isValidBearer(req.headers.get('authorization'), process.env.NEWS_INGEST_SECRET)) return fail(401, 'unauthorized');
