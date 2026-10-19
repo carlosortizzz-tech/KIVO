@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { ExternalLink, Check, TriangleAlert } from 'lucide-react';
 import { approveNewsDraft, rejectNewsDraft } from '@/lib/admin-actions';
+import { NewsThumb } from '@/components/app/NewsThumb';
 
 export type NewsDraftRow = {
   id: string;
@@ -12,6 +13,8 @@ export type NewsDraftRow = {
   sources: { name: string; url: string }[];
   missingLangs: string[];
   notes: string | null;
+  category: string | null;
+  place: string | null;
   createdAt: string;
 };
 
@@ -65,13 +68,22 @@ export function AdminNewsDrafts({ drafts }: { drafts: NewsDraftRow[] }) {
       {drafts.map((d) => {
         const busy = isPending && busyId === d.id;
         const confirming = confirmId === d.id;
-        const blocked = d.missingLangs.length > 0;
+        const blocked = d.missingLangs.length > 0 || !d.category;
         return (
           <div key={d.id} className="bg-surface border border-border rounded-2xl p-4">
             <div className="text-xs text-text2 mb-1.5">
               {new Date(d.createdAt).toLocaleString('es', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
             </div>
-            <div className="text-base font-bold leading-snug mb-1.5 break-words">{d.headline}</div>
+            <div className="flex items-start gap-3 mb-3">
+              <NewsThumb id={d.id} />
+              <div className="min-w-0">
+                <div className="text-base font-bold leading-snug mb-1.5 break-words">{d.headline}</div>
+                <div className="flex flex-wrap gap-1.5">
+                  <span className="text-xs font-bold uppercase tracking-wide bg-sunken rounded-full px-2.5 py-1 text-accent2">{d.category ?? 'sin categoría'}</span>
+                  {d.place && <span className="text-xs font-semibold bg-sunken rounded-full px-2.5 py-1 text-text2">{d.place}</span>}
+                </div>
+              </div>
+            </div>
             <p className="text-sm text-text2 leading-relaxed mb-3 break-words">{d.summary}</p>
 
             <div className="text-xs font-bold uppercase tracking-wide text-text2 mb-1.5">Fuentes (abre y confirma)</div>
@@ -98,7 +110,11 @@ export function AdminNewsDrafts({ drafts }: { drafts: NewsDraftRow[] }) {
             {blocked && (
               <div className="flex items-start gap-2 bg-warn/10 border border-warn/30 rounded-xl p-2.5 mb-3">
                 <TriangleAlert size={14} strokeWidth={2} className="text-warn flex-shrink-0 mt-0.5" />
-                <div className="text-xs text-text">Falta la traducción ({d.missingLangs.join(', ').toUpperCase()}). No se puede publicar así.</div>
+                <div className="text-xs text-text">
+                  {d.missingLangs.length > 0
+                    ? `Falta la traducción (${d.missingLangs.join(', ').toUpperCase()}). No se puede publicar así.`
+                    : 'Falta la categoría para dibujar la imagen. No se puede publicar así.'}
+                </div>
               </div>
             )}
 

@@ -10,6 +10,7 @@ import { StreakFrozenBanner } from '@/components/app/StreakFrozenBanner';
 import { InstagramEmbed } from '@/components/app/InstagramEmbed';
 import { CollapsibleSection } from '@/components/app/CollapsibleSection';
 import { Reveal } from '@/components/app/Reveal';
+import { NewsThumb } from '@/components/app/NewsThumb';
 import { Link } from '@/i18n/navigation';
 
 async function formatRelative(iso: string, locale: string, t: Awaited<ReturnType<typeof getTranslations<'app'>>>) {
@@ -191,6 +192,7 @@ export default async function RadarPage() {
   const { data: freeNewsRows } = await supabase.rpc('radar_free_news');
   const freeNewsRow = freeNewsRows?.[0] ?? null;
   const freeNews = freeNewsRow && {
+    id: freeNewsRow.id,
     headline: pickLocale(locale, freeNewsRow.headline, freeNewsRow.headline_en, freeNewsRow.headline_fr, freeNewsRow.headline_ko),
     summary: pickLocale(locale, freeNewsRow.summary, freeNewsRow.summary_en, freeNewsRow.summary_fr, freeNewsRow.summary_ko),
     url: freeNewsRow.source_url,
@@ -304,8 +306,13 @@ export default async function RadarPage() {
               <Newspaper size={14} strokeWidth={2.2} />
               {t('radar.freeNewsLabel')}
             </div>
-            <h2 className="text-base font-bold leading-snug mb-1.5">{freeNews.headline}</h2>
-            <p className="text-[13px] text-text2 leading-relaxed mb-3">{freeNews.summary}</p>
+            <div className="flex items-start gap-3 mb-3">
+              <NewsThumb id={freeNews.id} />
+              <div className="min-w-0">
+                <h2 className="text-base font-bold leading-snug mb-1.5">{freeNews.headline}</h2>
+                <p className="text-[13px] text-text2 leading-relaxed">{freeNews.summary}</p>
+              </div>
+            </div>
             <div className="flex items-center justify-between gap-3 flex-wrap">
               <a
                 href={freeNews.url}

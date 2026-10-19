@@ -100,6 +100,9 @@ function validateDraft(d: Record<string, unknown>): string | null {
   const sources = Array.isArray(d.sources) ? (d.sources as DraftSource[]) : [];
   const hosts = new Set(sources.map((s) => hostOf(s?.url)).filter((h): h is string => !!h));
   if (hosts.size < 2) return 'Necesita al menos 2 fuentes de sitios distintos.';
+  if (!['concierto', 'lanzamiento', 'gira', 'comunidad', 'oficial'].includes(String(d.category))) {
+    return 'Falta la categoría (concierto, lanzamiento, gira, comunidad u oficial) para dibujar su imagen.';
+  }
   for (const key of ['headline', 'summary', 'headline_en', 'summary_en', 'headline_fr', 'summary_fr', 'headline_ko', 'summary_ko']) {
     const v = d[key];
     if (typeof v !== 'string' || !v.trim()) return `Falta el texto en el campo ${key}.`;
@@ -143,6 +146,8 @@ export async function approveNewsDraft(draftId: string) {
       summary_ko: draft.summary_ko,
       source_name: first.name,
       source_url: first.url,
+      category: draft.category,
+      place: draft.place,
     })
     .select('id')
     .single();

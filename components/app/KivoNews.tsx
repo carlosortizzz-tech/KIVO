@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { Reveal } from '@/components/app/Reveal';
 import { LocalEventTime } from '@/components/app/LocalEventTime';
 import { CollapsibleSection } from '@/components/app/CollapsibleSection';
+import { NewsThumb } from '@/components/app/NewsThumb';
 
 // Hallazgo real del usuario (2026-09-11): al cambiar el idioma de la app, el nav y los títulos
 // cambiaban pero el CONTENIDO de las noticias se quedaba en español — news_items nunca tuvo
@@ -61,13 +62,16 @@ export async function KivoNews() {
                 href={n.source_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block bg-sunken rounded-[var(--radius-card)] p-3.5 transition-transform duration-150 active:scale-[0.98]"
+                className="flex items-start gap-3 bg-sunken rounded-[var(--radius-card)] p-3.5 transition-transform duration-150 active:scale-[0.98]"
               >
-                <div className="text-sm font-bold mb-1">{n.headline}</div>
-                <p className="text-[13px] text-text2 leading-relaxed mb-2">{n.summary}</p>
-                <div className="flex items-center gap-1 text-[11px] text-accent2 font-semibold">
-                  {t('newsSource', { name: n.source_name })}
-                  <ExternalLink size={11} strokeWidth={2} />
+                <NewsThumb id={n.id} />
+                <div className="min-w-0">
+                  <div className="text-sm font-bold mb-1">{n.headline}</div>
+                  <p className="text-[13px] text-text2 leading-relaxed mb-2">{n.summary}</p>
+                  <div className="flex items-center gap-1 text-[11px] text-accent2 font-semibold">
+                    {t('newsSource', { name: n.source_name })}
+                    <ExternalLink size={11} strokeWidth={2} />
+                  </div>
                 </div>
               </a>
             ))}

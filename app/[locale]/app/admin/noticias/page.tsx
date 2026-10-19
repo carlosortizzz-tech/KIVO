@@ -21,7 +21,7 @@ export default async function AdminNewsDraftsPage() {
 
   const { data } = await getAdmin()
     .from('news_drafts')
-    .select('id, headline, summary, headline_en, summary_en, headline_fr, summary_fr, headline_ko, summary_ko, sources, notes, created_at')
+    .select('id, headline, summary, headline_en, summary_en, headline_fr, summary_fr, headline_ko, summary_ko, sources, notes, category, place, created_at')
     .eq('status', 'pending')
     .order('created_at', { ascending: true });
 
@@ -33,6 +33,8 @@ export default async function AdminNewsDraftsPage() {
     sources: Array.isArray(d.sources) ? d.sources : [],
     missingLangs: (['en', 'fr', 'ko'] as const).filter((l) => !filled(d[`headline_${l}`]) || !filled(d[`summary_${l}`])),
     notes: d.notes,
+    category: d.category,
+    place: d.place,
     createdAt: d.created_at,
   }));
 
