@@ -115,7 +115,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
             </svg>
           </div>
         </div>
-        <div style={{ display: 'flex', fontSize: 38, fontWeight: 700, minHeight: 46 }}>{place ?? ''}</div>
+        <div style={{ display: 'flex', alignItems: 'flex-end', fontSize: 38, fontWeight: 700, height: 96 }}>{place ?? ''}</div>
       </div>
     ),
     {
