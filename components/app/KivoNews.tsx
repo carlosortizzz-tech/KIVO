@@ -4,7 +4,6 @@ import { createClient } from '@/lib/supabase/server';
 import { Reveal } from '@/components/app/Reveal';
 import { LocalEventTime } from '@/components/app/LocalEventTime';
 import { CollapsibleSection } from '@/components/app/CollapsibleSection';
-import { NewsThumb } from '@/components/app/NewsThumb';
 
 // Hallazgo real del usuario (2026-09-11): al cambiar el idioma de la app, el nav y los títulos
 // cambiaban pero el CONTENIDO de las noticias se quedaba en español — news_items nunca tuvo
@@ -58,13 +57,11 @@ export async function KivoNews() {
           <div className="flex flex-col gap-2.5">
             {news!.map((n) => (
               <div key={n.id} className="flex items-start gap-3 bg-sunken rounded-[var(--radius-card)] p-3.5">
-                <NewsThumb id={n.id} photoUrl={n.image_url} />
                 <div className="min-w-0">
                   <div className="text-sm font-bold mb-1">{n.headline}</div>
                   <p className="text-[13px] text-text2 leading-relaxed mb-2">{n.summary}</p>
                   <div className="text-[11px] text-text2 font-semibold">
                     {t('newsSource', { name: n.source_name })}
-                    {n.image_credit && ` · ${t('photoCredit', { credit: n.image_credit })}`}
                   </div>
                 </div>
               </div>

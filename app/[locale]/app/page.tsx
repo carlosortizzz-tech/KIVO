@@ -10,7 +10,6 @@ import { StreakFrozenBanner } from '@/components/app/StreakFrozenBanner';
 import { InstagramEmbed } from '@/components/app/InstagramEmbed';
 import { CollapsibleSection } from '@/components/app/CollapsibleSection';
 import { Reveal } from '@/components/app/Reveal';
-import { NewsThumb } from '@/components/app/NewsThumb';
 import { Link } from '@/i18n/navigation';
 
 async function formatRelative(iso: string, locale: string, t: Awaited<ReturnType<typeof getTranslations<'app'>>>) {
@@ -308,7 +307,6 @@ export default async function RadarPage() {
               {t('radar.freeNewsLabel')}
             </div>
             <div className="flex items-start gap-3 mb-3">
-              <NewsThumb id={freeNews.id} photoUrl={freeNews.imageUrl} />
               <div className="min-w-0">
                 <h2 className="text-base font-bold leading-snug mb-1.5">{freeNews.headline}</h2>
                 <p className="text-[13px] text-text2 leading-relaxed">{freeNews.summary}</p>
@@ -317,7 +315,6 @@ export default async function RadarPage() {
             <div className="flex items-center justify-between gap-3 flex-wrap">
               <span className="inline-flex items-center min-h-11 text-xs font-semibold text-text2">
                 {t('guide.newsSource', { name: freeNews.source })}
-                {freeNews.imageCredit && ` · ${t('guide.photoCredit', { credit: freeNews.imageCredit })}`}
               </span>
               <Link href="/app/guide" className="inline-flex items-center min-h-11 text-xs font-bold text-accent2">
                 {plan === 'pro' ? t('radar.freeNewsMorePro') : t('radar.freeNewsMoreFree')}

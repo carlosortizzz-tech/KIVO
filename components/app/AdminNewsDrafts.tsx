@@ -4,7 +4,6 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { ExternalLink, Check, TriangleAlert } from 'lucide-react';
 import { approveNewsDraft, rejectNewsDraft } from '@/lib/admin-actions';
-import { NewsThumb } from '@/components/app/NewsThumb';
 
 export type NewsDraftRow = {
   id: string;
@@ -77,7 +76,6 @@ export function AdminNewsDrafts({ drafts }: { drafts: NewsDraftRow[] }) {
               {new Date(d.createdAt).toLocaleString('es', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
             </div>
             <div className="flex items-start gap-3 mb-3">
-              <NewsThumb id={d.id} photoUrl={d.imageSourceUrl} />
               <div className="min-w-0">
                 <div className="text-base font-bold leading-snug mb-1.5 break-words">{d.headline}</div>
                 <div className="flex flex-wrap gap-1.5">
