@@ -1,11 +1,12 @@
 import { getTranslations } from 'next-intl/server';
-import { ExternalLink, Send } from 'lucide-react';
+import { AtSign, ExternalLink, Send } from 'lucide-react';
 
-type Network = 'instagram' | 'tiktok' | 'facebook' | 'telegram';
+type Network = 'instagram' | 'threads' | 'tiktok' | 'facebook' | 'telegram';
 
 // Redes oficiales de KIVO. Se abren en pestaña nueva y sin pasar datos de la persona.
 const NETWORKS: { key: Network; name: string; href: string; handle: string }[] = [
   { key: 'instagram', name: 'Instagram', href: 'https://www.instagram.com/kivoapp1/', handle: '@kivoapp1' },
+  { key: 'threads', name: 'Threads', href: 'https://www.threads.com/@kivoapp1', handle: '@kivoapp1' },
   { key: 'tiktok', name: 'TikTok', href: 'https://www.tiktok.com/@kivoappp', handle: '@kivoappp' },
   { key: 'facebook', name: 'Facebook', href: 'https://www.facebook.com/kivoappp/', handle: 'kivoappp' },
   { key: 'telegram', name: 'Telegram', href: 'https://t.me/kivoappp', handle: '@kivoappp' },
@@ -15,6 +16,7 @@ const NETWORKS: { key: Network; name: string; href: string; handle: string }[] =
 // reconozca a simple vista. lucide-react 1.x ya no trae logos de marcas, por eso se dibujan aquí.
 const BRAND_BACKGROUND: Record<Network, string> = {
   instagram: 'var(--brand-instagram)',
+  threads: 'var(--brand-threads)',
   tiktok: 'var(--brand-tiktok)',
   facebook: 'var(--brand-facebook)',
   telegram: 'var(--brand-telegram)',
@@ -40,6 +42,9 @@ function Glyph({ network, size }: { network: Network; size: number }) {
         <circle cx="17.5" cy="6.5" r="0.6" fill="currentColor" />
       </svg>
     );
+  }
+  if (network === 'threads') {
+    return <AtSign size={size} strokeWidth={2} aria-hidden />;
   }
   if (network === 'tiktok') {
     return (
@@ -73,7 +78,7 @@ function BrandLogo({ network, box, glyph }: { network: Network; box: number; gly
 // Fila de logos para el pie de la landing.
 export async function SocialIcons() {
   const t = await getTranslations('social');
-  const label: Record<Network, string> = { instagram: t('instagram'), tiktok: t('tiktok'), facebook: t('facebook'), telegram: t('telegram') };
+  const label: Record<Network, string> = { instagram: t('instagram'), threads: t('threads'), tiktok: t('tiktok'), facebook: t('facebook'), telegram: t('telegram') };
   return (
     <div className="mb-4">
       <div className="text-xs text-text2 mb-2.5">{t('title')}</div>
@@ -98,7 +103,7 @@ export async function SocialIcons() {
 // Filas con logo, nombre y usuario para la pantalla "Tu cuenta".
 export async function SocialRows() {
   const t = await getTranslations('social');
-  const label: Record<Network, string> = { instagram: t('instagram'), tiktok: t('tiktok'), facebook: t('facebook'), telegram: t('telegram') };
+  const label: Record<Network, string> = { instagram: t('instagram'), threads: t('threads'), tiktok: t('tiktok'), facebook: t('facebook'), telegram: t('telegram') };
   return (
     <>
       <div className="text-xs font-bold uppercase tracking-wide text-text2 mb-1">{t('sectionTitle')}</div>
@@ -131,7 +136,7 @@ export async function SocialCard() {
     <div className="feature-card rounded-[var(--radius-card)] p-4 mb-4">
       <div className="text-sm font-bold mb-0.5">{t('cardTitle')}</div>
       <p className="text-xs text-text2 mb-3">{t('subtitle')}</p>
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-5 gap-2">
         {NETWORKS.map((n) => (
           <a
             key={n.key}
