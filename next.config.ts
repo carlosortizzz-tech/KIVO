@@ -58,6 +58,7 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       { source: '/ig', destination: '/?utm_source=instagram&utm_medium=bio', permanent: false },
+      { source: '/yt', destination: '/?utm_source=youtube&utm_medium=bio', permanent: false },
       { source: '/guia', destination: '/?utm_source=instagram&utm_medium=manychat_guia', permanent: false },
       { source: '/bts', destination: '/?utm_source=instagram&utm_medium=manychat_bts', permanent: false },
     ];
