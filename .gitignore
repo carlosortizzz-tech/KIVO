@@ -40,3 +40,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local tools (graphify cache, Claude Code config)
+/graphify-out/
+/.claude/
