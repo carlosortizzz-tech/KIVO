@@ -265,6 +265,7 @@
       "placeholder": "Tell us what happened, with as much detail as you can",
       "sla": "We reply within 24 business hours to your email.",
       "formError": "We couldn't send your message — check your connection and try again.",
+      "invalidEmail": "Check your email address format",
       "sending": "Sending...",
       "submit": "Send message",
       "sentTitle": "Got it 💜",

@@ -5,6 +5,11 @@ import { unsubscribeUrl } from '@/lib/unsubscribe';
 const FROM = 'KIVO <hola@kivoapp.app>';
 const APP_URL = 'https://kivoapp.app';
 
+function escapeHtml(value: string): string {
+  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 function getResend(): Resend | null {
   return process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 }
@@ -109,7 +114,7 @@ export async function sendFeedbackRequestEmail(email: string, name: string | nul
     headers: marketingHeaders(ctx.unsubscribe),
     subject: '¿Cómo te ha parecido KIVO? 💜',
     html: emailShell(`
-      <h1>${greeting}</h1>
+      <h1>${escapeHtml(greeting)}</h1>
       <p>Soy del equipo de KIVO — quería escribirte personalmente para darte la bienvenida y agradecerte por probar la app 💜</p>
       <p>Nos encantaría saber: <b>¿cómo te ha parecido KIVO hasta ahora?</b> ¿Hay algo que te haya gustado, algo que te confundió, o algo que sientas que le falta?</p>
       <p>Tu opinión nos sirve muchísimo — estamos construyendo esto para fans de BTS como tú, y tu respuesta nos ayuda a mejorar.</p>
@@ -134,7 +139,7 @@ export async function sendExperienceInviteEmail(email: string, name: string | nu
     headers: marketingHeaders(ctx.unsubscribe),
     subject: '¿Estuviste en El Campín? Cuéntanos tu experiencia 💜',
     html: emailShell(`
-      <h1>${greeting}</h1>
+      <h1>${escapeHtml(greeting)}</h1>
       <p>¡BTS ya pasó por Bogotá y queremos que la comunidad de KIVO viva esos momentos contigo! 💜</p>
       <p>Si estuviste en El Campín (o viviste el ambiente afuera del estadio), responde a este correo con <b>una foto tuya y 2 o 3 líneas sobre cómo lo viviste</b>. Con tu permiso, la publicamos en la comunidad de KIVO.</p>
       <p>Dinos cómo prefieres aparecer: con tu nombre, solo con tu inicial o de forma anónima. Si no quieres que se publique, no pasa nada.</p>
@@ -151,7 +156,7 @@ export async function sendCancellationEmail(email: string, name: string) {
     to: email,
     subject: 'Tu suscripción a KIVO fue cancelada',
     html: emailShell(`
-      <h1>Hola ${name},</h1>
+      <h1>Hola ${escapeHtml(name)},</h1>
       <p>Confirmamos que tu suscripción a KIVO quedó cancelada. Vas a seguir teniendo acceso hasta el final del período que ya pagaste.</p>
       <p>Si fue un error o cambiaste de opinión, podés volver a activarla cuando quieras desde la app.</p>
       <p>Gracias por haber sido parte de KIVO 💜</p>
@@ -169,7 +174,7 @@ export async function sendPaymentFailedEmail(email: string, name: string, graceE
     to: email,
     subject: 'No pudimos procesar tu pago de KIVO',
     html: emailShell(`
-      <h1>Hola ${name},</h1>
+      <h1>Hola ${escapeHtml(name)},</h1>
       <p>Tu último pago no se pudo procesar. Tu acceso Pro sigue activo hasta el <b>${dateLabel}</b> mientras lo resolvemos, pero necesitamos que actualices tu método de pago para no perderlo.</p>
       <p><a href="${APP_URL}/login" style="background:#7C3AED;color:#fff;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:600;display:inline-block">Actualizar método de pago →</a></p>
     `),
@@ -185,7 +190,7 @@ export async function sendGracePeriodEndedEmail(email: string, name: string) {
     to: email,
     subject: 'Tu acceso Pro a KIVO terminó',
     html: emailShell(`
-      <h1>Hola ${name},</h1>
+      <h1>Hola ${escapeHtml(name)},</h1>
       <p>No pudimos cobrar tu suscripción a tiempo, así que tu acceso Pro a KIVO terminó por ahora. Guardamos tu cuenta y tu historial — en cuanto actualices tu método de pago, tu Pro vuelve automáticamente.</p>
       <p><a href="${APP_URL}/paywall" style="background:#7C3AED;color:#fff;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:600;display:inline-block">Reactivar mi Pro →</a></p>
     `),
@@ -206,14 +211,14 @@ export async function sendTrialEndingEmail(
   // Monto exacto SOLO si lo tenemos real (ver 02C: "aviso pre-cobro honesto, monto exacto") — si
   // Hotmart no nos lo mandó, no se inventa un número; se dice la fecha igual, que sí es exacta.
   const amountLine = amount
-    ? `Se te cobrará <b>${currency ?? '$'}${amount}</b> el <b>${chargeDateLabel}</b>.`
-    : `Tu primer cobro es el <b>${chargeDateLabel}</b>.`;
+    ? `Se te cobrará <b>${escapeHtml(currency ?? '$')}${amount}</b> el <b>${escapeHtml(chargeDateLabel)}</b>.`
+    : `Tu primer cobro es el <b>${escapeHtml(chargeDateLabel)}</b>.`;
   const { error } = await resend.emails.send({
     from: FROM,
     to: email,
     subject: 'Tu prueba gratis de KIVO termina mañana',
     html: emailShell(`
-      <h1>Hola ${name}, tu prueba termina mañana 👋</h1>
+      <h1>Hola ${escapeHtml(name)}, tu prueba termina mañana 👋</h1>
       <p>${amountLine}</p>
       <p>Si quieres seguir con KIVO Pro, no tienes que hacer nada — tu acceso continúa automático, sin cortes.</p>
       <p>Si prefieres no continuar, puedes cancelar en un toque antes de esa fecha, sin vueltas:</p>
@@ -242,8 +247,8 @@ export async function sendEventReminderEmail(
     to: email,
     subject,
     html: emailShell(`
-      <h1>¡Hola ${name}! 👋</h1>
-      <p><b>${eventTitle}</b> empieza ${whenLabel} — este es tu aviso de KIVO Radar para que no te agarre desprevenido.</p>
+      <h1>¡Hola ${escapeHtml(name)}! 👋</h1>
+      <p><b>${escapeHtml(eventTitle)}</b> empieza ${whenLabel} — este es tu aviso de KIVO Radar para que no te agarre desprevenido.</p>
       <p><a href="${accessLink}" style="background:#7C3AED;color:#fff;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:600;display:inline-block">Ver la guía en KIVO →</a></p>
       <p style="font-size:13px;color:#666">KIVO no vende tickets, membresías ni ningún cupo — solo te avisa a tiempo y te explica cómo hacerlo tú mismo en la plataforma oficial.</p>
       <p>Este enlace te deja entrar sin contraseña.</p>
@@ -261,9 +266,9 @@ export async function sendLiveNowEmail(email: string, name: string, title: strin
     to: email,
     subject: `🔴 EN VIVO AHORA: ${title}`,
     html: emailShell(`
-      <h1>¡${name}, es ahora! 🔴</h1>
-      <p><b>${title}</b> está en vivo en este momento.</p>
-      ${url ? `<p><a href="${url}" style="background:#7C3AED;color:#fff;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:600;display:inline-block">Ver el live →</a></p>` : ''}
+      <h1>¡${escapeHtml(name)}, es ahora! 🔴</h1>
+      <p><b>${escapeHtml(title)}</b> está en vivo en este momento.</p>
+      ${url?.startsWith('https://') ? `<p><a href="${escapeHtml(url)}" style="background:#7C3AED;color:#fff;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:600;display:inline-block">Ver el live →</a></p>` : ''}
       <p><a href="${accessLink}">O entra a KIVO</a> para más contexto.</p>
     `),
   });
@@ -291,10 +296,10 @@ export async function sendSupportTicketNotification(userEmail: string, category:
     subject: `Nuevo ticket de soporte: ${SUPPORT_CATEGORY_LABEL[category] ?? category}`,
     html: emailShell(`
       <h1>Nuevo ticket de soporte</h1>
-      <p><b>De:</b> ${userEmail}</p>
-      <p><b>Categoría:</b> ${SUPPORT_CATEGORY_LABEL[category] ?? category}</p>
+      <p><b>De:</b> ${escapeHtml(userEmail)}</p>
+      <p><b>Categoría:</b> ${escapeHtml(SUPPORT_CATEGORY_LABEL[category] ?? category)}</p>
       <p><b>Mensaje:</b></p>
-      <p style="white-space:pre-wrap">${message}</p>
+      <p style="white-space:pre-wrap">${escapeHtml(message)}</p>
       <p style="font-size:12px;color:#666">Responde directamente a este correo — el reply-to ya apunta al usuario.</p>
     `, { signature: false }),
   });

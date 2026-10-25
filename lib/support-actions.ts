@@ -1,5 +1,6 @@
 'use server';
 
+import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { sendSupportTicketConfirmation, sendSupportTicketNotification } from '@/lib/email';
 
@@ -44,8 +45,9 @@ export async function submitSupportTicket(category: InAppCategory, message: stri
 
 // Ticket público (sin sesión) — para quien todavía no puede entrar a KIVO. Vive fuera de la
 // app (login/landing), así que no hay `user` de quien tomar el email: lo escribe la persona.
-export async function submitPublicSupportTicket(email: string, category: PublicCategory, message: string): Promise<void> {
+export async function submitPublicSupportTicket(email: string, category: PublicCategory, message: string): Promise<void | { error: 'invalid_email' }> {
   if (!email.trim()) throw new Error('falta el correo');
+  if (!z.email().safeParse(email.trim()).success) return { error: 'invalid_email' };
   if (!PUBLIC_CATEGORIES.includes(category)) throw new Error('categoría inválida');
   if (!message.trim()) throw new Error('falta el mensaje');
 

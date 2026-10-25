@@ -2,6 +2,8 @@
 // nunca `posthog-js` directo (ver docs/sistema/36-ANALITICA-Y-EVENTOS.md).
 'use client';
 
+import { cleanAnalyticsProperties, isSensitiveAnalyticsUrl } from '@/lib/analytics-url';
+
 // posthog-js se carga con import() dinámico, NUNCA estático arriba del archivo — este módulo se
 // monta en el layout raíz, que envuelve TODAS las páginas incluida la landing pública. Un import
 // estático mete ~80KB comprimidos de JS en el camino crítico de la página que más necesita ser
@@ -27,6 +29,17 @@ export function initAnalytics() {
       persistence: 'memory',
       capture_pageview: false,
       autocapture: false,
+      before_send: (event) => {
+        if (!event) return null;
+        if (isSensitiveAnalyticsUrl(window.location.href) ||
+            (typeof event.properties.$current_url === 'string' &&
+             isSensitiveAnalyticsUrl(event.properties.$current_url))) return null;
+        // Recorre también primera visita, entrada de sesión y excepciones anidadas.
+        cleanAnalyticsProperties(event.properties);
+        if (event.$set_once) cleanAnalyticsProperties(event.$set_once);
+        if (event.$set) cleanAnalyticsProperties(event.$set);
+        return event;
+      },
     });
   });
 }

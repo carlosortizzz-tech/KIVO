@@ -265,6 +265,7 @@
       "placeholder": "Raconte-nous ce qui s'est passé, avec le plus de détails possible",
       "sla": "On te répond en moins de 24 heures ouvrées à ton email.",
       "formError": "On n'a pas pu envoyer ton message — vérifie ta connexion et réessaie.",
+      "invalidEmail": "Vérifie le format de ton adresse email",
       "sending": "Envoi...",
       "submit": "Envoyer le message",
       "sentTitle": "C'est noté 💜",

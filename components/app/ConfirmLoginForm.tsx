@@ -29,6 +29,10 @@ export function ConfirmLoginForm({
           e.preventDefault();
           return;
         }
+        const url = new URL(window.location.href);
+        url.searchParams.delete('token_hash');
+        // Se conserva el enlace al recargar hasta que la persona confirma el envío.
+        window.history.replaceState(window.history.state, '', `${url.pathname}${url.search}${url.hash}`);
         setSubmitting(true);
       }}
       className="w-full"

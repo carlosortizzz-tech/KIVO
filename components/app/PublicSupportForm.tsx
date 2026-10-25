@@ -23,7 +23,7 @@ export function PublicSupportForm({ triggerLabel, supportEmail }: { triggerLabel
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<'formError' | 'invalidEmail' | null>(null);
   const [shown, setShown] = useState(false);
 
   useEffect(() => {
@@ -40,12 +40,16 @@ export function PublicSupportForm({ triggerLabel, supportEmail }: { triggerLabel
     e.preventDefault();
     if (!email.trim() || !message.trim() || busy) return;
     setBusy(true);
-    setError(false);
+    setError(null);
     try {
-      await submitPublicSupportTicket(email, category, message);
+      const result = await submitPublicSupportTicket(email, category, message);
+      if (result?.error === 'invalid_email') {
+        setError('invalidEmail');
+        return;
+      }
       setSent(true);
     } catch {
-      setError(true);
+      setError('formError');
     } finally {
       setBusy(false);
     }
@@ -55,7 +59,7 @@ export function PublicSupportForm({ triggerLabel, supportEmail }: { triggerLabel
     setOpen(false);
     setShown(false);
     setSent(false);
-    setError(false);
+    setError(null);
     setEmail('');
     setMessage('');
     setCategory('access');
@@ -106,7 +110,8 @@ export function PublicSupportForm({ triggerLabel, supportEmail }: { triggerLabel
                 <input
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => { setEmail(e.target.value); setError(null); }}
+                  onInvalid={(e) => { e.preventDefault(); setError('invalidEmail'); }}
                   placeholder={t('emailPlaceholder')}
                   required
                   autoFocus
@@ -124,7 +129,7 @@ export function PublicSupportForm({ triggerLabel, supportEmail }: { triggerLabel
                 />
                 <p className="text-[11px] text-text2 mb-4">{t('sla')}</p>
 
-                {error && <p className="text-xs text-danger mb-3 -mt-2">{t('formError')}</p>}
+                {error && <p className="text-xs text-danger mb-3 -mt-2">{t(error)}</p>}
 
                 <button
                   type="submit"
