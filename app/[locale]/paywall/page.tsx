@@ -95,11 +95,14 @@ export default function PaywallPage() {
       // (sin relación con la del onboarding). Identificarla aquí la funde con la cuenta real de
       // una vez — complementa el alias server-side de lib/auth-finalize.ts.
       identifyUser(data.user.id, 'free', getAttribution());
-      // Estado del funnel en el servidor: desde ahora, los próximos inicios de sesión van directo
-      // a /app (lib/auth-redirect.ts). Si falla, lo peor es volver a ver el paywall una vez más.
-      supabase.rpc('mark_paywall_seen').then(({ error }) => {
-        if (error) console.error('mark_paywall_seen failed', error.message);
-      });
+      // El cobro del día 7 se muestra UNA vez (app/[locale]/app/layout.tsx): solo esa visita lo
+      // marca como visto en el servidor. Una visita voluntaria antes (ProGate, "Avisarme") no lo
+      // gasta. Si falla, lo peor es volver a ver el paywall una vez más.
+      if (new URLSearchParams(window.location.search).get('origen') === 'dia7') {
+        supabase.rpc('mark_paywall_seen').then(({ error }) => {
+          if (error) console.error('mark_paywall_seen failed', error.message);
+        });
+      }
       // Respaldo de las respuestas del onboarding guardadas en la cuenta al registrarse
       // (crear-cuenta/page.tsx): el enlace del correo casi siempre abre en OTRO navegador que
       // el del onboarding, donde este localStorage está vacío.
@@ -131,7 +134,7 @@ export default function PaywallPage() {
   }, []);
 
   useEffect(() => {
-    track('paywall_visto', { plan: 'free' });
+    track('paywall_visto', { plan: 'free', origen: new URLSearchParams(window.location.search).get('origen') ?? 'directo' });
   }, []);
 
   function tryMigrate() {

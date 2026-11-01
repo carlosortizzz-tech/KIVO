@@ -7,6 +7,7 @@ import { Link } from '@/i18n/navigation';
 import { createClient as createAdminClient } from '@supabase/supabase-js';
 import { Radio, LayoutDashboard, Newspaper } from 'lucide-react';
 import { AnalyticsSession } from '@/components/app/AnalyticsSession';
+import { OnboardingMigrate } from '@/components/app/OnboardingMigrate';
 import { LocaleSwitcherInline } from '@/components/app/LocaleSwitcher';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -33,7 +34,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   let diasDesdeAlta = 0;
   let source = 'directo';
   if (user) {
-    const { data: profile } = await supabase.from('profiles').select('created_at, source, terms_accepted_at, birth_year').eq('id', user.id).maybeSingle();
+    const { data: profile } = await supabase.from('profiles').select('created_at, source, terms_accepted_at, birth_year, paywall_seen_at').eq('id', user.id).maybeSingle();
     // Sin constancia de la autorización de datos (Ley 1581) ni confirmación de edad (mínimo 13) no se
     // usa la app: cubre también a quien ya tenía la sesión abierta de antes, que no pasa por
     // lib/auth-finalize.ts.
@@ -41,6 +42,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     if (profile?.created_at) {
       diasDesdeAlta = Math.max(0, Math.floor((Date.now() - new Date(profile.created_at).getTime()) / 86400000));
     }
+    // El registro es gratis; al día 7 de la cuenta se le muestra UNA vez el cobro (mensual o anual).
+    // Se marca como visto en el paywall (origen=dia7), así que quien lo cierra sigue gratis y no
+    // vuelve a verlo. Una visita voluntaria al paywall antes del día 7 no lo marca.
+    if (plan !== 'pro' && !profile?.paywall_seen_at && diasDesdeAlta >= 7) redirect('/paywall?origen=dia7');
     // Fuente de verdad server-side (36-ANALITICA-Y-EVENTOS): profiles.source, no localStorage,
     // que ya pudo borrarse o venir de otro dispositivo para cuando el usuario llega aquí.
     if (profile?.source) source = profile.source;
@@ -49,6 +54,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <div className="max-w-[480px] mx-auto w-full min-h-dvh flex flex-col">
       {user && <AnalyticsSession userId={user.id} plan={plan} diasDesdeAlta={diasDesdeAlta} source={source} />}
+      {user && <OnboardingMigrate />}
       <header className="flex items-center justify-between px-5 py-5">
         <div className="relative inline-block font-display font-extrabold text-lg">
           <span className="relative z-10">KIVO</span>

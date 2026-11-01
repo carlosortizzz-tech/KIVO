@@ -48,26 +48,19 @@ export function safeNextPath(raw: string | null, origin: string, depth = 0): str
   return url.pathname + url.search;
 }
 
-// Toda cuenta que todavía no es Pro pasa UNA vez por el paywall, entre por donde entre: es el caso
-// real que rompía el funnel — el enlace de registro fallaba, la persona pedía otro desde /login y
-// aterrizaba en /app sin ver nunca el paywall (2026-09-27). Se decide con estado guardado en el
-// servidor (profiles.paywall_seen_at), no con la edad de la cuenta: quien vuelve días después
-// también cuenta.
+// El registro es gratis y entra directo a la app: el cobro se le muestra al día 7 de la cuenta
+// (ver app/[locale]/app/layout.tsx), no al registrarse.
 //
 // Antes de cualquier destino, la cuenta tiene que tener constancia de haber aceptado el tratamiento
 // de datos (Ley 1581): si no la tiene, pasa primero por /aceptar y de ahí sigue al destino.
 export function resolvePostAuthPath({
   requestedPath,
-  plan,
-  paywallSeenAt,
   termsAccepted,
 }: {
   requestedPath: string | null;
-  plan: string | null;
-  paywallSeenAt: string | null;
   termsAccepted: boolean;
 }): string {
-  const destination = plan !== 'pro' && !paywallSeenAt ? '/paywall' : requestedPath ?? '/app';
+  const destination = requestedPath ?? '/app';
   return termsAccepted ? destination : `/aceptar?next=${encodeURIComponent(destination)}`;
 }
 

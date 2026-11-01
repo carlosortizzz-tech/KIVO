@@ -50,7 +50,7 @@ export async function finalizeAuth(
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('locale, plan, paywall_seen_at, terms_accepted_at, birth_year')
+    .select('locale, terms_accepted_at, birth_year')
     .eq('id', user.id)
     .maybeSingle();
 
@@ -75,8 +75,6 @@ export async function finalizeAuth(
 
   const path = resolvePostAuthPath({
     requestedPath: opts.requestedPath,
-    plan: profile?.plan ?? null,
-    paywallSeenAt: profile?.paywall_seen_at ?? null,
     // "Aceptación completa": autorización de datos Y edad confirmada; si falta alguna, va a /aceptar.
     termsAccepted: termsAccepted && ageConfirmed,
   });
