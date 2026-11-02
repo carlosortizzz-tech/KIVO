@@ -165,21 +165,9 @@ export default async function LandingPage({
       <Reveal>
         <section className="pb-10">
           <div className="text-xs font-bold uppercase tracking-wide text-accent2 mb-1.5">{t('offerEyebrow')}</div>
-          <h2 className="font-display text-[20px] font-extrabold mb-4">{t('offerTitle')}</h2>
-          <div className="flex flex-col gap-3">
-            <div className="border-2 border-accent bg-accent-soft rounded-[18px] p-4.5 relative" style={{ boxShadow: 'var(--glow)' }}>
-              <div className="absolute -top-2.5 right-4 bg-accent-btn text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">{t('bestValue')}</div>
-              <div className="text-xs font-bold uppercase text-text2">{t('annual')}</div>
-              <div className="font-display text-[26px] font-extrabold my-1 tabular-nums">$1.67<span className="text-[13px] font-medium text-text2">{t('perMonth')}</span></div>
-              <div className="text-[11px] text-text2">{t('annualNote')}</div>
-            </div>
-            <div className="border border-border rounded-[18px] p-4.5">
-              <div className="text-xs font-bold uppercase text-text2">{t('monthly')}</div>
-              <div className="font-display text-[26px] font-extrabold my-1 tabular-nums">$2.99<span className="text-[13px] font-medium text-text2">{t('perMonth')}</span></div>
-              <div className="text-[11px] text-text2">{t('monthlyNote')}</div>
-            </div>
-          </div>
-          <Link href="/onboarding" className="mt-4 flex items-center justify-center gap-2 bg-accent-btn text-white font-bold text-[15px] rounded-2xl py-4 px-6 w-full transition-transform duration-150 active:scale-[0.97]" style={{ boxShadow: 'var(--glow)' }}>
+          <h2 className="font-display text-[20px] font-extrabold mb-2">{t('offerTitle')}</h2>
+          <p className="text-sm text-text2 leading-relaxed">{t('offerBody')}</p>
+          <Link href="/onboarding" className="mt-5 flex items-center justify-center gap-2 bg-accent-btn text-white font-bold text-[15px] rounded-2xl py-4 px-6 w-full transition-transform duration-150 active:scale-[0.97]" style={{ boxShadow: 'var(--glow)' }}>
             {t('ctaCreateAccount')}
           </Link>
         </section>
