@@ -61,6 +61,8 @@ const nextConfig: NextConfig = {
       { source: '/yt', destination: '/?utm_source=youtube&utm_medium=bio', permanent: false },
       { source: '/guia', destination: '/?utm_source=instagram&utm_medium=manychat_guia', permanent: false },
       { source: '/bts', destination: '/?utm_source=instagram&utm_medium=manychat_bts', permanent: false },
+      { source: '/tt', destination: '/?utm_source=tiktok&utm_medium=dm', permanent: false },
+      { source: '/fb', destination: '/?utm_source=facebook&utm_medium=dm', permanent: false },
     ];
   },
 };
